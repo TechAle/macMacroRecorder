@@ -3,6 +3,7 @@ import os
 import threading
 import time
 import random as rd
+import tkinter.ttk as ttk
 import threading
 import time
 from actions import action
