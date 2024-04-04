@@ -1,11 +1,12 @@
 import json
-import sys
 import os
+import sys
 from functools import partial
 
-from PyQt5.QtGui import QColor, QPalette
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTextEdit, QLineEdit, QMessageBox, QInputDialog
-from PyQt5.uic.properties import QtGui
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTextEdit, QLineEdit, \
+    QMessageBox, QInputDialog
+
+from variables.MacroManager import macroManager
 
 
 class MyWindow(QWidget):
@@ -14,7 +15,15 @@ class MyWindow(QWidget):
         self.initVariables()
         self.initUI()
 
+    def onPress(self, key):
+        try:
+            self.macroManager.onPress(key)
+        except Exception as ignored:
+            pass
+
     def initVariables(self):
+        self.macroManager = macroManager()
+        self.lastSelected = None
         if os.path.exists("configurations.json"):
             with open("configurations.json", "r") as f:
                 self.configurations = json.load(f)
@@ -75,7 +84,8 @@ class MyWindow(QWidget):
         toggle_layout.addWidget(self.button_stop_recording)
 
         keybindLayout = QHBoxLayout()
-        self.buttonKeybindStartRecording = QPushButton("Keybind Start Recording: " + self.configurations["keybindStart"])
+        self.buttonKeybindStartRecording = QPushButton(
+            "Keybind Start Recording: " + self.configurations["keybindStart"])
         self.buttonKeybindStartRecording.clicked.connect(self.pressedKeybindStart)
         self.buttonKeybindStopRecording = QPushButton("Keybind Stop Recording: " + self.configurations["keybindStop"])
         self.buttonKeybindStopRecording.clicked.connect(self.pressedKeybindStop)
@@ -91,17 +101,14 @@ class MyWindow(QWidget):
         main_layout.addLayout(toggle_layout)  # Add toggle button layout
         main_layout.addLayout(keybindLayout)
 
-
         self.setLayout(main_layout)
-
-
-
 
         # Update buttons initially
         self.updateButtons()
 
     def pressedKeybindStart(self):
-        text, okPressed = QInputDialog.getText(self, "Get keybind start", "Enter the keybind for starting (1 character):", QLineEdit.Normal, "")
+        text, okPressed = QInputDialog.getText(self, "Get keybind start",
+                                               "Enter the keybind for starting (1 character):", QLineEdit.Normal, "")
         if not okPressed:
             QMessageBox.information(self, "Feedback", "Cancelled successfully",
                                     QMessageBox.Ok)
@@ -111,7 +118,8 @@ class MyWindow(QWidget):
         else:
             self.configurations["keybindStart"] = text
             self.buttonKeybindStartRecording.setText("Keybind start recording: " + text)
-            QMessageBox.information(self, "Feedback", "Keybind for starting a recording changed without any problems", QMessageBox.Ok)
+            QMessageBox.information(self, "Feedback", "Keybind for starting a recording changed without any problems",
+                                    QMessageBox.Ok)
             self.save_configurations()
 
     def pressedKeybindStop(self):
@@ -134,10 +142,13 @@ class MyWindow(QWidget):
         print("Save button clicked.")
 
     def toggleClicked(self):
-        if self.button_toggle.palette().color(self.button_toggle.backgroundRole()).name() == '#008000':
-            self.button_toggle.setStyleSheet("background-color: red;")
+        if self.lastSelected is not None:
+            if self.macroManager.onToggle(self.lastSelected):
+                self.button_toggle.setStyleSheet("background-color: green;")
+            else:
+                self.button_toggle.setStyleSheet("background-color: red;")
         else:
-            self.button_toggle.setStyleSheet("background-color: green;")
+            self.button_toggle.setStyleSheet("")
 
     def updateClicked(self):
         self.updateButtons()
@@ -174,9 +185,18 @@ class MyWindow(QWidget):
             self.script_buttons_layout.addWidget(button)
 
     def loadFileContent(self, file):
+        if self.lastSelected is not None:
+            with open(os.path.join("macros", self.lastSelected), "w") as f:
+                f.write(self.text_field.toPlainText())
+            self.macroManager.removeScript(self.lastSelected)
         with open(os.path.join("macros", file), 'r') as f:
             content = f.read()
             self.text_field.setPlainText(content)
+        self.lastSelected = file
+        if self.macroManager.onCreate(file):
+            self.button_toggle.setStyleSheet("background-color: green;")
+        else:
+            self.button_toggle.setStyleSheet("background-color: red;")
 
 
 if __name__ == '__main__':

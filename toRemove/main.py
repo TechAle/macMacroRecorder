@@ -2,13 +2,8 @@ import tkinter as tk
 import os
 import threading
 import time
-import random as rd
-import tkinter.ttk as ttk
-import threading
-import time
-from actions import action
+from variables.actions import action
 
-import macmouse
 from pynput.keyboard import Listener
 from pynput.keyboard import Controller
 
@@ -25,8 +20,8 @@ class CircleColorChangerApp:
         self.actions = []
 
         # Check if "macros" directory exists, create it if it doesn't
-        if not os.path.exists("macros"):
-            os.makedirs("macros")
+        if not os.path.exists("../macros"):
+            os.makedirs("../macros")
 
         # Create a button to update macros
         self.update_button = tk.Button(self.master, text="Update", command=self.update_macros)
@@ -101,7 +96,7 @@ class CircleColorChangerApp:
             button.destroy()
 
         # Get list of files in "macros" directory
-        macro_files = os.listdir("macros")
+        macro_files = os.listdir("../macros")
 
         # Create a button for each file in the "macros" directory
         for file_name in macro_files:
@@ -119,13 +114,13 @@ class CircleColorChangerApp:
             self.toggle_circle_color()
         # Save content to the previous file
         if self.current_file:
-            file_path = os.path.join("macros", self.current_file)
+            file_path = os.path.join("../macros", self.current_file)
             with open(file_path, "w") as file:
                 content = self.text.get("1.0", tk.END)
                 file.write(content)
 
         # Load content from the clicked file
-        file_path = os.path.join("macros", file_name)
+        file_path = os.path.join("../macros", file_name)
         with open(file_path, "r") as file:
             content = file.read()
         self.text.delete("1.0", tk.END)  # Clear previous content
@@ -139,7 +134,7 @@ class CircleColorChangerApp:
         if self.circle_color != "red":
             self.toggle_circle_color()
         if self.current_file:
-            file_path = os.path.join("macros", self.current_file)
+            file_path = os.path.join("../macros", self.current_file)
             with open(file_path, "w") as file:
                 content = self.text.get("1.0", tk.END)
                 file.write(content)
