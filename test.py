@@ -50,9 +50,11 @@ class MyWindow(QWidget):
 
         # Navigation Bar
         self.navbar_layout = QHBoxLayout()
+        self.text_running = QLabel('')
         self.navbar_label = QLabel('Scripts available:', self)
         self.navbar_label.setStyleSheet("font-weight: bold;")
         self.navbar_layout.addWidget(self.navbar_label)
+        self.navbar_layout.addWidget(self.text_running)
 
         # Script Buttons Layout
         self.script_buttons_layout = QVBoxLayout()
@@ -142,13 +144,19 @@ class MyWindow(QWidget):
         print("Save button clicked.")
 
     def toggleClicked(self):
-        if self.lastSelected is not None:
-            if self.macroManager.onToggle(self.lastSelected):
+        if self.lastSelected is not None and (onToggle := self.macroManager.onToggle(self.lastSelected)) is not None:
+            if onToggle:
                 self.button_toggle.setStyleSheet("background-color: green;")
             else:
                 self.button_toggle.setStyleSheet("background-color: red;")
         else:
             self.button_toggle.setStyleSheet("")
+            if not self.lastSelected:
+                QMessageBox.information(self, "Feedback", "You have not loaded any file",
+                                        QMessageBox.Abort)
+            else:
+                QMessageBox.information(self, "Feedback", "The file you loaded is not valid, please fix the errors and save",
+                                        QMessageBox.Abort)
 
     def updateClicked(self):
         self.updateButtons()
@@ -193,10 +201,16 @@ class MyWindow(QWidget):
             content = f.read()
             self.text_field.setPlainText(content)
         self.lastSelected = file
-        if self.macroManager.onCreate(file):
-            self.button_toggle.setStyleSheet("background-color: green;")
+        if type(success := self.macroManager.onCreate(file)) != str:
+            if success:
+                self.button_toggle.setStyleSheet("background-color: green;")
+            else:
+                self.button_toggle.setStyleSheet("background-color: red;")
         else:
-            self.button_toggle.setStyleSheet("background-color: red;")
+            self.button_toggle.setStyleSheet("")
+            QMessageBox.information(self, "Feedback", success,
+                                    QMessageBox.Abort)
+        self.text_running.setText("Currently editing: " + file)
 
 
 if __name__ == '__main__':

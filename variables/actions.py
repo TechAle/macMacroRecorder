@@ -5,11 +5,14 @@ import macmouse
 from pynput.keyboard import Key
 
 
+# TODO make some extends
 class action:
-    def __init__(self, action, random, controller):
+    def __init__(self, action, random, controllerMouse, controllerKeyboard):
         self.actionStr = action
         self.random = random
-        self.controller = controller
+        self.controllerKeyboard = controllerKeyboard
+        self.controllerMouse = controllerMouse
+
 
     def run(self) -> bool:
         if self.actionStr.__contains__("sleep"):
@@ -19,9 +22,9 @@ class action:
         elif self.actionStr == "left":
             macmouse.click(button="left")
         elif self.actionStr == "shift":
-            self.controller.press(Key.shift)
+            self.controllerKeyboard.press(Key.shift)
         elif self.actionStr == "unshift":
-            self.controller.release(Key.shift)
+            self.controllerKeyboard.release(Key.shift)
         elif self.actionStr == "stop":
             return True
         else:
