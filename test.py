@@ -1,3 +1,4 @@
+import json
 import sys
 import os
 from functools import partial
@@ -10,8 +11,25 @@ from PyQt5.uic.properties import QtGui
 class MyWindow(QWidget):
     def __init__(self):
         super().__init__()
-
+        self.initVariables()
         self.initUI()
+
+    def initVariables(self):
+        if os.path.exists("configurations.json"):
+            with open("configurations.json", "r") as f:
+                self.configurations = json.load(f)
+        else:
+            return self.initDefault()
+
+    def initDefault(self):
+        self.configurations = {
+            "keybindStart": "",
+            "keybindStop": ""
+        }
+
+    def save_configurations(self):
+        with open("configurations.json", "w") as f:
+            json.dump(self.configurations, f)
 
     def initUI(self):
         self.setWindowTitle('PyQt Program with Navigation Bar and Footer')
@@ -56,6 +74,14 @@ class MyWindow(QWidget):
         self.button_stop_recording = QPushButton('Start Recording', self)
         toggle_layout.addWidget(self.button_stop_recording)
 
+        keybindLayout = QHBoxLayout()
+        self.buttonKeybindStartRecording = QPushButton("Keybind Start Recording: " + self.configurations["keybindStart"])
+        self.buttonKeybindStartRecording.clicked.connect(self.pressedKeybindStart)
+        self.buttonKeybindStopRecording = QPushButton("Keybind Stop Recording: " + self.configurations["keybindStop"])
+        self.buttonKeybindStopRecording.clicked.connect(self.pressedKeybindStop)
+        keybindLayout.addWidget(self.buttonKeybindStartRecording)
+        keybindLayout.addWidget(self.buttonKeybindStopRecording)
+
         # Main Layout
         main_layout = QVBoxLayout()
         main_layout.addLayout(self.navbar_layout)
@@ -63,6 +89,8 @@ class MyWindow(QWidget):
         main_layout.addWidget(self.text_field)
         main_layout.addLayout(footer_layout)
         main_layout.addLayout(toggle_layout)  # Add toggle button layout
+        main_layout.addLayout(keybindLayout)
+
 
         self.setLayout(main_layout)
 
@@ -71,6 +99,36 @@ class MyWindow(QWidget):
 
         # Update buttons initially
         self.updateButtons()
+
+    def pressedKeybindStart(self):
+        text, okPressed = QInputDialog.getText(self, "Get keybind start", "Enter the keybind for starting (1 character):", QLineEdit.Normal, "")
+        if not okPressed:
+            QMessageBox.information(self, "Feedback", "Cancelled successfully",
+                                    QMessageBox.Ok)
+        elif text == '' or len(text) != 1:
+            QMessageBox.information(self, "Feedback", "The keybind must be 1 long",
+                                    QMessageBox.Abort)
+        else:
+            self.configurations["keybindStart"] = text
+            self.buttonKeybindStartRecording.setText("Keybind start recording: " + text)
+            QMessageBox.information(self, "Feedback", "Keybind for starting a recording changed without any problems", QMessageBox.Ok)
+            self.save_configurations()
+
+    def pressedKeybindStop(self):
+        text, okPressed = QInputDialog.getText(self, "Get keybind stop",
+                                               "Enter the keybind for stopping (1 character):", QLineEdit.Normal, "")
+        if not okPressed:
+            QMessageBox.information(self, "Feedback", "Cancelled successfully",
+                                    QMessageBox.Ok)
+        elif text == '' or len(text) != 1:
+            QMessageBox.information(self, "Feedback", "The keybind must be 1 long",
+                                    QMessageBox.Abort)
+        else:
+            self.configurations["keybindStop"] = text
+            self.buttonKeybindStopRecording.setText("Keybind stop recording: " + text)
+            QMessageBox.information(self, "Feedback", "Keybind for stopping a recording changed without any problems",
+                                    QMessageBox.Ok)
+            self.save_configurations()
 
     def saveClicked(self):
         print("Save button clicked.")
