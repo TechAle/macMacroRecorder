@@ -1,6 +1,9 @@
 import os
 import threading
 
+from pynput.keyboard import KeyCode
+
+from variables.MacroState import macroState
 from variables.actions import action
 
 
@@ -8,18 +11,15 @@ class runnableMacro(threading.Thread):
     def __init__(self, script, ControllerKeyboard, ControllerMouse):
         threading.Thread.__init__(self)
         self.enabled = False
-        self.keybind = None
-        self.running = False
+        self.state = macroState.DISABLED
         self.scriptName = script
-        self.randomTime = 0
         self.idx = 0
         self.script = []
-        self.controllerKeyboard = ControllerKeyboard
-        self.controllerMouse = ControllerMouse
 
     def loadFile(self):
         with open(os.path.join("macros", self.scriptName), 'r') as file:
             idx = 0
+            randomTime = 0
             for line in file:
                 idx += 1
                 line = line.strip()
@@ -30,27 +30,44 @@ class runnableMacro(threading.Thread):
                 if line.__len__() <= 1 :
                     return f"Syntax error at line {idx}: {line}"
                 elif line[0] == "random":
-                    self.randomTime = float(line[1])
+                    randomTime = float(line[1])
+                elif line[0] == "sleep":
+                    self.script.append(action(line[0], randomTime,
+                                         args={
+                                             "time": float(line[1])
+                                         }))
                 elif line[0] == "keybind":
-                    self.keybind = line[1]
-                elif line[0] == "leftClick":
-                    self.script = action(line[0], self.randomTime, self.controllerMouse, self.controllerKeyboard)
-                elif line[0] == "rightClick":
-                    self.script = action(line[0], self.randomTime, self.controllerMouse, self.controllerKeyboard)
+                    self.keybind = KeyCode.from_char(line[1][0])
                 elif line[0] == "write":
-                    self.script = action(line[0], self.randomTime, self.controllerMouse, self.controllerKeyboard)
+                    self.script.append(action(line[0], randomTime,
+                                        args={
+                                            "text": line[1]
+                                        }))
+                # Everything that does not have any argouments
+                elif ["leftClick", "rightClick", "shift", "unshift"].__contains__(line[0]):
+                    self.script.append(action(line[0], randomTime))
+                else:
+                    return f"Unknown command at line {idx}: {line}"
 
-
-
+    # When the toggle button is pressed
     def toggle(self):
-        self.enabled = not self.enabled
-        return self.enabled
+        self.state = macroState.WAITING if self.state == macroState.DISABLED else macroState.DISABLED
+        return self.state
 
-    def enable(self, key):
-        if key == self.keybind:
-            self.running = not self.running
+    # For actually starting the thread/stopping it
+    def onKeyPress(self, key):
+        if self.keybind == key:
+            self.state = macroState.RUNNING if self.state == macroState.WAITING else macroState.WAITING
+            if self.state == macroState.RUNNING:
+                self.idx = 0
+                thread = threading.Thread(target=self.run)
+                thread.daemon = True  # Daemonize the thread to stop it with the main application
+                thread.start()
 
 
     def run(self):
-        while self.enabled:
-            pass
+        while self.state == macroState.RUNNING:
+            if not self.script[self.idx].run():
+                self.state = macroState.WAITING
+            else:
+                self.idx = (self.idx + 1) % self.script.__len__()

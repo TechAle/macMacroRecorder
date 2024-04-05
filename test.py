@@ -5,8 +5,10 @@ from functools import partial
 
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTextEdit, QLineEdit, \
     QMessageBox, QInputDialog
+from pynput.keyboard import Listener as ListenerKeyboard
 
 from variables.MacroManager import macroManager
+from variables.MacroState import macroState
 
 
 class MyWindow(QWidget):
@@ -14,12 +16,14 @@ class MyWindow(QWidget):
         super().__init__()
         self.initVariables()
         self.initUI()
+        self.prepareFunctions()
+
+    def prepareFunctions(self):
+        listener = ListenerKeyboard(on_press=self.onPress)
+        listener.start()
 
     def onPress(self, key):
-        try:
-            self.macroManager.onPress(key)
-        except Exception as ignored:
-            pass
+        self.macroManager.onPress(key)
 
     def initVariables(self):
         self.macroManager = macroManager()
@@ -145,7 +149,7 @@ class MyWindow(QWidget):
 
     def toggleClicked(self):
         if self.lastSelected is not None and (onToggle := self.macroManager.onToggle(self.lastSelected)) is not None:
-            if onToggle:
+            if onToggle == macroState.WAITING:
                 self.button_toggle.setStyleSheet("background-color: green;")
             else:
                 self.button_toggle.setStyleSheet("background-color: red;")

@@ -3,20 +3,23 @@ import time
 
 import macmouse
 from pynput.keyboard import Key
+from pynput.keyboard import Controller as ControllerKeyboard
+from pynput.mouse import Controller as MouseController
 
 
 # TODO make some extends
 class action:
-    def __init__(self, action, random, controllerMouse, controllerKeyboard):
+    def __init__(self, action, random, args=None):
         self.actionStr = action
         self.random = random
-        self.controllerKeyboard = controllerKeyboard
-        self.controllerMouse = controllerMouse
+        self.controllerKeyboard = ControllerKeyboard()
+        self.controllerMouse = MouseController()
+        self.args = args
 
 
     def run(self) -> bool:
         if self.actionStr.__contains__("sleep"):
-            time.sleep(float(self.actionStr.split("(")[1][:-1]) + random.uniform(0, self.random))
+            time.sleep(self.args["time"] + random.uniform(0, self.random))
         elif self.actionStr == "right":
             macmouse.click(button="right")
         elif self.actionStr == "left":
@@ -26,7 +29,7 @@ class action:
         elif self.actionStr == "unshift":
             self.controllerKeyboard.release(Key.shift)
         elif self.actionStr == "stop":
-            return True
-        else:
-            self.controller.type(self.actionStr)
-        return False
+            return False
+        elif self.actionStr == "write":
+            self.controllerKeyboard.type(self.args["text"])
+        return True

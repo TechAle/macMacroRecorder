@@ -2,3 +2,4 @@ macros
 **/.DS_store
 .idea/**.iml
 configurations.json
+disposable
