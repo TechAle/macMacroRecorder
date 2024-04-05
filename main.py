@@ -1,14 +1,23 @@
 import json
 import os
 import sys
+import time
 from functools import partial
 
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTextEdit, QLineEdit, \
     QMessageBox, QInputDialog
 from pynput.keyboard import Listener as ListenerKeyboard
+from pynput.mouse import Listener as ListenerMouse
 
 from variables.MacroManager import macroManager
 from variables.MacroState import macroState
+
+import HIServices
+
+if not HIServices.AXIsProcessTrusted():
+    print("This process is NOT a trusted accessibility client, so pynput will not "
+          "function properly. Please grant accessibility access for this app in "
+          "System Preferences.")
 
 
 class MyWindow(QWidget):
@@ -19,15 +28,37 @@ class MyWindow(QWidget):
         self.prepareFunctions()
 
     def prepareFunctions(self):
-        listener = ListenerKeyboard(on_press=self.onPress)
-        listener.start()
+        # Create a new thread with the
+        listenerKeyboard = ListenerKeyboard(on_press=self.onPress)
+        listenerKeyboard.start()
+        # pyobject race condition fix, thanks lettow-humain you saved me from lots of hours of desperation
+        listenerKeyboard.wait()
+        listenerMouse = ListenerMouse(
+            on_move=self.onMove,
+            on_click=self.onClick,
+            on_scroll=self.onScroll)
+        listenerMouse.start()
 
     def onPress(self, key):
+        if key == self.configurations["keybindStart"]:
+            self.startRecording()
+        elif key == self.configurations["keybindStop"]:
+            self.stopRecording()
         self.macroManager.onPress(key)
+
+    def onMove(self, x, y):
+        self.macroManager.onMove(x, y)
+
+    def onClick(self, x, y, button, pressed):
+        self.macroManager.onClick(x, y, button, pressed)
+
+    def onScroll(self, x, y, dx, dy):
+        self.macroManager.onScroll(x, y, dx, dy)
 
     def initVariables(self):
         self.macroManager = macroManager()
         self.lastSelected = None
+        self.isRecording = False
         if os.path.exists("configurations.json"):
             with open("configurations.json", "r") as f:
                 self.configurations = json.load(f)
@@ -85,8 +116,10 @@ class MyWindow(QWidget):
         self.button_toggle.clicked.connect(self.toggleClicked)  # Connect to toggleClicked method
         toggle_layout.addWidget(self.button_toggle)
         self.button_start_recording = QPushButton('Start Recording', self)
+        self.button_start_recording.clicked.connect(self.startRecording)
         toggle_layout.addWidget(self.button_start_recording)
         self.button_stop_recording = QPushButton('Start Recording', self)
+        self.button_stop_recording.clicked.connect(self.stopRecording)
         toggle_layout.addWidget(self.button_stop_recording)
 
         keybindLayout = QHBoxLayout()
@@ -111,6 +144,35 @@ class MyWindow(QWidget):
 
         # Update buttons initially
         self.updateButtons()
+
+    def startRecording(self):
+        if self.isRecording:
+            return
+        if self.lastSelected is None:
+            # Alert saying no file has been selected
+            QMessageBox.information(self, "Feedback", "You have not loaded any file",
+                                    QMessageBox.Abort)
+            return
+        if self.text_field.toPlainText() != "":
+            # Ask if they are sure they want to override the current file
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Question)
+
+            msg.setText("Are you sure you want to override the current file?")
+            msg.setInformativeText("This will erase all the content of the current file.")
+            msg.setWindowTitle("Confirmation")
+            msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            retval = msg.exec_()
+            if retval != QMessageBox.Yes:
+                return
+        self.macroManager.startRecording(self.lastSelected)
+
+    def stopRecording(self):
+        if not self.isRecording:
+            # Alert saying is not recording
+            QMessageBox.information(self, "Recording", "You are not currently recording", QMessageBox.Abort)
+            return
+        self.macroManager.stopRecording()
 
     def pressedKeybindStart(self):
         text, okPressed = QInputDialog.getText(self, "Get keybind start",

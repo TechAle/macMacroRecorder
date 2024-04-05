@@ -1,3 +1,5 @@
+import time
+
 from pynput.keyboard import Controller as ControllerKeyboard
 from pynput.mouse import Controller as ControllerMouse
 
@@ -11,9 +13,10 @@ class macroManager():
         self.scripts = {}
         self.controllerKeyboard = ControllerKeyboard()
         self.controllerMouse = ControllerMouse()
-
-    def onDrag(self, point):
-        pass
+        self.isRecording = False
+        self.scriptRecording = None
+        self.recording = []
+        self.lastActionTime = None
 
     def onToggle(self, script):
         if not self.scripts.__contains__(script):
@@ -33,9 +36,29 @@ class macroManager():
             if self.scripts[script].state == macroState.DISABLED:
                 self.scripts.pop(script)
 
+    def startRecording(self, script):
+        self.isRecording = True
+        self.scriptRecording = script
+        self.lastActionTime = time.time()
+
+    def stopRecording(self):
+        self.isRecording = False
+
     def onPress(self, key):
         # Send the keypress to every script that is not disabled for checking the keybind
         for script in self.scripts:
             if self.scripts[script].state != macroState.DISABLED:
                 self.scripts[script].onKeyPress(key)
         # TODO record
+
+    # For recording
+    def onMove(self, x, y):
+        pass
+
+    def onClick(self, x, y, button, pressed):
+        pass
+
+    def onScroll(self, x, y, dx, dy):
+        pass
+
+
