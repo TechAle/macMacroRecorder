@@ -53,7 +53,7 @@ class runnableMacro(threading.Thread):
                                         args={
                                             "x": int(x),
                                             "y": int(y),
-                                            "speed": float(speed)
+                                            "time": float(speed)
                                         }))
                 else:
                     return f"Unknown command at line {idx}: {line}"
