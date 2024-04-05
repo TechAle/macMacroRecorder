@@ -32,4 +32,10 @@ class action:
             return False
         elif self.actionStr == "write":
             self.controllerKeyboard.type(self.args["text"])
+        # Add option for moving the mouse
+        elif self.actionStr == "moveMouse":
+            x, y = self.args["x"], self.args["y"]
+            speed = self.args["speed"] + random.uniform(0, self.random)
+            # TODO manage speed later
+            self.controllerMouse.position = (x, y)
         return True
