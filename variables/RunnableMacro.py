@@ -73,6 +73,9 @@ class runnableMacro(threading.Thread):
                 thread = threading.Thread(target=self.run)
                 thread.daemon = True  # Daemonize the thread to stop it with the main application
                 thread.start()
+                return True
+            return False
+        return None
 
 
     def run(self):

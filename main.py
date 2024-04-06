@@ -26,6 +26,7 @@ class MyWindow(QWidget):
         self.initVariables()
         self.initUI()
         self.prepareFunctions()
+        self.b = 0
 
     def prepareFunctions(self):
         # Create a new thread with the
@@ -40,6 +41,8 @@ class MyWindow(QWidget):
         listenerMouse.start()
 
     def onPress(self, key):
+        if len(self.macroManager.scriptRecording) != 0:
+            return
         if self.focus: # pyobject would crash without this
             return
         if key == self.configurations["keybindStart"]:
@@ -49,16 +52,23 @@ class MyWindow(QWidget):
         self.macroManager.onPress(key)
 
     def onMove(self, x, y):
+        if len(self.macroManager.scriptRecording) != 0:
+            return
         self.macroManager.onMove(x, y)
 
     def onClick(self, x, y, button, pressed):
+        if len(self.macroManager.scriptRecording) != 0:
+            return
+        if self.b == 1:
+            a = 0
         self.macroManager.onClick(x, y, button, pressed)
 
     def onScroll(self, x, y, dx, dy):
+        if len(self.macroManager.scriptRecording) != 0:
+            return
         self.macroManager.onScroll(x, y, dx, dy)
 
     def initVariables(self):
-        self.macroManager = macroManager()
         self.lastSelected = None
         self.isRecording = False
         self.focus = False
@@ -67,6 +77,7 @@ class MyWindow(QWidget):
                 self.configurations = json.load(f)
                 self.configurations["keybindStart"] = KeyCode.from_char(self.configurations["keybindStart"])
                 self.configurations["keybindStop"] = KeyCode.from_char(self.configurations["keybindStop"])
+                self.macroManager = macroManager(self.configurations["mouseDelay"])
         else:
             return self.initDefault()
 
@@ -78,7 +89,7 @@ class MyWindow(QWidget):
 
     def save_configurations(self):
         with open("configurations.json", "w") as f:
-            json.dump(self.configurations, f)
+            json.dump(self.configurations, f, indent=4)
 
     def initUI(self):
         self.setWindowTitle('PyQt Program with Navigation Bar and Footer')
