@@ -3,3 +3,4 @@ macros
 .idea/**.iml
 configurations.json
 disposable
+test.py

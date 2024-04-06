@@ -4,6 +4,7 @@ import sys
 import time
 from functools import partial
 
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTextEdit, QLineEdit, \
     QMessageBox, QInputDialog
 from pynput.keyboard import Listener as ListenerKeyboard, KeyCode
@@ -21,14 +22,38 @@ if not HIServices.AXIsProcessTrusted():
 
 
 class MyWindow(QWidget):
+    signalHander = pyqtSignal(str)
     def __init__(self):
         super().__init__()
         self.initVariables()
         self.initUI()
-        self.prepareFunctions()
+        self.prepareListeners()
+        self.prepareSignals()
         self.b = 0
 
-    def prepareFunctions(self):
+    def prepareSignals(self):
+        self.signalHander.connect(self.onSignal)
+
+    def onSignal(self, data):
+        if data == "askConfirmOverwrite":
+            # Ask if they are sure they want to override the current file
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Question)
+
+            msg.setText("Are you sure you want to override the current file?")
+            msg.setInformativeText("This will erase all the content of the current file.")
+            msg.setWindowTitle("Confirmation")
+            msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            retval = msg.exec_()
+            if retval != QMessageBox.Yes:
+                return
+            self.macroManager.startRecording(self.lastSelected)
+        elif data == "noLoaded":
+            QMessageBox.information(self, "Feedback", "You have not loaded any file",
+                                    QMessageBox.Abort)
+
+
+    def prepareListeners(self):
         # Create a new thread with the
         listenerKeyboard = ListenerKeyboard(on_press=self.onPress)
         listenerKeyboard.start()
@@ -86,6 +111,8 @@ class MyWindow(QWidget):
             "keybindStart": "",
             "keybindStop": ""
         }
+
+
 
     def save_configurations(self):
         with open("configurations.json", "w") as f:
@@ -175,22 +202,11 @@ class MyWindow(QWidget):
         if self.macroManager.isRecording:
             return
         if self.lastSelected is None:
+            self.signalHander.emit("noLoaded")
             # Alert saying no file has been selected
-            QMessageBox.information(self, "Feedback", "You have not loaded any file",
-                                    QMessageBox.Abort)
             return
         if self.text_field.toPlainText() != "":
-            # Ask if they are sure they want to override the current file
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Question)
-
-            msg.setText("Are you sure you want to override the current file?")
-            msg.setInformativeText("This will erase all the content of the current file.")
-            msg.setWindowTitle("Confirmation")
-            msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-            retval = msg.exec_()
-            if retval != QMessageBox.Yes:
-                return
+            self.signalHander.emit("AskConfirmOverwrite")
         self.macroManager.startRecording(self.lastSelected)
 
     def stopRecording(self):

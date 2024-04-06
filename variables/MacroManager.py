@@ -2,6 +2,7 @@ import os
 import threading
 import time
 
+from PyQt5.QtCore import pyqtSignal, QObject
 from pynput.keyboard import Controller as ControllerKeyboard
 from pynput.mouse import Controller as ControllerMouse
 
@@ -12,6 +13,7 @@ from variables.RunnableMacro import runnableMacro
 class macroManager():
 
     def __init__(self, moveMouseTime):
+        super().__init__()
         self.scripts = {}
         self.controllerKeyboard = ControllerKeyboard()
         self.controllerMouse = ControllerMouse()
