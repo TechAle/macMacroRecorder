@@ -6,7 +6,7 @@ from functools import partial
 
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTextEdit, QLineEdit, \
     QMessageBox, QInputDialog
-from pynput.keyboard import Listener as ListenerKeyboard
+from pynput.keyboard import Listener as ListenerKeyboard, KeyCode
 from pynput.mouse import Listener as ListenerMouse
 
 from variables.MacroManager import macroManager
@@ -40,6 +40,8 @@ class MyWindow(QWidget):
         listenerMouse.start()
 
     def onPress(self, key):
+        if self.focus: # pyobject would crash without this
+            return
         if key == self.configurations["keybindStart"]:
             self.startRecording()
         elif key == self.configurations["keybindStop"]:
@@ -59,9 +61,12 @@ class MyWindow(QWidget):
         self.macroManager = macroManager()
         self.lastSelected = None
         self.isRecording = False
+        self.focus = False
         if os.path.exists("configurations.json"):
             with open("configurations.json", "r") as f:
                 self.configurations = json.load(f)
+                self.configurations["keybindStart"] = KeyCode.from_char(self.configurations["keybindStart"])
+                self.configurations["keybindStop"] = KeyCode.from_char(self.configurations["keybindStop"])
         else:
             return self.initDefault()
 
@@ -97,6 +102,8 @@ class MyWindow(QWidget):
         # Text Field
         self.text_field = QTextEdit(self)  # Use QTextEdit for multiline text input
         self.text_field.setFixedHeight(100)  # Set the height of the text field
+        # Connect text_field to two functions when the user selects it
+        self.text_field.installEventFilter(self)
 
         # Footer
         footer_layout = QHBoxLayout()
@@ -118,15 +125,15 @@ class MyWindow(QWidget):
         self.button_start_recording = QPushButton('Start Recording', self)
         self.button_start_recording.clicked.connect(self.startRecording)
         toggle_layout.addWidget(self.button_start_recording)
-        self.button_stop_recording = QPushButton('Start Recording', self)
+        self.button_stop_recording = QPushButton('Stop Recording', self)
         self.button_stop_recording.clicked.connect(self.stopRecording)
         toggle_layout.addWidget(self.button_stop_recording)
 
         keybindLayout = QHBoxLayout()
         self.buttonKeybindStartRecording = QPushButton(
-            "Keybind Start Recording: " + self.configurations["keybindStart"])
+            "Keybind Start Recording: " + str(self.configurations["keybindStart"]))
         self.buttonKeybindStartRecording.clicked.connect(self.pressedKeybindStart)
-        self.buttonKeybindStopRecording = QPushButton("Keybind Stop Recording: " + self.configurations["keybindStop"])
+        self.buttonKeybindStopRecording = QPushButton("Keybind Stop Recording: " + str(self.configurations["keybindStop"]))
         self.buttonKeybindStopRecording.clicked.connect(self.pressedKeybindStop)
         keybindLayout.addWidget(self.buttonKeybindStartRecording)
         keybindLayout.addWidget(self.buttonKeybindStopRecording)
@@ -145,8 +152,16 @@ class MyWindow(QWidget):
         # Update buttons initially
         self.updateButtons()
 
+    def eventFilter(self, obj, event):
+        if obj == self.text_field:
+            if event.type() == event.FocusIn:
+                self.focus = True
+            elif event.type() == event.FocusOut:
+                self.focus = False
+        return super().eventFilter(obj, event)
+
     def startRecording(self):
-        if self.isRecording:
+        if self.macroManager.isRecording:
             return
         if self.lastSelected is None:
             # Alert saying no file has been selected
@@ -168,11 +183,13 @@ class MyWindow(QWidget):
         self.macroManager.startRecording(self.lastSelected)
 
     def stopRecording(self):
-        if not self.isRecording:
+        if not self.macroManager.isRecording:
             # Alert saying is not recording
             QMessageBox.information(self, "Recording", "You are not currently recording", QMessageBox.Abort)
             return
-        self.macroManager.stopRecording()
+        output = self.macroManager.stopRecording()
+        self.text_field.setPlainText(output)
+
 
     def pressedKeybindStart(self):
         text, okPressed = QInputDialog.getText(self, "Get keybind start",
@@ -207,7 +224,7 @@ class MyWindow(QWidget):
             self.save_configurations()
 
     def saveClicked(self):
-        print("Save button clicked.")
+        self.macroManager.update(self.lastSelected)
 
     def toggleClicked(self):
         if self.lastSelected is not None and (onToggle := self.macroManager.onToggle(self.lastSelected)) is not None:

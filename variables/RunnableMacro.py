@@ -8,7 +8,7 @@ from variables.actions import action
 
 
 class runnableMacro(threading.Thread):
-    def __init__(self, script, ControllerKeyboard, ControllerMouse):
+    def __init__(self, script):
         threading.Thread.__init__(self)
         self.enabled = False
         self.state = macroState.DISABLED
@@ -51,10 +51,11 @@ class runnableMacro(threading.Thread):
                     x, y, speed = line[1].split(',')
                     self.script.append(action(line[0], randomTime,
                                         args={
-                                            "x": int(x),
-                                            "y": int(y),
+                                            "x": float(x),
+                                            "y": float(y),
                                             "time": float(speed)
                                         }))
+                # TODO add everything else
                 else:
                     return f"Unknown command at line {idx}: {line}"
 
