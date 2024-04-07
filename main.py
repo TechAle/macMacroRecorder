@@ -66,8 +66,6 @@ class MyWindow(QWidget):
         listenerMouse.start()
 
     def onPress(self, key):
-        if len(self.macroManager.scriptRecording) != 0:
-            return
         if self.focus: # pyobject would crash without this
             return
         if key == self.configurations["keybindStart"]:
@@ -77,20 +75,12 @@ class MyWindow(QWidget):
         self.macroManager.onPress(key)
 
     def onMove(self, x, y):
-        if len(self.macroManager.scriptRecording) != 0:
-            return
         self.macroManager.onMove(x, y)
 
     def onClick(self, x, y, button, pressed):
-        if len(self.macroManager.scriptRecording) != 0:
-            return
-        if self.b == 1:
-            a = 0
         self.macroManager.onClick(x, y, button, pressed)
 
     def onScroll(self, x, y, dx, dy):
-        if len(self.macroManager.scriptRecording) != 0:
-            return
         self.macroManager.onScroll(x, y, dx, dy)
 
     def initVariables(self):
@@ -206,7 +196,8 @@ class MyWindow(QWidget):
             # Alert saying no file has been selected
             return
         if self.text_field.toPlainText() != "":
-            self.signalHander.emit("AskConfirmOverwrite")
+            self.signalHander.emit("askConfirmOverwrite")
+            return
         self.macroManager.startRecording(self.lastSelected)
 
     def stopRecording(self):
@@ -251,6 +242,9 @@ class MyWindow(QWidget):
             self.save_configurations()
 
     def saveClicked(self):
+        # update lastSelected file in macros/lastSelected
+        with open(os.path.join("macros", self.lastSelected), 'w') as f:
+            f.write(self.text_field.toPlainText())
         self.macroManager.update(self.lastSelected)
 
     def toggleClicked(self):

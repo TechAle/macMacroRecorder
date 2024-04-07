@@ -15,6 +15,7 @@ class runnableMacro(threading.Thread):
         self.scriptName = script
         self.idx = 0
         self.script = []
+        self.keybind = None
 
     def loadFile(self):
         with open(os.path.join("macros", self.scriptName), 'r') as file:
@@ -37,7 +38,7 @@ class runnableMacro(threading.Thread):
                                              "time": float(line[1])
                                          }))
                 elif line[0] == "keybind":
-                    self.keybind = KeyCode.from_char(line[1][0])
+                    self.keybind = KeyCode.from_char(line[1].replace("\"", "").replace("'", "")[0])
                 elif line[0] == "write":
                     self.script.append(action(line[0], randomTime,
                                         args={

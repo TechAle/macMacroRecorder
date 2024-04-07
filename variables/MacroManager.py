@@ -22,6 +22,7 @@ class macroManager():
         self.recording = []
         self.lastActionTime = None
         self.lastTimeMoved = None
+        self.firstMouseCoords = False
         # Create a locker
         self.locker = threading.Lock()
         self.moveMouseTime = moveMouseTime
@@ -50,16 +51,21 @@ class macroManager():
         self.isRecording = True
         self.scriptRecording = script
         self.lastActionTime = time.time()
-        self.lastTimeMoved = -1
+        self.lastTimeMoved = time.time()
+        self.wasMouseMoved = False
 
     def stopRecording(self):
         self.isRecording = False
         output = ""
         # Save the list self.recording in the file macros/self.scriptRecording
         with open(os.path.join("macros", self.scriptRecording), 'w') as f:
+            if self.scripts[self.scriptRecording].keybind != None:
+                keybindText = f"keybind({self.scripts[self.scriptRecording].keybind})\n"
+                f.write(keybindText)
+                output += keybindText
             for line in self.recording:
                 output += f"{line}\n"
-                f.write(output)
+            f.write(output)
         self.update(self.scriptRecording)
         self.recording = []
         self.scriptRecording = None
@@ -88,6 +94,9 @@ class macroManager():
                     else:
                         self.runningScripts.remove(script)
         if self.isRecording:
+            if self.firstMouseCoords:
+                self.onMove(self.controllerMouse.position[0], self.controllerMouse.position[1])
+                self.firstMouseCoords = False
             self.locker.acquire()
             self.addTime()
             # TODO every cases
@@ -96,15 +105,22 @@ class macroManager():
 
     # For recording
     def onMove(self, x, y):
-        if self.isRecording and time.time() - self.lastTimeMoved > self.moveMouseTime:
-            self.locker.acquire()
-            self.recording.append(f"moveMouse({x}, {y}, {(time.time() - self.lastActionTime)/1000}")
-            self.lastTimeMoved = time.time()
-            self.locker.release()
-            print("Saved mouse")
+        if self.isRecording:
+            self.firstMouseCoords = True
+            if (timeChanged := time.time() - self.lastActionTime) > self.moveMouseTime:
+                self.locker.acquire()
+                self.recording.append(f"moveMouse({x}, {y}, {timeChanged})")
+                print(f"time passed {timeChanged}")
+                self.lastActionTime = time.time()
+                self.locker.release()
+                print("Saved mouse")
+
 
     def onClick(self, x, y, button, pressed):
         if self.isRecording and pressed:
+            if self.firstMouseCoords:
+                self.onMove(self.controllerMouse.position[0], self.controllerMouse.position[1])
+                self.firstMouseCoords = False
             self.locker.acquire()
             # TODO check for moveMouse
             self.onMove(x, y)
@@ -120,6 +136,9 @@ class macroManager():
 
     def onScroll(self, x, y, dx, dy):
         if self.isRecording:
+            if self.firstMouseCoords:
+                self.onMove(self.controllerMouse.position[0], self.controllerMouse.position[1])
+                self.firstMouseCoords = False
             self.locker.acquire()
             # TODO check for moveMouse
             self.recording.append(f"moveMouse({x}, {y}, {(time.time() - self.lastActionTime) / 1000}")

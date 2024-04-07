@@ -53,6 +53,8 @@ class action:
                     # Move the mouse in x, y in timeNeeded time in a smooth way
                     currentX, currentY = mouse.position[0], mouse.position[1]
                     distance = math.sqrt((x - currentX)**2 + (y - currentY)**2)
+                    if distance == 0:
+                        return
                     duration = timeNeeded / distance
                     deltaX = (x - currentX) / distance
                     deltaY = (y - currentY) / distance
