@@ -48,6 +48,7 @@ class MyWindow(QWidget):
             if retval != QMessageBox.Yes:
                 return
             self.macroManager.startRecording(self.lastSelected)
+            self.button_start_recording.setStyleSheet("background-color: green;")
         elif data == "noLoaded":
             QMessageBox.information(self, "Feedback", "You have not loaded any file",
                                     QMessageBox.Abort)
@@ -199,6 +200,7 @@ class MyWindow(QWidget):
             self.signalHander.emit("askConfirmOverwrite")
             return
         self.macroManager.startRecording(self.lastSelected)
+        self.button_start_recording.setStyleSheet("background-color: green;")
 
     def stopRecording(self):
         if not self.macroManager.isRecording:
@@ -208,6 +210,7 @@ class MyWindow(QWidget):
         output = self.macroManager.stopRecording()
         self.text_field.setPlainText(output)
         self.button_toggle.setStyleSheet("background-color: red;")
+        self.button_start_recording.setStyleSheet("")
 
 
     def pressedKeybindStart(self):
