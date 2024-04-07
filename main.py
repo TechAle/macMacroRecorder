@@ -98,18 +98,23 @@ class MyWindow(QWidget):
         self.isRecording = False
         self.focus = False
         if os.path.exists("configurations.json"):
-            with open("configurations.json", "r") as f:
-                self.configurations = json.load(f)
-                self.configurations["keybindStart"] = KeyCode.from_char(self.configurations["keybindStart"])
-                self.configurations["keybindStop"] = KeyCode.from_char(self.configurations["keybindStop"])
-                self.macroManager = macroManager(self.configurations["mouseDelay"])
+            try:
+                with open("configurations.json", "r") as f:
+                    self.configurations = json.load(f)
+                    self.configurations["keybindStart"] = KeyCode.from_char(self.configurations["keybindStart"])
+                    self.configurations["keybindStop"] = KeyCode.from_char(self.configurations["keybindStop"])
+            except Exception as e:
+                print("File corrupted, loading default configurations. " + str(e))
+                self.initDefault()
         else:
-            return self.initDefault()
+            self.initDefault()
+        self.macroManager = macroManager(self.configurations["mouseDelay"])
 
     def initDefault(self):
         self.configurations = {
             "keybindStart": "",
-            "keybindStop": ""
+            "keybindStop": "",
+            "mouseDelay": 0.05,
         }
 
 

@@ -120,28 +120,28 @@ class macroManager():
             if (timeChanged := time.time() - self.lastActionTime) > self.moveMouseTime:
                 self.locker.acquire()
                 self.recording.append(f"moveMouse({x}, {y}, {timeChanged})")
-                print(f"time passed {timeChanged}")
                 self.lastActionTime = time.time()
                 self.locker.release()
-                print("Saved mouse")
 
 
     def onClick(self, x, y, button, pressed):
         if self.isRecording and pressed:
             if self.firstMouseCoords:
-                self.onMove(self.controllerMouse.position[0], self.controllerMouse.position[1])
+                self.onMove(x, y)
                 self.firstMouseCoords = False
             self.locker.acquire()
             # TODO check for moveMouse
-            self.onMove(x, y)
-            if button == 0:
+            # Check if button is left, right, middle, shift, unshift
+            if button.name == "left":
                 self.recording.append(f"leftClick()")
-            elif button == 1:
+            elif button.name == "right":
                 self.recording.append(f"rightClick()")
-            elif button == 2:
+            elif button.name == "shift":
                 self.recording.append(f"shift()") # ?? Oh well, my ai thing thinks it's right
-            elif button == 3:
+            elif button.name == "unshift":
                 self.recording.append(f"unshift()")
+            elif button.name == "middle":
+                self.recording.append(f"middleClick()")
             self.locker.release()
 
     def onScroll(self, x, y, dx, dy):

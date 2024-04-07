@@ -29,6 +29,9 @@ class action:
             self.controllerKeyboard.press(Key.shift)
         elif self.actionStr == "unshift":
             self.controllerKeyboard.release(Key.shift)
+        elif self.actionStr == "middleClick":
+            self.controllerMouse.press(Button.middle)
+        # Maybe if i want add the option for button 8-30 lol
         elif self.actionStr == "stop":
             return False
         elif self.actionStr == "write":
