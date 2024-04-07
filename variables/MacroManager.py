@@ -26,7 +26,7 @@ class macroManager():
         # Create a locker
         self.locker = threading.Lock()
         self.moveMouseTime = moveMouseTime
-        self.scriptRecording = []
+        self.scriptRecording = None
 
 
     def onToggle(self, script):
@@ -52,16 +52,26 @@ class macroManager():
         self.scriptRecording = script
         self.lastActionTime = time.time()
         self.lastTimeMoved = time.time()
-        self.wasMouseMoved = False
+        self.recording = []
+        self.firstMouseCoords = False
 
     def stopRecording(self):
         self.isRecording = False
         output = ""
+        temp = None
+        # Change the first move action to speed 0, so that the mouse will not be smooth
+        for idx, line in enumerate(self.recording):
+            if line.__contains__("moveMouse"):
+                b = line.split(' ')[:-1]
+                b.append(" 0)")
+                temp = (idx, " ".join(b))
+                break
+        if temp is not None:
+            self.recording[temp[0]] = temp[1]
         # Save the list self.recording in the file macros/self.scriptRecording
         with open(os.path.join("macros", self.scriptRecording), 'w') as f:
             if self.scripts[self.scriptRecording].keybind != None:
                 keybindText = f"keybind({self.scripts[self.scriptRecording].keybind})\n"
-                f.write(keybindText)
                 output += keybindText
             for line in self.recording:
                 output += f"{line}\n"

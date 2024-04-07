@@ -207,6 +207,7 @@ class MyWindow(QWidget):
             return
         output = self.macroManager.stopRecording()
         self.text_field.setPlainText(output)
+        self.button_toggle.setStyleSheet("background-color: red;")
 
 
     def pressedKeybindStart(self):

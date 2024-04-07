@@ -18,6 +18,10 @@ class runnableMacro(threading.Thread):
         self.keybind = None
 
     def loadFile(self):
+        self.script = []
+        self.idx = 0
+        self.keybind = None
+        self.enabled = False
         with open(os.path.join("macros", self.scriptName), 'r') as file:
             idx = 0
             randomTime = 0
