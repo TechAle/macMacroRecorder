@@ -52,7 +52,15 @@ class MyWindow(QWidget):
         elif data == "noLoaded":
             QMessageBox.information(self, "Feedback", "You have not loaded any file",
                                     QMessageBox.Abort)
-
+        elif data == "stopRecording":
+            if not self.macroManager.isRecording:
+                # Alert saying is not recording
+                QMessageBox.information(self, "Recording", "You are not currently recording", QMessageBox.Abort)
+                return
+            output = self.macroManager.stopRecording()
+            self.text_field.setPlainText(output)
+            self.button_toggle.setStyleSheet("background-color: red;")
+            self.button_start_recording.setStyleSheet("")
 
     def prepareListeners(self):
         # Create a new thread with the
@@ -203,15 +211,7 @@ class MyWindow(QWidget):
         self.button_start_recording.setStyleSheet("background-color: green;")
 
     def stopRecording(self):
-        if not self.macroManager.isRecording:
-            # Alert saying is not recording
-            QMessageBox.information(self, "Recording", "You are not currently recording", QMessageBox.Abort)
-            return
-        output = self.macroManager.stopRecording()
-        self.text_field.setPlainText(output)
-        self.button_toggle.setStyleSheet("background-color: red;")
-        self.button_start_recording.setStyleSheet("")
-
+        self.signalHander.emit("stopRecording")
 
     def pressedKeybindStart(self):
         text, okPressed = QInputDialog.getText(self, "Get keybind start",
