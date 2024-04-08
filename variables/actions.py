@@ -34,6 +34,9 @@ class action:
         # Maybe if i want add the option for button 8-30 lol
         elif self.actionStr == "stop":
             return False
+        elif self.actionStr == "type":
+            self.controllerKeyboard.press(Key[self.args["keyName"]])
+            self.controllerKeyboard.release(Key[self.args["keyName"]])
         elif self.actionStr == "write":
             self.controllerKeyboard.type(self.args["text"])
         # Add option for moving the mouse

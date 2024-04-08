@@ -77,7 +77,7 @@ class MyWindow(QWidget):
     def onPress(self, key):
         if self.focus: # pyobject would crash without this
             return
-        if not self.macroManager.isRecording and key != self.configurations["keybindStop"]:
+        if not self.macroManager.isRecording or key != self.configurations["keybindStop"]:
             self.macroManager.onPress(key)
         if key == self.configurations["keybindStart"]:
             self.startRecording()

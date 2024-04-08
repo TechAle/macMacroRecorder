@@ -3,7 +3,7 @@ import threading
 import time
 
 from PyQt5.QtCore import pyqtSignal, QObject
-from pynput.keyboard import Controller as ControllerKeyboard
+from pynput.keyboard import Controller as ControllerKeyboard, Key
 from pynput.mouse import Controller as ControllerMouse
 
 from variables.MacroState import macroState
@@ -109,8 +109,11 @@ class macroManager():
                 self.firstMouseCoords = False
             self.locker.acquire()
             self.addTime()
-            # TODO every cases
-            self.recording.append(f"write({key})")
+            if type(key) == Key:
+                self.recording.append(f"type({key.name})")
+            else:
+                self.recording.append(f"write({key})")
+
             self.locker.release()
 
     # For recording
@@ -136,10 +139,6 @@ class macroManager():
                 self.recording.append(f"leftClick()")
             elif button.name == "right":
                 self.recording.append(f"rightClick()")
-            elif button.name == "shift":
-                self.recording.append(f"shift()") # ?? Oh well, my ai thing thinks it's right
-            elif button.name == "unshift":
-                self.recording.append(f"unshift()")
             elif button.name == "middle":
                 self.recording.append(f"middleClick()")
             self.locker.release()

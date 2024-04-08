@@ -49,9 +49,13 @@ class runnableMacro(threading.Thread):
                                             "text": line[1]
                                         }))
                 # Everything that does not have any argouments
-                elif ["leftClick", "rightClick", "shift", "unshift", "middleClick"].__contains__(line[0]):
+                elif ["leftClick", "rightClick", "middleClick"].__contains__(line[0]):
                     self.script.append(action(line[0], randomTime))
-                # Add move mouse
+                elif line[0] == "type":
+                    self.script.append(action(line[0], randomTime,
+                                              args={
+                                                  "keyName": line[1]
+                                              }))
                 elif line[0] == "moveMouse":
                     x, y, speed = line[1].split(',')
                     self.script.append(action(line[0], randomTime,
