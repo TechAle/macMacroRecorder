@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLa
 from pynput.keyboard import Listener as ListenerKeyboard, KeyCode
 from pynput.mouse import Listener as ListenerMouse
 
+from variables.DisplayActions import displayAction
 from variables.MacroManager import macroManager
 from variables.MacroState import macroState
 
@@ -143,10 +144,7 @@ class MyWindow(QWidget):
         self.script_buttons_layout = QVBoxLayout()
 
         # Text Field
-        self.text_field = QTextEdit(self)  # Use QTextEdit for multiline text input
-        self.text_field.setFixedHeight(100)  # Set the height of the text field
-        # Connect text_field to two functions when the user selects it
-        self.text_field.installEventFilter(self)
+        self.text_field = displayAction()
 
         # Footer
         footer_layout = QHBoxLayout()
