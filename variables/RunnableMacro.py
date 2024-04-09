@@ -56,6 +56,12 @@ class runnableMacro(threading.Thread):
             # Everything that does not have any argouments
             elif ["leftClick", "rightClick", "middleClick"].__contains__(line[0]):
                 self.script.append(action(line[0], randomTime))
+            elif line[0] == "scroll":
+                x, y = line[1].strip().replace(" ", "").split(",")
+                self.script.append(action(line[0], randomTime, args={
+                    "dx": float(x),
+                    "dy": float(y)
+                }))
             elif line[0] == "type":
                 self.script.append(action(line[0], randomTime,
                                           args={

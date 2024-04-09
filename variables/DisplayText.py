@@ -1,3 +1,5 @@
+from PyQt5.QtWidgets import QLabel
+
 from variables.RunnableMacro import runnableMacro
 
 
@@ -22,7 +24,14 @@ class displayText:
         return output
 
     def setString(self, text):
+        for i in range(self.layout.count()):
+            widget = self.layout.itemAt(i).widget()
+            if widget:
+                widget.deleteLater()
         macro = runnableMacro()
         macro.loadScript(text)
         self.keybind = macro.keybind
         self.actions = macro.script
+        for action in self.actions:
+            widget = str(action)
+            self.layout.addWidget(QLabel(widget))

@@ -6,7 +6,7 @@ from functools import partial
 
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTextEdit, QLineEdit, \
-    QMessageBox, QInputDialog
+    QMessageBox, QInputDialog, QScrollArea
 from pynput.keyboard import Listener as ListenerKeyboard, KeyCode
 from pynput.mouse import Listener as ListenerMouse
 
@@ -144,7 +144,15 @@ class MyWindow(QWidget):
         self.script_buttons_layout = QVBoxLayout()
 
         # Text Field
+        # Create a scroll area
+        scroll_area = QScrollArea()
+
+
         self.text_field = displayAction()
+
+        # Set the scrollable widget as the widget for the scroll area
+        scroll_area.setWidget(self.text_field)
+        scroll_area.setWidgetResizable(True)  # Allow resizing of the scrollable widget
 
         # Footer
         footer_layout = QHBoxLayout()
@@ -183,7 +191,7 @@ class MyWindow(QWidget):
         main_layout = QVBoxLayout()
         main_layout.addLayout(self.navbar_layout)
         main_layout.addLayout(self.script_buttons_layout)  # Add script buttons layout
-        main_layout.addWidget(self.text_field)
+        main_layout.addWidget(scroll_area)
         main_layout.addLayout(footer_layout)
         main_layout.addLayout(toggle_layout)  # Add toggle button layout
         main_layout.addLayout(keybindLayout)

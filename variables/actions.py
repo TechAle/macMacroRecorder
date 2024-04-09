@@ -27,6 +27,8 @@ class action:
             self.controllerMouse.press(Button.left)
         elif self.actionStr == "shift":
             self.controllerKeyboard.press(Key.shift)
+        elif self.actionStr == "scroll":
+            self.controllerMouse.scroll(self.args["dx"], self.args["dy"])
         elif self.actionStr == "unshift":
             self.controllerKeyboard.release(Key.shift)
         elif self.actionStr == "middleClick":
@@ -89,9 +91,11 @@ class action:
 
     def __str__(self):
         args = ""
-        if self.args.__len__() > 0:
+        if self.args is not None and self.args.__len__() > 0:
             if self.actionStr == "moveMouse":
                 args = f"{self.args['x']},{self.args['y']},{self.args['time']}"
+            elif self.actionStr == "scroll":
+                args = f"{self.args['dx']},{self.args['dy']}"
             elif self.args.__len__() == 1:
                 args = f"{self.args[list(self.args.keys())[0]]}"
             else:
