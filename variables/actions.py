@@ -83,11 +83,17 @@ class action:
                 time.sleep(timeNeeded)
                 stop = True
 
-
             self.controllerMouse.position = (x, y)
 
-
-
-
-
         return True
+
+    def __str__(self):
+        args = ""
+        if self.args.__len__() > 0:
+            if self.actionStr == "moveMouse":
+                args = f"{self.args['x']},{self.args['y']},{self.args['time']}"
+            elif self.args.__len__() == 1:
+                args = f"{self.args[list(self.args.keys())[0]]}"
+            else:
+                print("Missing arguments for action " + self.actionStr + " args:" + str(self.args))
+        return f"{self.actionStr}({args})"

@@ -1,18 +1,22 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QTextEdit, QVBoxLayout, QSizePolicy
 
+from variables.DisplayText import displayText
+
 
 class displayAction(QWidget):
+
+
     def __init__(self):
         super().__init__()
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        self.text = QTextEdit("")
-        layout.addWidget(self.text)
+        self.layout = QHBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
+        self.displayText = displayText(self.layout)
+
 
     def toPlainText(self):
-        return self.text.toPlainText()
+        return self.displayText.getString()
 
     def setPlainText(self, text):
-        self.text.setPlainText(text)
+        self.displayText.setString(text)
