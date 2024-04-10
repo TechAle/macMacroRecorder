@@ -1,11 +1,34 @@
+'''
+    Display:
+        - Picture
+        - Action
+        - Argouments of the action
+        - Comments
+    Ideas:
+        - Create labels
+        - Jump to labels
+        - Create variables
+        - Find text
+            - If found, jump to label X
+            - If not found, jump to label Y
+        - Find color
+        - Find image
+        - Write on file a variable with text
+        - Schedule
+        - Move mouse in relative position
+        - Scan qrcode
+        - Group actions
+        - Open app, resize window
+
+'''
 import json
 import os
 import sys
-import time
 from functools import partial
 
+import HIServices
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTextEdit, QLineEdit, \
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QLineEdit, \
     QMessageBox, QInputDialog, QScrollArea
 from pynput.keyboard import Listener as ListenerKeyboard, KeyCode
 from pynput.mouse import Listener as ListenerMouse
@@ -13,8 +36,6 @@ from pynput.mouse import Listener as ListenerMouse
 from variables.DisplayActions import displayAction
 from variables.MacroManager import macroManager
 from variables.MacroState import macroState
-
-import HIServices
 
 if not HIServices.AXIsProcessTrusted():
     print("This process is NOT a trusted accessibility client, so pynput will not "
