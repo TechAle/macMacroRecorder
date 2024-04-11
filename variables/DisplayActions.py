@@ -69,7 +69,6 @@ class displayAction(QWidget):
         self.locker = threading.Lock()
         self.revertBackup = None
         self.beforeRollback = True
-        b = 0
 
     def backupCommit(self):
         new_table = QTableWidget(self.table.rowCount(), self.table.columnCount())
@@ -94,13 +93,88 @@ class displayAction(QWidget):
         else:
             # This slot will be called whenever a cell gets edited
             print(f"Cell at row {row} and column {column} has been edited.")
-            self.backupCommit()
+            # TODO shift all this into action function or an utility
+            # TODO give a feedback when errors are made
+            # Edit action
+            if column == 1:
+                newAction = self.table.item(row, column).text()
+                if not newAction in ["sleep", "right", "left", "shift", "scroll", "unshift", "middleClick", "stop", "type", "write", "moveMouse"]:
+                    roolback = True
+                    print(f"Invalid action: {newAction}")
+                else:
+                    ...
+            # Edit argouments
+            elif column == 2:
+                actionConsiderated = self.table.item(row, 1).text()
+                actionConsiderated = actionConsiderated
+                if actionConsiderated in ["right", "left", "shift", "scroll", "unshift", "middleClick", "stop"]:
+                    newArgs = self.table.item(row, column).text()
+                    if newArgs != "":
+                        roolback = True
+                        print("Invalid arguments: " + newArgs)
+                elif actionConsiderated == "write" or actionConsiderated == "type":
+                    newArgs = self.table.item(row, column).text()
+                    if newArgs == "":
+                        roolback = True
+                        print("Invalid arguments: " + newArgs)
+                elif actionConsiderated == "moveMouse":
+                    newArgs = self.table.item(row, column).text()
+                    newArgs = newArgs.split(",")
+                    if len(newArgs)!= 3:
+                        roolback = True
+                        print("Invalid arguments: " + str(newArgs))
+                    # Check if every argument is a number or float
+                    for arg in newArgs:
+                        try:
+                            float(arg)
+                        except ValueError:
+                            roolback = True
+                            print("Invalid arguments: " + str(newArgs))
+                            break
+                elif actionConsiderated == "scroll":
+                    newArgs = self.table.item(row, column).text()
+                    newArgs = newArgs.split(",")
+                    if len(newArgs)!= 2:
+                        roolback = True
+                        print("Invalid arguments: " + str(newArgs))
+                    # Check if every argument is a number or float
+                    for arg in newArgs:
+                        try:
+                            float(arg)
+                        except ValueError:
+                            roolback = True
+                            print("Invalid arguments: " + str(newArgs))
+                            break
+                elif actionConsiderated == "sleep" or actionConsiderated == "random":
+                    newArgs = self.table.item(row, column).text()
+                    newArgs = newArgs.split(",")
+                    if len(newArgs)!= 1:
+                        roolback = True
+                        print("Invalid arguments: " + str(newArgs))
+                    # Check if every argument is a number or float
+                    for arg in newArgs:
+                        try:
+                            float(arg)
+                        except ValueError:
+                            roolback = True
+                            print("Invalid arguments: " + str(newArgs))
+                            break
+                else:
+                    roolback = True
+                    print(f"Invalid action: {actionConsiderated}")
+            # Edit comments
+            elif column == 3:
+                ...
+
+
+            if not roolback:
+                self.backupCommit()
         if roolback:
             # Get the original text of the cell
-            original_text = self.revertBackup.item(row, 0).text()
+            original_text = self.revertBackup.item(row, column).text()
             # Set the cell's text back to its original value
             self.beforeRollback = False
-            self.table.item(row, 0).setText(original_text)
+            self.table.item(row, column).setText(original_text)
 
 
     def toPlainText(self):

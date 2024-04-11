@@ -19,7 +19,7 @@ class action:
 
 
     def run(self) -> bool:
-        if self.actionStr.__contains__("sleep"):
+        if self.actionStr == "sleep":
             time.sleep(self.args["time"] + random.uniform(0, self.random))
         elif self.actionStr == "right":
             self.controllerMouse.press(Button.right)
