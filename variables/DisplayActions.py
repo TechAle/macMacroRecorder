@@ -1,3 +1,5 @@
+import threading
+
 from PyQt5 import Qt
 
 from PyQt5.QtCore import Qt as tableQt
@@ -15,15 +17,22 @@ class TableWidget(QTableWidget):
 
     def show_context_menu(self, pos):
         menu = QMenu(self)
-        action = menu.addAction("Edit")
-        action.triggered.connect(lambda idx, pos_args=pos: self.print_row_index(idx, pos_args))
+        actionEdit = menu.addAction("Edit")
+        actionEdit.triggered.connect(lambda idx, pos_args=pos: self.print_row_index(idx, pos_args))
+        actionDelete = menu.addAction("Delete")
+        actionDelete.triggered.connect(lambda idx, pos_args=pos: self.delete_row(idx, pos_args))
         menu.exec_(self.mapToGlobal(pos))
 
     def print_row_index(self, idx, pos):
-        print(f"Row index: {idx} {pos}")
         item = self.itemAt(pos)
         if item:
             print(f"Cell: {item.row()}, {item.column()}")
+
+    def delete_row(self, idx, pos):
+        item = self.itemAt(pos)
+        if item:
+            print(f"Cell: {item.row()}, {item.column()}")
+
 
 class displayAction(QWidget):
 
@@ -53,8 +62,52 @@ class displayAction(QWidget):
         layout.addWidget(self.table)
         self.displayText = displayText(self.table)
 
+        # Connect the cellChanged signal to a slot
+        self.loading = False
+        self.table.cellChanged.connect(self.cell_edited)
+        # Create a locker
+        self.locker = threading.Lock()
+        self.revertBackup = None
+        self.beforeRollback = True
+        b = 0
+
+    def backupCommit(self):
+        new_table = QTableWidget(self.table.rowCount(), self.table.columnCount())
+        for row in range(self.table.rowCount()):
+            for column in range(self.table.columnCount()):
+                item = self.table.item(row, column)
+                if item:
+                    new_item = QTableWidgetItem(item.text())
+                    new_item.setData(tableQt.ItemDataRole.UserRole, item.data(tableQt.ItemDataRole.UserRole))
+                    new_table.setItem(row, column, new_item)
+        self.revertBackup = new_table
+
+    def cell_edited(self, row, column):
+        if not self.beforeRollback:
+            self.beforeRollback = True
+            return
+        if self.loading:
+            return
+        roolback = False
+        if column == 0:
+            roolback = True
+        else:
+            # This slot will be called whenever a cell gets edited
+            print(f"Cell at row {row} and column {column} has been edited.")
+            self.backupCommit()
+        if roolback:
+            # Get the original text of the cell
+            original_text = self.revertBackup.item(row, 0).text()
+            # Set the cell's text back to its original value
+            self.beforeRollback = False
+            self.table.item(row, 0).setText(original_text)
+
+
     def toPlainText(self):
         return self.displayText.getString()
 
     def setPlainText(self, text):
+        self.loading = True
         self.displayText.setString(text)
+        self.loading = False
+        self.backupCommit()

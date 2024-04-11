@@ -18,20 +18,10 @@ class displayText:
         self.svg = {}
         self.prepareSVG()
 
-        # Connect the clicked signal to a slot that handles the left-click event
-        self.table.clicked.connect(self.handleLeftClick)
-
-        # Define a method to handle the left-click event
-    def handleLeftClick(self, pos):
-        # Display an alert when you left-click a row
-        print("left click " + str(pos))
-
-        # Define a method to handle the right-click event
-    def contextMenuEvent(self, event):
-        # Prevent the default context menu from appearing
-        event.ignore()
-
-        print("right click")
+    def getCellAction(self, row, column):
+        action = self.actions[row]
+        widget = str(action)
+        widget = widget[:-1].split("(")
 
     def prepareSVG(self):
         # Load every SVG in the folder images in prepareSVG as QIcon
