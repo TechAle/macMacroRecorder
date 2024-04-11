@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<svg width="337.131" height="604.594" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
+ <title id="title12324">Tango inspired computer mouse for tutorials etc.</title>
+ <defs id="defs4">
+  <linearGradient id="linearGradient4750">
+   <stop id="stop4752" offset="0" stop-color="#ffffff" stop-opacity="0"/>
+   <stop id="stop4758" offset="0.5" stop-color="#ffffff"/>
+   <stop id="stop4754" offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="linearGradient12134" x1="0.18" x2="0.49" xlink:href="#linearGradient4750" y1="0.45" y2="0.88"/>
+ </defs>
+ <g class="layer">
+  <title>Layer 1</title>
+  <g id="layer1">
+   <g id="g17264" transform="translate(651.429 860)">
+    <g id="layer1-6" transform="matrix(5.32949 0 0 5.32949 -1058.64 -190.107)">
+     <path d="m216.79,-183.77c-0.05,-0.59 -0.38,-1.04 -1.02,-1.09l-0.86,1.15l0.61,0.64l1.27,-0.7z" display="block" fill="url(#linearGradient12134)" id="path12110"/>
+     <g id="g12147" transform="matrix(0.672903 0 0 0.672903 132.663 -2.86575)">
+      <g id="g12231" transform="matrix(2.55532 0 0 2.55532 -353.436 -319.8)"/>
+      <g id="g12242" transform="matrix(2.55532 0 0 2.55532 -359.136 -319.8)">
+       <path d="m126.32,118.52c-14.56,0 -16.77,-12.93 -16.61,-17.02l0,0l0,0l0,0l0,0l0,0c0.22,-3.87 0.41,-19.41 -0.24,-32.5c0.17,-14.3 11.09,-13.96 16.85,-13.96c5.75,0 16.68,-0.34 16.85,13.96c-0.65,13.09 -0.46,28.63 -0.24,32.49l0,0l0,0l0,0l0,0l0,0c0.15,4.1 -2.05,17.03 -16.61,17.03" fill="#babdb6" fill-rule="evenodd" id="path12213" stroke="#888a85" stroke-miterlimit="4" stroke-width="1.99"/>
+       <path d="m126.09,112.68c-12.84,0 -14.78,-11.16 -14.65,-14.7l0,0l0,0l0,0l0,0l0,0c0.2,-3.34 0.36,-16.76 -0.2,-28.05c0.14,-12.35 9.78,-12.06 14.85,-12.06c5.08,0 14.71,-0.29 14.86,12.06c-0.57,11.29 -0.4,24.71 -0.21,28.05l0,0l0,0l0,0l0,0l0,0c0.14,3.54 -1.81,14.7 -14.65,14.7" fill="#f2f2f1" fill-rule="evenodd" id="path12215" stroke="#dcddda" stroke-miterlimit="4" stroke-width="1.74"/>
+       <path d="m126.09,57.87c5.08,0 14.71,-0.29 14.86,12.06c-0.16,3.18 -0.26,6.54 -0.32,9.79c-3.68,-0.15 -9.4,-0.02 -14.23,-0.02l-0.31,-21.83z" fill="#f2f2f1" fill-rule="evenodd" id="path12217" stroke-miterlimit="4" stroke-width="1.74"/>
+       <path d="m111.56,79.66c-0.06,-3.23 -0.16,-6.57 -0.32,-9.73c0.14,-12.35 9.78,-12.06 14.85,-12.06l-0.47,21.46c-4.93,-0.03 -9.73,0.05 -14.06,0.33z" fill="#f2f2f1" fill-rule="evenodd" id="path12219" stroke-miterlimit="4" stroke-width="1.74"/>
+       <path clip-rule="nonzero" d="m125.78,59.82c-1.89,0 -3.37,1.44 -3.37,3.1l0,11.28c0,1.66 1.48,3.1 3.37,3.1l1.19,0c1.89,0 3.37,-1.44 3.37,-3.1l0,-11.28c0,-1.66 -1.48,-3.1 -3.37,-3.1l-1.19,0z" display="inline" enable-background="accumulate" fill="#babdb6" fill-rule="nonzero" id="path12221" stroke-dashoffset="0" stroke-miterlimit="4" stroke-width="2.16"/>
+       <path d="m126.38,57.04l0,22.24" fill="none" fill-rule="evenodd" id="path12223" stroke="#888a85" stroke-miterlimit="4" stroke-width="1.88"/>
+       <path d="m126.34,79.27c-15.45,0 -15.04,0.62 -15.51,0.74" fill="none" fill-rule="evenodd" id="path12225" stroke="#888a85" stroke-linecap="round" stroke-miterlimit="4" stroke-width="1.88"/>
+       <path d="m126.38,79.27c15.6,0 15.55,0.88 15.55,0.88" fill="none" fill-rule="evenodd" id="path12227" stroke="#888a85" stroke-linecap="round" stroke-miterlimit="4" stroke-width="1.88"/>
+       <rect fill="#888a85" height="15.32" id="rect12229" rx="1.9" ry="2.02" stroke-dashoffset="0" stroke-miterlimit="4" stroke-width="2.16" width="4.84" x="123.93" y="60.88"/>
+      </g>
+      <g id="g12253" transform="matrix(2.55532 0 0 2.55532 -236.58 -319.8)"/>
+      <g id="g12273" transform="matrix(2.55532 0 0 2.55532 -119.724 -319.8)"/>
+      <g id="g12293" transform="translate(138.864 0)">
+       <g id="g12313"/>
+      </g>
+     </g>
+    </g>
+   </g>
+  </g>
+ </g>
+</svg>
