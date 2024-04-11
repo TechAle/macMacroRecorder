@@ -47,6 +47,7 @@ class displayText:
             widget = widget[:-1].split("(")
             if action.random != lastRandom:
                 lastRandom = action.random
+                # TODO maybe try to center this
                 self.table.setItem(idxRow, 0, self.getSvg("random"))
                 self.table.setItem(idxRow, 1, QTableWidgetItem(f"random"))
                 self.table.setItem(idxRow, 2, QTableWidgetItem(f"{lastRandom}"))
@@ -54,6 +55,7 @@ class displayText:
             self.table.setItem(idxRow, 0, self.getSvg(widget[0]))
             self.table.setItem(idxRow, 1, QTableWidgetItem(widget[0]))
             self.table.setItem(idxRow, 2, QTableWidgetItem(widget[1]))
+            idxRow += 1
 
     def getSvg(self, name):
         output = QIcon()
@@ -70,8 +72,4 @@ class displayText:
 
 
     def resetTable(self):
-        for row in range(self.table.rowCount()):
-            for column in range(self.table.columnCount()):
-                item = self.table.item(row, column)
-                if item is not None:
-                    self.table.removeItem(row, column)
+        self.table.clearContents()
