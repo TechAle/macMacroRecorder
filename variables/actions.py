@@ -37,8 +37,8 @@ class action:
         elif self.actionStr == "stop":
             return False
         elif self.actionStr == "type":
-            self.controllerKeyboard.press(Key[self.args["keyName"]])
-            self.controllerKeyboard.release(Key[self.args["keyName"]])
+            self.controllerKeyboard.press(Key[self.args["text"]])
+            self.controllerKeyboard.release(Key[self.args["text"]])
         elif self.actionStr == "write":
             self.controllerKeyboard.type(self.args["text"])
         # Add option for moving the mouse

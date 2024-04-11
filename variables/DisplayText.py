@@ -1,4 +1,5 @@
 import os
+import threading
 
 from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtGui import QPixmap, QIcon
@@ -17,11 +18,6 @@ class displayText:
         self.keybind = None
         self.svg = {}
         self.prepareSVG()
-
-    def getCellAction(self, row, column):
-        action = self.actions[row]
-        widget = str(action)
-        widget = widget[:-1].split("(")
 
     def prepareSVG(self):
         # Load every SVG in the folder images in prepareSVG as QIcon

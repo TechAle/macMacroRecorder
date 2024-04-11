@@ -65,7 +65,7 @@ class runnableMacro(threading.Thread):
             elif line[0] == "type":
                 self.script.append(action(line[0], randomTime,
                                           args={
-                                              "keyName": line[1]
+                                              "text": line[1]
                                           }))
             elif line[0] == "moveMouse":
                 x, y, speed = line[1].split(',')

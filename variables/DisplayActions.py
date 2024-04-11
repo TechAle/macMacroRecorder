@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QTextEdit, QVBoxLayout, QSizeP
     QTableWidgetItem, QHeaderView, QMenu
 
 from variables.DisplayText import displayText
+from variables.actions import action
 
 
 class TableWidget(QTableWidget):
@@ -95,6 +96,7 @@ class displayAction(QWidget):
             print(f"Cell at row {row} and column {column} has been edited.")
             # TODO shift all this into action function or an utility
             # TODO give a feedback when errors are made
+            # TODO having random create lots of desyncs
             # Edit action
             if column == 1:
                 newAction = self.table.item(row, column).text()
@@ -102,7 +104,30 @@ class displayAction(QWidget):
                     roolback = True
                     print(f"Invalid action: {newAction}")
                 else:
-                    ...
+                    actionReplace = None
+                    random = self.displayText.actions[row].random
+                    if newAction in ["right", "left", "shift", "unshift", "middleClick", "stop"]:
+                        actionReplace = action(newAction, random)
+                    elif newAction in ["write", "type"]:
+                        actionReplace = action(newAction, random, "a")
+                    elif newAction == "moveMouse":
+                        actionReplace = action(newAction, random, {
+                            "x": 0,
+                            "y": 0,
+                            "time": 0
+                        })
+                    elif newAction == "sleep":
+                        actionReplace = action(newAction, random, {
+                            "time": 0
+                        })
+                    elif newAction == "scroll":
+                        actionReplace = action(newAction, random, {
+                            "dx": 0,
+                            "dy": 0
+                        })
+                    else:
+                        print("I forgot an action " + newAction)
+                    self.displayText.actions[row] = actionReplace
             # Edit argouments
             elif column == 2:
                 actionConsiderated = self.table.item(row, 1).text()
@@ -145,7 +170,7 @@ class displayAction(QWidget):
                             roolback = True
                             print("Invalid arguments: " + str(newArgs))
                             break
-                elif actionConsiderated == "sleep" or actionConsiderated == "random":
+                elif actionConsiderated == "sleep":
                     newArgs = self.table.item(row, column).text()
                     newArgs = newArgs.split(",")
                     if len(newArgs)!= 1:
