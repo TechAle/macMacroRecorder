@@ -1,9 +1,12 @@
 import os
 
+from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QLabel, QTableWidgetItem
+from PyQt5.QtWidgets import QLabel, QTableWidgetItem, QMessageBox, QMenu, QTableWidget
 
 from variables.RunnableMacro import runnableMacro
+
+
 
 
 class displayText:
@@ -14,6 +17,21 @@ class displayText:
         self.keybind = None
         self.svg = {}
         self.prepareSVG()
+
+        # Connect the clicked signal to a slot that handles the left-click event
+        self.table.clicked.connect(self.handleLeftClick)
+
+        # Define a method to handle the left-click event
+    def handleLeftClick(self, pos):
+        # Display an alert when you left-click a row
+        print("left click " + str(pos))
+
+        # Define a method to handle the right-click event
+    def contextMenuEvent(self, event):
+        # Prevent the default context menu from appearing
+        event.ignore()
+
+        print("right click")
 
     def prepareSVG(self):
         # Load every SVG in the folder images in prepareSVG as QIcon
