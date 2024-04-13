@@ -23,11 +23,11 @@ class displayText:
 
     def getString(self):
         output = ""
-        lastRandom = 0
         if self.keybind is not None:
             output += f"keybind({self.keybind.char})\n"
         for action in self.actions:
-            output += action.__str__() + "\n"
+            action, args, comment = action.getValues()
+            output += f"{action}({args}) #{comment}\n"
         return output
 
     def setString(self, text):
@@ -40,11 +40,11 @@ class displayText:
         self.table.setRowCount(self.actions.__len__())
         idxRow = 0
         for action in self.actions:
-            widget = str(action)
-            widget = widget[:-1].split("(")
-            self.table.setItem(idxRow, 0, self.getSvg(widget[0]))
-            self.table.setItem(idxRow, 1, QTableWidgetItem(widget[0]))
-            self.table.setItem(idxRow, 2, QTableWidgetItem(widget[1]))
+            action, args, comment = action.getValues()
+            self.table.setItem(idxRow, 0, self.getSvg(action))
+            self.table.setItem(idxRow, 1, QTableWidgetItem(action))
+            self.table.setItem(idxRow, 2, QTableWidgetItem(args))
+            self.table.setItem(idxRow, 3, QTableWidgetItem(comment))
             idxRow += 1
 
     def getSvg(self, name):

@@ -198,7 +198,7 @@ class displayAction(QWidget):
                     print(f"Invalid action: {actionConsiderated}")
             # Edit comments
             elif column == 3:
-                ...
+                self.displayText.actions[row].comment = self.table.item(row, column).text()
 
 
             if not roolback:

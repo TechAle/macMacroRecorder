@@ -10,11 +10,12 @@ from pynput.mouse import Controller as MouseController, Button
 
 # TODO make some extends
 class action:
-    def __init__(self, action, args=None):
+    def __init__(self, action, args=None, comment=""):
         self.actionStr = action
         self.controllerKeyboard = ControllerKeyboard()
         self.controllerMouse = MouseController()
         self.args = args
+        self.comment = comment
 
 
     def run(self, randomValue=0) -> bool:
@@ -90,7 +91,7 @@ class action:
 
         return True
 
-    def __str__(self):
+    def getValues(self):
         args = ""
         if self.args is not None and self.args.__len__() > 0:
             if self.actionStr == "moveMouse":
@@ -101,4 +102,4 @@ class action:
                 args = f"{self.args[list(self.args.keys())[0]]}"
             else:
                 print("Missing arguments for action " + self.actionStr + " args:" + str(self.args))
-        return f"{self.actionStr}({args})"
+        return self.actionStr, args, self.comment

@@ -28,7 +28,6 @@ class macroManager():
         self.moveMouseTime = moveMouseTime
         self.scriptRecording = None
 
-
     def onToggle(self, script):
         if not self.scripts.__contains__(script):
             return None
@@ -89,8 +88,6 @@ class macroManager():
     def update(self, lastSelected):
         self.scripts[lastSelected].loadFile()
 
-        
-
     def addTime(self):
         currentTime = time.time()
         self.recording.append(f"sleep({(currentTime - self.lastActionTime) / 1000})")
@@ -128,15 +125,12 @@ class macroManager():
                 self.lastActionTime = time.time()
                 self.locker.release()
 
-
     def onClick(self, x, y, button, pressed):
         if self.isRecording and pressed:
             if self.firstMouseCoords:
                 self.onMove(x, y)
                 self.firstMouseCoords = False
             self.locker.acquire()
-            # TODO check for moveMouse
-            # Check if button is left, right, middle, shift, unshift
             if button.name == "left":
                 self.recording.append(f"leftClick()")
             elif button.name == "right":
@@ -151,9 +145,6 @@ class macroManager():
                 self.onMove(self.controllerMouse.position[0], self.controllerMouse.position[1])
                 self.firstMouseCoords = False
             self.locker.acquire()
-            # TODO check for moveMouse
             self.recording.append(f"moveMouse({x}, {y}, {(time.time() - self.lastActionTime) / 1000}")
             self.recording.append(f"scroll({dx}, {dy})")
             self.locker.release()
-
-
