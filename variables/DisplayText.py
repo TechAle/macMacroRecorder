@@ -1,13 +1,9 @@
 import os
-import threading
 
-from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QLabel, QTableWidgetItem, QMessageBox, QMenu, QTableWidget
+from PyQt5.QtWidgets import QTableWidgetItem
 
 from variables.RunnableMacro import runnableMacro
-
-
 
 
 class displayText:
@@ -31,9 +27,6 @@ class displayText:
         if self.keybind is not None:
             output += f"keybind({self.keybind.char})\n"
         for action in self.actions:
-            if action.random != lastRandom:
-                lastRandom = action.random
-                output += f"random({lastRandom})\n"
             output += action.__str__() + "\n"
         return output
 
@@ -44,18 +37,11 @@ class displayText:
         macro.loadScript(text)
         self.keybind = macro.keybind
         self.actions = macro.script
-        lastRandom = 0
+        self.table.setRowCount(self.actions.__len__())
         idxRow = 0
         for action in self.actions:
             widget = str(action)
             widget = widget[:-1].split("(")
-            if action.random != lastRandom:
-                lastRandom = action.random
-                # TODO maybe try to center this
-                self.table.setItem(idxRow, 0, self.getSvg("random"))
-                self.table.setItem(idxRow, 1, QTableWidgetItem(f"random"))
-                self.table.setItem(idxRow, 2, QTableWidgetItem(f"{lastRandom}"))
-                idxRow += 1
             self.table.setItem(idxRow, 0, self.getSvg(widget[0]))
             self.table.setItem(idxRow, 1, QTableWidgetItem(widget[0]))
             self.table.setItem(idxRow, 2, QTableWidgetItem(widget[1]))
@@ -65,10 +51,12 @@ class displayText:
         output = QIcon()
         if name in self.svg:
             output = self.svg[name]
-        if name == "moveMouse":
+        elif name == "moveMouse":
             output = self.svg["mouse"]
-        if name == "scroll":
+        elif name == "scroll":
             output = self.svg["middleClick"]
+        elif name == "write" or name == "type":
+            output = self.svg["keyboard"]
         item = QTableWidgetItem()
         item.setIcon(output)
         return item

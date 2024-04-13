@@ -105,25 +105,30 @@ class displayAction(QWidget):
                     print(f"Invalid action: {newAction}")
                 else:
                     actionReplace = None
-                    random = self.displayText.actions[row].random
                     if newAction in ["right", "left", "shift", "unshift", "middleClick", "stop"]:
-                        actionReplace = action(newAction, random)
+                        actionReplace = action(newAction)
                     elif newAction in ["write", "type"]:
-                        actionReplace = action(newAction, random, "a")
+                        actionReplace = action(newAction, {"value": "a"})
+                    elif newAction == "random":
+                        actionReplace = action(newAction, {"value": 0})
                     elif newAction == "moveMouse":
-                        actionReplace = action(newAction, random, {
+                        actionReplace = action(newAction, {
                             "x": 0,
                             "y": 0,
                             "time": 0
                         })
                     elif newAction == "sleep":
-                        actionReplace = action(newAction, random, {
+                        actionReplace = action(newAction,  {
                             "time": 0
                         })
                     elif newAction == "scroll":
-                        actionReplace = action(newAction, random, {
+                        actionReplace = action(newAction,  {
                             "dx": 0,
                             "dy": 0
+                        })
+                    elif newAction == "random":
+                        actionReplace = action(newAction,  {
+                            "value": 0
                         })
                     else:
                         print("I forgot an action " + newAction)
@@ -133,15 +138,14 @@ class displayAction(QWidget):
                 actionConsiderated = self.table.item(row, 1).text()
                 actionConsiderated = actionConsiderated
                 if actionConsiderated in ["right", "left", "shift", "scroll", "unshift", "middleClick", "stop"]:
-                    newArgs = self.table.item(row, column).text()
-                    if newArgs != "":
-                        roolback = True
-                        print("Invalid arguments: " + newArgs)
+                    roolback = True
+                    print("They cannot have arguments")
                 elif actionConsiderated == "write" or actionConsiderated == "type":
                     newArgs = self.table.item(row, column).text()
                     if newArgs == "":
                         roolback = True
                         print("Invalid arguments: " + newArgs)
+                    self.displayText.actions[row].args = {"value": newArgs}
                 elif actionConsiderated == "moveMouse":
                     newArgs = self.table.item(row, column).text()
                     newArgs = newArgs.split(",")
@@ -149,13 +153,16 @@ class displayAction(QWidget):
                         roolback = True
                         print("Invalid arguments: " + str(newArgs))
                     # Check if every argument is a number or float
-                    for arg in newArgs:
-                        try:
-                            float(arg)
-                        except ValueError:
-                            roolback = True
-                            print("Invalid arguments: " + str(newArgs))
-                            break
+                    try:
+                        newDict = {
+                            "x": float(newArgs[0]),
+                            "y": float(newArgs[1]),
+                            "time": float(newArgs[2])
+                        }
+                        self.displayText.actions[row].args = newDict
+                    except ValueError:
+                        roolback = True
+                        print("Invalid arguments: " + str(newArgs))
                 elif actionConsiderated == "scroll":
                     newArgs = self.table.item(row, column).text()
                     newArgs = newArgs.split(",")
@@ -163,27 +170,29 @@ class displayAction(QWidget):
                         roolback = True
                         print("Invalid arguments: " + str(newArgs))
                     # Check if every argument is a number or float
-                    for arg in newArgs:
-                        try:
-                            float(arg)
-                        except ValueError:
-                            roolback = True
-                            print("Invalid arguments: " + str(newArgs))
-                            break
-                elif actionConsiderated == "sleep":
+                    try:
+                        newDict = {
+                            "dx": float(newArgs[0]),
+                            "dy": float(newArgs[1])
+                        }
+                        self.displayText.actions[row].args = newDict
+                    except ValueError:
+                        roolback = True
+                        print("Invalid arguments: " + str(newArgs))
+                elif actionConsiderated == "sleep" or actionConsiderated == "random":
                     newArgs = self.table.item(row, column).text()
                     newArgs = newArgs.split(",")
                     if len(newArgs)!= 1:
                         roolback = True
                         print("Invalid arguments: " + str(newArgs))
+                    newArgs = newArgs[0]
                     # Check if every argument is a number or float
-                    for arg in newArgs:
-                        try:
-                            float(arg)
-                        except ValueError:
-                            roolback = True
-                            print("Invalid arguments: " + str(newArgs))
-                            break
+                    try:
+                        self.displayText.actions[row].args["value"] = float(newArgs)
+                    except ValueError:
+                        roolback = True
+                        print("Invalid arguments: " + str(newArgs))
+
                 else:
                     roolback = True
                     print(f"Invalid action: {actionConsiderated}")

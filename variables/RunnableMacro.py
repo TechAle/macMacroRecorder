@@ -8,7 +8,7 @@ from variables.actions import action
 
 
 class runnableMacro(threading.Thread):
-    def __init__(self, script = None):
+    def __init__(self, script=None):
         if script is not None:
             threading.Thread.__init__(self)
             self.enabled = False
@@ -17,6 +17,7 @@ class runnableMacro(threading.Thread):
             self.idx = 0
             self.script = []
             self.keybind = None
+            self.randomTemp = 0
 
     def loadFile(self):
         with open(os.path.join("macros", self.scriptName), 'r') as file:
@@ -29,7 +30,6 @@ class runnableMacro(threading.Thread):
         self.keybind = None
         self.enabled = False
         idx = 0
-        randomTime = 0
         for line in text.split("\n"):
             idx += 1
             line = line.strip()
@@ -40,45 +40,39 @@ class runnableMacro(threading.Thread):
             if line.__len__() <= 1:
                 return f"Syntax error at line {idx}: {line}"
             elif line[0] == "random":
-                randomTime = float(line[1])
-            elif line[0] == "sleep":
-                self.script.append(action(line[0], randomTime,
-                                          args={
-                                              "time": float(line[1])
-                                          }))
+                self.script.append(action(line[0], args={"value": float(line[1])}))
             elif line[0] == "keybind":
                 self.keybind = KeyCode.from_char(line[1].replace("\"", "").replace("'", "")[0])
-            elif line[0] == "write":
-                self.script.append(action(line[0], randomTime,
+            elif line[0] == "write" or line[0] == "type":
+                temp = action(line[0],
                                           args={
-                                              "text": line[1]
-                                          }))
+                                              "value": line[1]
+                                          })
+                self.script.append(temp)
             # Everything that does not have any argouments
             elif ["leftClick", "rightClick", "middleClick"].__contains__(line[0]):
-                self.script.append(action(line[0], randomTime))
+                self.script.append(action(line[0]))
             elif line[0] == "scroll":
                 x, y = line[1].strip().replace(" ", "").split(",")
-                self.script.append(action(line[0], randomTime, args={
+                self.script.append(action(line[0], args={
                     "dx": float(x),
                     "dy": float(y)
                 }))
-            elif line[0] == "type":
-                self.script.append(action(line[0], randomTime,
+            elif line[0] == "random" or line[0] == "sleep":
+                self.script.append(action(line[0],
                                           args={
-                                              "text": line[1]
+                                              "value": float(line[1])
                                           }))
             elif line[0] == "moveMouse":
                 x, y, speed = line[1].split(',')
-                self.script.append(action(line[0], randomTime,
+                self.script.append(action(line[0],
                                           args={
                                               "x": float(x),
                                               "y": float(y),
                                               "time": float(speed)
                                           }))
-            # TODO add everything else
             else:
                 return f"Unknown command at line {idx}: {line}"
-
 
     # When the toggle button is pressed
     def toggle(self):
@@ -98,10 +92,12 @@ class runnableMacro(threading.Thread):
             return False
         return None
 
-
     def run(self):
         while self.state == macroState.RUNNING:
-            if not self.script[self.idx].run():
+            results = self.script[self.idx].run(self.randomTemp)
+            if type(results) == int:
+                self.randomTemp = results
+            elif not self.script[self.idx].run(self.randomTemp, self.randomTemp):
                 self.state = macroState.WAITING
             else:
                 self.idx = (self.idx + 1) % self.script.__len__()

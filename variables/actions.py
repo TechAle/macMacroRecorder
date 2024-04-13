@@ -10,17 +10,18 @@ from pynput.mouse import Controller as MouseController, Button
 
 # TODO make some extends
 class action:
-    def __init__(self, action, random, args=None):
+    def __init__(self, action, args=None):
         self.actionStr = action
-        self.random = random
         self.controllerKeyboard = ControllerKeyboard()
         self.controllerMouse = MouseController()
         self.args = args
 
 
-    def run(self) -> bool:
+    def run(self, randomValue=0) -> bool:
         if self.actionStr == "sleep":
-            time.sleep(self.args["time"] + random.uniform(0, self.random))
+            time.sleep(self.args["value"] + random.uniform(0, randomValue))
+        elif self.actionStr == "random":
+            return self.args["value"]
         elif self.actionStr == "right":
             self.controllerMouse.press(Button.right)
         elif self.actionStr == "left":
@@ -37,10 +38,10 @@ class action:
         elif self.actionStr == "stop":
             return False
         elif self.actionStr == "type":
-            self.controllerKeyboard.press(Key[self.args["text"]])
-            self.controllerKeyboard.release(Key[self.args["text"]])
+            self.controllerKeyboard.press(Key[self.args["value"]])
+            self.controllerKeyboard.release(Key[self.args["value"]])
         elif self.actionStr == "write":
-            self.controllerKeyboard.type(self.args["text"])
+            self.controllerKeyboard.type(self.args["value"])
         # Add option for moving the mouse
         elif self.actionStr == "moveMouse":
             x, y = self.args["x"], self.args["y"]
@@ -53,7 +54,7 @@ class action:
                     And to be 100% accurate i create a thread for doing that movement slowly
                     And the main wait timeNeeded time and then move the mouse
                 '''
-                timeNeeded = self.args["time"] + random.uniform(0, self.random)
+                timeNeeded = self.args["time"] + random.uniform(0, randomValue)
                 stop = False
                 # Create function smoothMove
 
