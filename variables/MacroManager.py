@@ -34,12 +34,14 @@ class macroManager():
             return None
         return self.scripts[script].toggle()
 
-    def onCreate(self, script):
+    def onCreate(self, script, update=False):
         if not self.scripts.keys().__contains__(script):
             scriptToAdd = runnableMacro(script)
             if type(output := scriptToAdd.loadFile()) == str:
                 return output
             self.scripts[script] = scriptToAdd
+        elif update:
+            self.update(script)
         return self.scripts[script].state != macroState.DISABLED
 
     def removeScript(self, script):

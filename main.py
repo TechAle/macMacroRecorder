@@ -334,7 +334,7 @@ class MyWindow(QWidget):
             self.script_buttons_layout.addWidget(button)
 
     def loadFileContent(self, file):
-        if self.lastSelected is not None:
+        if self.lastSelected is not None and self.lastSelected != file:
             with open(os.path.join("macros", self.lastSelected), "w") as f:
                 f.write(self.text_field.toPlainText())
             self.macroManager.removeScript(self.lastSelected)
@@ -342,7 +342,7 @@ class MyWindow(QWidget):
             content = f.read()
             self.text_field.setPlainText(content)
         self.lastSelected = file
-        if type(success := self.macroManager.onCreate(file)) != str:
+        if type(success := self.macroManager.onCreate(file, True)) != str:
             if success:
                 self.button_toggle.setStyleSheet("background-color: green;")
             else:
