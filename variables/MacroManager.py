@@ -111,7 +111,7 @@ class macroManager():
             if type(key) == Key:
                 self.recording.append(f"type({key.name})")
             else:
-                self.recording.append(f"write({key})")
+                self.recording.append(f"write({key.char})")
 
             self.locker.release()
 

@@ -3,7 +3,6 @@
         - Picture
         - Action
         - Argouments of the action
-        - Comments
     Ideas:
         - Create labels
         - Jump to labels
@@ -256,7 +255,7 @@ class MyWindow(QWidget):
             QMessageBox.information(self, "Feedback", "The keybind must be 1 long",
                                     QMessageBox.Abort)
         else:
-            self.configurations["keybindStart"] = text
+            self.configurations["keybindStart"] = KeyCode.from_char(text)
             self.buttonKeybindStartRecording.setText("Keybind start recording: " + text)
             QMessageBox.information(self, "Feedback", "Keybind for starting a recording changed without any problems",
                                     QMessageBox.Ok)
@@ -272,7 +271,7 @@ class MyWindow(QWidget):
             QMessageBox.information(self, "Feedback", "The keybind must be 1 long",
                                     QMessageBox.Abort)
         else:
-            self.configurations["keybindStop"] = text
+            self.configurations["keybindStop"] = KeyCode.from_char(text)
             self.buttonKeybindStopRecording.setText("Keybind stop recording: " + text)
             QMessageBox.information(self, "Feedback", "Keybind for stopping a recording changed without any problems",
                                     QMessageBox.Ok)

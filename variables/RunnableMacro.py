@@ -47,8 +47,8 @@ class runnableMacro(threading.Thread):
             if output == -1:
                 return False, False, False
             else:
-                argouments = extra[:output + 1]
-                comment = extra[output + 2:]
+                argouments = extra[:output]
+                comment = extra[output+1:]
         elif command == "type":
             argouments = extra[0]
             comment = extra[2:]
@@ -138,7 +138,7 @@ class runnableMacro(threading.Thread):
             results = self.script[self.idx].run(self.randomTemp)
             if type(results) == int:
                 self.randomTemp = results
-            elif not self.script[self.idx].run(self.randomTemp, self.randomTemp):
+            elif not results:
                 self.state = macroState.WAITING
             else:
                 self.idx = (self.idx + 1) % self.script.__len__()
