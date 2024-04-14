@@ -44,6 +44,7 @@ if not HIServices.AXIsProcessTrusted():
 
 class MyWindow(QWidget):
     signalHander = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
         self.initVariables()
@@ -96,7 +97,7 @@ class MyWindow(QWidget):
         listenerMouse.start()
 
     def onPress(self, key):
-        if self.focus: # pyobject would crash without this
+        if self.focus:  # pyobject would crash without this
             return
         if not self.macroManager.isRecording or key != self.configurations["keybindStop"]:
             self.macroManager.onPress(key)
@@ -138,9 +139,11 @@ class MyWindow(QWidget):
             "mouseDelay": 0.05,
         }
 
-
-
     def save_configurations(self):
+        self.configurations = {
+            x: (self.configurations[x].char if type(self.configurations[x]) is KeyCode else self.configurations[x]) for
+            x in self.configurations
+        }
         with open("configurations.json", "w") as f:
             json.dump(self.configurations, f, indent=4)
 
@@ -166,7 +169,6 @@ class MyWindow(QWidget):
         # Text Field
         # Create a scroll area
         scroll_area = QScrollArea()
-
 
         self.text_field = displayAction()
 
@@ -200,9 +202,10 @@ class MyWindow(QWidget):
 
         keybindLayout = QHBoxLayout()
         self.buttonKeybindStartRecording = QPushButton(
-            "Keybind Start Recording: " + str(self.configurations["keybindStart"]))
+            "Keybind Start Recording: " + ("" if self.configurations["keybindStart"] == "" else self.configurations["keybindStart"].char))
         self.buttonKeybindStartRecording.clicked.connect(self.pressedKeybindStart)
-        self.buttonKeybindStopRecording = QPushButton("Keybind Stop Recording: " + str(self.configurations["keybindStop"]))
+        self.buttonKeybindStopRecording = QPushButton(
+            "Keybind Stop Recording: " + ("" if self.configurations["keybindStop"] == "" else self.configurations["keybindStop"].char))
         self.buttonKeybindStopRecording.clicked.connect(self.pressedKeybindStop)
         keybindLayout.addWidget(self.buttonKeybindStartRecording)
         keybindLayout.addWidget(self.buttonKeybindStopRecording)
@@ -247,16 +250,23 @@ class MyWindow(QWidget):
 
     def pressedKeybindStart(self):
         text, okPressed = QInputDialog.getText(self, "Get keybind start",
-                                               "Enter the keybind for starting (1 character):", QLineEdit.Normal, "")
+                                               "Enter the keybind for starting (1 character, nothing to remove):",
+                                               QLineEdit.Normal, "")
         if not okPressed:
             QMessageBox.information(self, "Feedback", "Cancelled successfully",
                                     QMessageBox.Ok)
-        elif text == '' or len(text) != 1:
-            QMessageBox.information(self, "Feedback", "The keybind must be 1 long",
+        elif len(text) > 1:
+            QMessageBox.information(self, "Feedback", "The keybind cannot be more then 1 long",
                                     QMessageBox.Abort)
+        elif len(text) == 0:
+            self.configurations["keybindStart"] = ""
+            self.buttonKeybindStartRecording.setText("Keybind start recording: ")
+            QMessageBox.information(self, "Feedback", "Keybind for starting a recording removed without any problems",
+                                    QMessageBox.Ok)
+            self.save_configurations()
         else:
             self.configurations["keybindStart"] = KeyCode.from_char(text)
-            self.buttonKeybindStartRecording.setText("Keybind start recording: " + text)
+            self.buttonKeybindStartRecording.setText("Keybind start recording: " + self.configurations["keybindStart"].char)
             QMessageBox.information(self, "Feedback", "Keybind for starting a recording changed without any problems",
                                     QMessageBox.Ok)
             self.save_configurations()
@@ -272,7 +282,7 @@ class MyWindow(QWidget):
                                     QMessageBox.Abort)
         else:
             self.configurations["keybindStop"] = KeyCode.from_char(text)
-            self.buttonKeybindStopRecording.setText("Keybind stop recording: " + text)
+            self.buttonKeybindStopRecording.setText("Keybind stop recording: " + self.configurations["keybindStop"].char)
             QMessageBox.information(self, "Feedback", "Keybind for stopping a recording changed without any problems",
                                     QMessageBox.Ok)
             self.save_configurations()
@@ -295,7 +305,8 @@ class MyWindow(QWidget):
                 QMessageBox.information(self, "Feedback", "You have not loaded any file",
                                         QMessageBox.Abort)
             else:
-                QMessageBox.information(self, "Feedback", "The file you loaded is not valid, please fix the errors and save",
+                QMessageBox.information(self, "Feedback",
+                                        "The file you loaded is not valid, please fix the errors and save",
                                         QMessageBox.Abort)
 
     def updateClicked(self):
