@@ -1,51 +1,25 @@
-'''
-    Display:
-        - Picture
-        - Action
-        - Argouments of the action
-    Ideas:
-        - Create labels
-        - Jump to labels
-        - Create variables
-        - Find text
-            - If found, jump to label X
-            - If not found, jump to label Y
-        - Find color
-        - Find image
-        - Write on file a variable with text
-        - Schedule
-        - Move mouse in relative position
-        - Scan qrcode
-        - Group actions
-        - Open app, resize window
-
-'''
 import json
 import os
 import sys
 from functools import partial
+from typing import Union
 
-import HIServices
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QObject, QEvent
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QLineEdit, \
     QMessageBox, QInputDialog, QScrollArea
 from pynput.keyboard import Listener as ListenerKeyboard, KeyCode
-from pynput.mouse import Listener as ListenerMouse
+from pynput.mouse import Listener as ListenerMouse, Button
 
 from variables.DisplayActions import displayAction
 from variables.MacroManager import macroManager
 from variables.MacroState import macroState
 
-if not HIServices.AXIsProcessTrusted():
-    print("This process is NOT a trusted accessibility client, so pynput will not "
-          "function properly. Please grant accessibility access for this app in "
-          "System Preferences.")
 
-
+# noinspection PyAttributeOutsideInit
 class MyWindow(QWidget):
-    signalHander = pyqtSignal(str)
+    signalHander: pyqtSignal = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.initVariables()
         self.initUI()
@@ -53,10 +27,11 @@ class MyWindow(QWidget):
         self.prepareSignals()
         self.b = 0
 
-    def prepareSignals(self):
+    # noinspection PyUnresolvedReferences
+    def prepareSignals(self) -> None:
         self.signalHander.connect(self.onSignal)
 
-    def onSignal(self, data):
+    def onSignal(self, data: str) -> None:
         if data == "askConfirmOverwrite":
             # Ask if they are sure they want to override the current file
             msg = QMessageBox()
@@ -84,7 +59,7 @@ class MyWindow(QWidget):
             self.button_toggle.setStyleSheet("background-color: red;")
             self.button_start_recording.setStyleSheet("")
 
-    def prepareListeners(self):
+    def prepareListeners(self) -> None:
         # Create a new thread with the
         listenerKeyboard = ListenerKeyboard(on_press=self.onPress)
         listenerKeyboard.start()
@@ -96,7 +71,7 @@ class MyWindow(QWidget):
             on_scroll=self.onScroll)
         listenerMouse.start()
 
-    def onPress(self, key):
+    def onPress(self, key: Union[KeyCode, None]) -> None:
         if self.focus:  # pyobject would crash without this
             return
         if not self.macroManager.isRecording or key != self.configurations["keybindStop"]:
@@ -106,23 +81,23 @@ class MyWindow(QWidget):
         elif key == self.configurations["keybindStop"]:
             self.stopRecording()
 
-    def onMove(self, x, y):
+    def onMove(self, x: int, y: int) -> None:
         self.macroManager.onMove(x, y)
 
-    def onClick(self, x, y, button, pressed):
+    def onClick(self, x: int, y: int, button: Button, pressed: bool) -> None:
         self.macroManager.onClick(x, y, button, pressed)
 
-    def onScroll(self, x, y, dx, dy):
+    def onScroll(self, x: int, y: int, dx: int, dy: int) -> None:
         self.macroManager.onScroll(x, y, dx, dy)
 
-    def initVariables(self):
-        self.lastSelected = None
-        self.isRecording = False
-        self.focus = False
+    def initVariables(self) -> None:
+        self.lastSelected: Union[str, None] = None
+        self.isRecording: bool = False
+        self.focus: bool = False
         if os.path.exists("configurations.json"):
             try:
                 with open("configurations.json", "r") as f:
-                    self.configurations = json.load(f)
+                    self.configurations: dict = json.load(f)
                     self.configurations["keybindStart"] = KeyCode.from_char(self.configurations["keybindStart"])
                     self.configurations["keybindStop"] = KeyCode.from_char(self.configurations["keybindStop"])
             except Exception as e:
@@ -130,24 +105,26 @@ class MyWindow(QWidget):
                 self.initDefault()
         else:
             self.initDefault()
-        self.macroManager = macroManager(self.configurations["mouseDelay"])
+        self.macroManager: macroManager = macroManager(self.configurations["mouseDelay"])
 
-    def initDefault(self):
-        self.configurations = {
+    def initDefault(self) -> None:
+        self.configurations: dict = {
             "keybindStart": "",
             "keybindStop": "",
             "mouseDelay": 0.05,
         }
 
-    def save_configurations(self):
+    def save_configurations(self) -> None:
         self.configurations = {
-            x: (self.configurations[x].char if type(self.configurations[x]) is KeyCode else self.configurations[x]) for
+            x: (self.configurations[x].char if isinstance(self.configurations[x], KeyCode) else self.configurations[x])
+            for
             x in self.configurations
         }
         with open("configurations.json", "w") as f:
             json.dump(self.configurations, f, indent=4)
 
-    def initUI(self):
+    # noinspection PyUnresolvedReferences
+    def initUI(self) -> None:
         self.setWindowTitle('PyQt Program with Navigation Bar and Footer')
         self.setGeometry(100, 100, 400, 300)
 
@@ -202,10 +179,12 @@ class MyWindow(QWidget):
 
         keybindLayout = QHBoxLayout()
         self.buttonKeybindStartRecording = QPushButton(
-            "Keybind Start Recording: " + ("" if self.configurations["keybindStart"] == "" else self.configurations["keybindStart"].char))
+            "Keybind Start Recording: " + (
+                "" if self.configurations["keybindStart"] == "" else self.configurations["keybindStart"].char))
         self.buttonKeybindStartRecording.clicked.connect(self.pressedKeybindStart)
         self.buttonKeybindStopRecording = QPushButton(
-            "Keybind Stop Recording: " + ("" if self.configurations["keybindStop"] == "" else self.configurations["keybindStop"].char))
+            "Keybind Stop Recording: " + (
+                "" if self.configurations["keybindStop"] == "" else self.configurations["keybindStop"].char))
         self.buttonKeybindStopRecording.clicked.connect(self.pressedKeybindStop)
         keybindLayout.addWidget(self.buttonKeybindStartRecording)
         keybindLayout.addWidget(self.buttonKeybindStopRecording)
@@ -224,7 +203,7 @@ class MyWindow(QWidget):
         # Update buttons initially
         self.updateButtons()
 
-    def eventFilter(self, obj, event):
+    def eventFilter(self, obj: QObject, event: QEvent) -> bool:
         if obj == self.text_field:
             if event.type() == event.FocusIn:
                 self.focus = True
@@ -232,7 +211,8 @@ class MyWindow(QWidget):
                 self.focus = False
         return super().eventFilter(obj, event)
 
-    def startRecording(self):
+    # noinspection PyUnresolvedReferences
+    def startRecording(self) -> None:
         if self.macroManager.isRecording:
             return
         if self.lastSelected is None:
@@ -245,10 +225,11 @@ class MyWindow(QWidget):
         self.macroManager.startRecording(self.lastSelected)
         self.button_start_recording.setStyleSheet("background-color: green;")
 
-    def stopRecording(self):
+    # noinspection PyUnresolvedReferences
+    def stopRecording(self) -> None:
         self.signalHander.emit("stopRecording")
 
-    def pressedKeybindStart(self):
+    def pressedKeybindStart(self) -> None:
         text, okPressed = QInputDialog.getText(self, "Get keybind start",
                                                "Enter the keybind for starting (1 character, nothing to remove):",
                                                QLineEdit.Normal, "")
@@ -266,12 +247,13 @@ class MyWindow(QWidget):
             self.save_configurations()
         else:
             self.configurations["keybindStart"] = KeyCode.from_char(text)
-            self.buttonKeybindStartRecording.setText("Keybind start recording: " + self.configurations["keybindStart"].char)
+            self.buttonKeybindStartRecording.setText(
+                "Keybind start recording: " + self.configurations["keybindStart"].char)
             QMessageBox.information(self, "Feedback", "Keybind for starting a recording changed without any problems",
                                     QMessageBox.Ok)
             self.save_configurations()
 
-    def pressedKeybindStop(self):
+    def pressedKeybindStop(self) -> None:
         text, okPressed = QInputDialog.getText(self, "Get keybind stop",
                                                "Enter the keybind for stopping (1 character):", QLineEdit.Normal, "")
         if not okPressed:
@@ -282,18 +264,19 @@ class MyWindow(QWidget):
                                     QMessageBox.Abort)
         else:
             self.configurations["keybindStop"] = KeyCode.from_char(text)
-            self.buttonKeybindStopRecording.setText("Keybind stop recording: " + self.configurations["keybindStop"].char)
+            self.buttonKeybindStopRecording.setText(
+                "Keybind stop recording: " + self.configurations["keybindStop"].char)
             QMessageBox.information(self, "Feedback", "Keybind for stopping a recording changed without any problems",
                                     QMessageBox.Ok)
             self.save_configurations()
 
-    def saveClicked(self):
+    def saveClicked(self) -> None:
         # update lastSelected file in macros/lastSelected
         with open(os.path.join("macros", self.lastSelected), 'w') as f:
             f.write(self.text_field.toPlainText())
         self.macroManager.update(self.lastSelected)
 
-    def toggleClicked(self):
+    def toggleClicked(self) -> None:
         if self.lastSelected is not None and (onToggle := self.macroManager.onToggle(self.lastSelected)) is not None:
             if onToggle == macroState.WAITING:
                 self.button_toggle.setStyleSheet("background-color: green;")
@@ -309,10 +292,10 @@ class MyWindow(QWidget):
                                         "The file you loaded is not valid, please fix the errors and save",
                                         QMessageBox.Abort)
 
-    def updateClicked(self):
+    def updateClicked(self) -> None:
         self.updateButtons()
 
-    def newButtonClicked(self):
+    def newButtonClicked(self) -> None:
         # Prompt the user for a new file name
         new_file_name, ok = QInputDialog.getText(self, 'New File', 'Enter the name for the new file:')
         if ok and new_file_name:
@@ -327,7 +310,8 @@ class MyWindow(QWidget):
                 # Update buttons after creating new file
                 self.updateButtons()
 
-    def updateButtons(self):
+    # noinspection PyUnresolvedReferences
+    def updateButtons(self) -> None:
         # Clear existing buttons in the script buttons layout
         for i in reversed(range(self.script_buttons_layout.count())):
             widget = self.script_buttons_layout.itemAt(i).widget()
@@ -343,7 +327,7 @@ class MyWindow(QWidget):
             button.clicked.connect(partial(self.loadFileContent, file))  # Connect button to loadFileContent method
             self.script_buttons_layout.addWidget(button)
 
-    def loadFileContent(self, file):
+    def loadFileContent(self, file: str) -> None:
         if self.lastSelected is not None and self.lastSelected != file:
             with open(os.path.join("macros", self.lastSelected), "w") as f:
                 f.write(self.text_field.toPlainText())
