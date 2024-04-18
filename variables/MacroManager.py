@@ -1,8 +1,8 @@
 import os
 import threading
 import time
+from typing import Dict, Union, List
 
-from PyQt5.QtCore import pyqtSignal, QObject
 from pynput.keyboard import Controller as ControllerKeyboard, Key
 from pynput.mouse import Controller as ControllerMouse
 
@@ -10,45 +10,46 @@ from variables.MacroState import macroState
 from variables.RunnableMacro import runnableMacro
 
 
-class macroManager():
+class macroManager:
 
-    def __init__(self, moveMouseTime):
-        super().__init__()
-        self.scripts = {}
+    def __init__(self, moveMouseTime: float):
+        self.scripts: Dict[str, runnableMacro] = {}
         self.controllerKeyboard = ControllerKeyboard()
         self.controllerMouse = ControllerMouse()
-        self.isRecording = False
-        self.scriptRecording = None
-        self.recording = []
-        self.lastActionTime = None
-        self.lastTimeMoved = None
-        self.firstMouseCoords = False
-        # Create a locker
+        self.isRecording: bool = False
+        self.scriptRecording: Union[str, None] = None
+        self.recording: List[str] = []
+        self.lastActionTime: Union[float, None] = None
+        self.lastTimeMoved: Union[float, None] = None
+        self.firstMouseCoords: bool = False
         self.locker = threading.Lock()
-        self.moveMouseTime = moveMouseTime
-        self.scriptRecording = None
+        self.moveMouseTime: float = moveMouseTime
+        self.scriptRecording: Union[str, None] = None
+        self.lastMouseMoved: int = -1
+        self.runningScripts: [runnableMacro] = []
 
-    def onToggle(self, script):
-        if not self.scripts.__contains__(script):
+    def onToggle(self, script: str) -> Union[None, macroState]:
+        if script not in self.scripts:
             return None
         return self.scripts[script].toggle()
 
-    def onCreate(self, script, update=False):
-        if not self.scripts.keys().__contains__(script):
+    def onCreate(self, script: str, update: bool = False) -> Union[bool, str]:
+        if script not in self.scripts.keys():
             scriptToAdd = runnableMacro(script)
-            if type(output := scriptToAdd.loadFile()) == str:
+            output = scriptToAdd.loadFile()
+            if isinstance(output, str):
                 return output
             self.scripts[script] = scriptToAdd
         elif update:
             self.update(script)
         return self.scripts[script].state != macroState.DISABLED
 
-    def removeScript(self, script):
-        if self.scripts.keys().__contains__(script):
+    def removeScript(self, script: str) -> None:
+        if script in self.scripts.keys():
             if self.scripts[script].state == macroState.DISABLED:
                 self.scripts.pop(script)
 
-    def startRecording(self, script):
+    def startRecording(self, script: str) -> None:
         self.isRecording = True
         self.scriptRecording = script
         self.lastActionTime = time.time()
@@ -56,22 +57,20 @@ class macroManager():
         self.recording = []
         self.firstMouseCoords = False
 
-    def stopRecording(self):
+    def stopRecording(self) -> str:
         self.isRecording = False
         output = ""
         temp = None
-        # Change the first move action to speed 0, so that the mouse will not be smooth
         for idx, line in enumerate(self.recording):
-            if line.__contains__("moveMouse"):
+            if "moveMouse" in line:
                 b = line.split(' ')[:-1]
                 b.append(" 0)")
                 temp = (idx, " ".join(b))
                 break
         if temp is not None:
             self.recording[temp[0]] = temp[1]
-        # Save the list self.recording in the file macros/self.scriptRecording
         with open(os.path.join("macros", self.scriptRecording), 'w') as f:
-            if self.scripts[self.scriptRecording].keybind != None:
+            if self.scripts[self.scriptRecording].keybind is not None:
                 keybindText = f"keybind({self.scripts[self.scriptRecording].keybind})\n"
                 output += keybindText
             for line in self.recording:
@@ -85,20 +84,19 @@ class macroManager():
         self.runningScripts = []
         return output
 
-    def update(self, lastSelected):
+    def update(self, lastSelected: str) -> None:
         self.scripts[lastSelected].loadFile()
 
-    def addTime(self):
+    def addTime(self) -> None:
         currentTime = time.time()
         self.recording.append(f"sleep({(currentTime - self.lastActionTime) / 1000})")
         self.lastActionTime = currentTime
 
-    def onPress(self, key):
-        # Send the keypress to every script that is not disabled for checking the keybind
+    def onPress(self, key: Union[Key, str]) -> None:
         for script in self.scripts:
             if self.scripts[script].state != macroState.DISABLED:
-                if (results := self.scripts[script].onKeyPress(key)) is bool:
-                    if results:
+                if isinstance(self.scripts[script].onKeyPress(key), bool):
+                    if self.scripts[script].onKeyPress(key):
                         self.runningScripts.append(script)
                     else:
                         self.runningScripts.remove(script)
@@ -108,15 +106,13 @@ class macroManager():
                 self.firstMouseCoords = False
             self.locker.acquire()
             self.addTime()
-            if type(key) == Key:
+            if isinstance(key, Key):
                 self.recording.append(f"type({key.name})")
             else:
                 self.recording.append(f"write({key.char})")
-
             self.locker.release()
 
-    # For recording
-    def onMove(self, x, y):
+    def onMove(self, x: int, y: int) -> None:
         if self.isRecording:
             self.firstMouseCoords = True
             if (timeChanged := time.time() - self.lastActionTime) > self.moveMouseTime:
@@ -125,7 +121,7 @@ class macroManager():
                 self.lastActionTime = time.time()
                 self.locker.release()
 
-    def onClick(self, x, y, button, pressed):
+    def onClick(self, x: int, y: int, button, pressed: bool) -> None:
         if self.isRecording and pressed:
             if self.firstMouseCoords:
                 self.onMove(x, y)
@@ -139,12 +135,12 @@ class macroManager():
                 self.recording.append(f"middleClick()")
             self.locker.release()
 
-    def onScroll(self, x, y, dx, dy):
+    def onScroll(self, x: int, y: int, dx: int, dy: int) -> None:
         if self.isRecording:
             if self.firstMouseCoords:
                 self.onMove(self.controllerMouse.position[0], self.controllerMouse.position[1])
                 self.firstMouseCoords = False
             self.locker.acquire()
-            self.recording.append(f"moveMouse({x}, {y}, {(time.time() - self.lastActionTime) / 1000}")
+            self.recording.append(f"moveMouse({x}, {y}, {(time.time() - self.lastActionTime) / 1000})")
             self.recording.append(f"scroll({dx}, {dy})")
             self.locker.release()

@@ -232,7 +232,7 @@ class MyWindow(QWidget):
     def pressedKeybindStart(self) -> None:
         text, okPressed = QInputDialog.getText(self, "Get keybind start",
                                                "Enter the keybind for starting (1 character, nothing to remove):",
-                                               QLineEdit.Normal, "")
+                                               QLineEdit.Normal, "")  # type: str, int
         if not okPressed:
             QMessageBox.information(self, "Feedback", "Cancelled successfully",
                                     QMessageBox.Ok)
@@ -255,7 +255,8 @@ class MyWindow(QWidget):
 
     def pressedKeybindStop(self) -> None:
         text, okPressed = QInputDialog.getText(self, "Get keybind stop",
-                                               "Enter the keybind for stopping (1 character):", QLineEdit.Normal, "")
+                                               "Enter the keybind for stopping (1 character):", QLineEdit.Normal,
+                                               "")  # type: str, int
         if not okPressed:
             QMessageBox.information(self, "Feedback", "Cancelled successfully",
                                     QMessageBox.Ok)
@@ -297,7 +298,7 @@ class MyWindow(QWidget):
 
     def newButtonClicked(self) -> None:
         # Prompt the user for a new file name
-        new_file_name, ok = QInputDialog.getText(self, 'New File', 'Enter the name for the new file:')
+        new_file_name, ok = QInputDialog.getText(self, 'New File', 'Enter the name for the new file:')  # type: str, bool
         if ok and new_file_name:
             # Check if the file already exists
             if os.path.exists(os.path.join("macros", new_file_name)):
