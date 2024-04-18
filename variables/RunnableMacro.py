@@ -1,5 +1,6 @@
 import os
 import threading
+from typing import Union
 
 from pynput.keyboard import KeyCode
 
@@ -8,23 +9,23 @@ from variables.actions import action
 
 
 class runnableMacro(threading.Thread):
-    def __init__(self, script=None):
+    def __init__(self, script: Union[str, None] = None):
         if script is not None:
             threading.Thread.__init__(self)
-            self.enabled = False
-            self.state = macroState.DISABLED
-            self.scriptName = script
-            self.idx = 0
-            self.script = []
-            self.keybind = None
-            self.randomTemp = 0
+            self.enabled: bool = False
+            self.state: macroState = macroState.DISABLED
+            self.scriptName: str = script
+            self.idx: int = 0
+            self.script: list[action] = []
+            self.keybind: Union[KeyCode, None] = None
+            self.randomTemp: int = 0
 
-    def loadFile(self):
+    def loadFile(self) -> None:
         with open(os.path.join("macros", self.scriptName), 'r') as file:
-            text = file.read()
+            text: str = file.read()
             self.loadScript(text)
 
-    def parseLine(self, line):
+    def parseLine(self, line: str) -> tuple[bool, bool, bool] | tuple[str, str, str]:
         command = line.split('(')
         extra = '('.join(command[1:])
         command = command[0]
@@ -32,7 +33,6 @@ class runnableMacro(threading.Thread):
         comment = ""
 
         if command == "write":
-            # Iterate for every character of command
             skip = False
             output = -1
             for idx, character in enumerate(extra):
@@ -64,7 +64,7 @@ class runnableMacro(threading.Thread):
             comment = ""
         return command, argouments, comment
 
-    def loadScript(self, text):
+    def loadScript(self, text: str) -> Union[str, None]:
         self.script = []
         self.idx = 0
         self.keybind = None
@@ -90,7 +90,6 @@ class runnableMacro(threading.Thread):
                                   "value": argouments
                               }, comment=comment)
                 self.script.append(temp)
-            # Everything that does not have any argouments
             elif ["leftClick", "rightClick", "middleClick"].__contains__(command):
                 self.script.append(action(command, comment=comment))
             elif command == "scroll":
@@ -115,30 +114,28 @@ class runnableMacro(threading.Thread):
             else:
                 return f"Unknown command at line {idx}: {line}"
 
-    # When the toggle button is pressed
-    def toggle(self):
+    def toggle(self) -> Union[None, macroState]:
         self.state = macroState.WAITING if self.state == macroState.DISABLED else macroState.DISABLED
         return self.state
 
-    # For actually starting the thread/stopping it
-    def onKeyPress(self, key):
+    def onKeyPress(self, key: Union[KeyCode, str]) -> Union[bool, None]:
         if self.keybind == key:
             self.state = macroState.RUNNING if self.state == macroState.WAITING else macroState.WAITING
             if self.state == macroState.RUNNING:
                 self.idx = 0
                 thread = threading.Thread(target=self.run)
-                thread.daemon = True  # Daemonize the thread to stop it with the main application
+                thread.daemon = True
                 thread.start()
                 return True
             return False
         return None
 
-    def run(self):
+    def run(self) -> None:
         while self.state == macroState.RUNNING:
             results = self.script[self.idx].run(self.randomTemp)
-            if type(results) == int:
+            if isinstance(results, int):
                 self.randomTemp = results
             elif not results:
                 self.state = macroState.WAITING
             else:
-                self.idx = (self.idx + 1) % self.script.__len__()
+                self.idx = (self.idx + 1) % len(self.script)

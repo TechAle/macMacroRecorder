@@ -1,22 +1,32 @@
 import threading
+from typing import Callable, Optional, List, Tuple
 
 from PyQt5 import Qt
-
 from PyQt5.QtCore import Qt as tableQt
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QTextEdit, QVBoxLayout, QSizePolicy, QScrollArea, QTableWidget, \
-    QTableWidgetItem, QHeaderView, QMenu
+from PyQt5.QtWidgets import (
+    QWidget,
+    QHBoxLayout,
+    QTextEdit,
+    QVBoxLayout,
+    QSizePolicy,
+    QScrollArea,
+    QTableWidget,
+    QTableWidgetItem,
+    QHeaderView,
+    QMenu,
+)
 
 from variables.DisplayText import displayText
 from variables.actions import action
 
 
 class TableWidget(QTableWidget):
-    def __init__(self, columns, rows):
+    def __init__(self, columns: int, rows: int):
         super().__init__(columns, rows)
         self.setContextMenuPolicy(tableQt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
 
-    def show_context_menu(self, pos):
+    def show_context_menu(self, pos: Qt.QPoint):
         menu = QMenu(self)
         actionEdit = menu.addAction("Edit")
         actionEdit.triggered.connect(lambda idx, pos_args=pos: self.print_row_index(idx, pos_args))
@@ -24,20 +34,18 @@ class TableWidget(QTableWidget):
         actionDelete.triggered.connect(lambda idx, pos_args=pos: self.delete_row(idx, pos_args))
         menu.exec_(self.mapToGlobal(pos))
 
-    def print_row_index(self, idx, pos):
+    def print_row_index(self, idx: int, pos: Qt.QPoint):
         item = self.itemAt(pos)
         if item:
             print(f"Cell: {item.row()}, {item.column()}")
 
-    def delete_row(self, idx, pos):
+    def delete_row(self, idx: int, pos: Qt.QPoint):
         item = self.itemAt(pos)
         if item:
             print(f"Cell: {item.row()}, {item.column()}")
 
 
 class displayAction(QWidget):
-
-
     def __init__(self):
         super().__init__()
         # Set the size policy of the widget to expanding
@@ -68,7 +76,7 @@ class displayAction(QWidget):
         self.table.cellChanged.connect(self.cell_edited)
         # Create a locker
         self.locker = threading.Lock()
-        self.revertBackup = None
+        self.revertBackup: Optional[QTableWidget] = None
         self.beforeRollback = True
 
     def backupCommit(self):
@@ -82,15 +90,15 @@ class displayAction(QWidget):
                     new_table.setItem(row, column, new_item)
         self.revertBackup = new_table
 
-    def cell_edited(self, row, column):
+    def cell_edited(self, row: int, column: int):
         if not self.beforeRollback:
             self.beforeRollback = True
             return
         if self.loading:
             return
-        roolback = False
+        rollback = False
         if column == 0:
-            roolback = True
+            rollback = True
         else:
             # This slot will be called whenever a cell gets edited
             print(f"Cell at row {row} and column {column} has been edited.")
@@ -100,8 +108,20 @@ class displayAction(QWidget):
             # Edit action
             if column == 1:
                 newAction = self.table.item(row, column).text()
-                if not newAction in ["sleep", "right", "left", "shift", "scroll", "unshift", "middleClick", "stop", "type", "write", "moveMouse"]:
-                    roolback = True
+                if not newAction in [
+                    "sleep",
+                    "right",
+                    "left",
+                    "shift",
+                    "scroll",
+                    "unshift",
+                    "middleClick",
+                    "stop",
+                    "type",
+                    "write",
+                    "moveMouse",
+                ]:
+                    rollback = True
                     print(f"Invalid action: {newAction}")
                 else:
                     actionReplace = None
@@ -112,109 +132,97 @@ class displayAction(QWidget):
                     elif newAction == "random":
                         actionReplace = action(newAction, {"value": 0})
                     elif newAction == "moveMouse":
-                        actionReplace = action(newAction, {
-                            "x": 0,
-                            "y": 0,
-                            "time": 0
-                        })
+                        actionReplace = action(newAction, {"x": 0, "y": 0, "time": 0})
                     elif newAction == "sleep":
-                        actionReplace = action(newAction,  {
-                            "time": 0
-                        })
+                        actionReplace = action(newAction, {"time": 0})
                     elif newAction == "scroll":
-                        actionReplace = action(newAction,  {
-                            "dx": 0,
-                            "dy": 0
-                        })
+                        actionReplace = action(newAction, {"dx": 0, "dy": 0})
                     elif newAction == "random":
-                        actionReplace = action(newAction,  {
-                            "value": 0
-                        })
+                        actionReplace = action(newAction, {"value": 0})
                     else:
                         print("I forgot an action " + newAction)
                     self.displayText.actions[row] = actionReplace
-            # Edit argouments
+            # Edit arguments
             elif column == 2:
-                actionConsiderated = self.table.item(row, 1).text()
-                actionConsiderated = actionConsiderated
-                if actionConsiderated in ["right", "left", "shift", "scroll", "unshift", "middleClick", "stop"]:
-                    roolback = True
+                actionConsidered = self.table.item(row, 1).text()
+                actionConsidered = actionConsidered
+                if actionConsidered in [
+                    "right",
+                    "left",
+                    "shift",
+                    "scroll",
+                    "unshift",
+                    "middleClick",
+                    "stop",
+                ]:
+                    rollback = True
                     print("They cannot have arguments")
-                elif actionConsiderated == "write" or actionConsiderated == "type":
+                elif actionConsidered == "write" or actionConsidered == "type":
                     newArgs = self.table.item(row, column).text()
                     if newArgs == "":
-                        roolback = True
+                        rollback = True
                         print("Invalid arguments: " + newArgs)
                     self.displayText.actions[row].args = {"value": newArgs}
-                elif actionConsiderated == "moveMouse":
+                elif actionConsidered == "moveMouse":
                     newArgs = self.table.item(row, column).text()
                     newArgs = newArgs.split(",")
-                    if len(newArgs)!= 3:
-                        roolback = True
+                    if len(newArgs) != 3:
+                        rollback = True
                         print("Invalid arguments: " + str(newArgs))
                     # Check if every argument is a number or float
                     try:
-                        newDict = {
-                            "x": float(newArgs[0]),
-                            "y": float(newArgs[1]),
-                            "time": float(newArgs[2])
-                        }
+                        newDict = {"x": float(newArgs[0]), "y": float(newArgs[1]), "time": float(newArgs[2])}
                         self.displayText.actions[row].args = newDict
                     except ValueError:
-                        roolback = True
+                        rollback = True
                         print("Invalid arguments: " + str(newArgs))
-                elif actionConsiderated == "scroll":
+                elif actionConsidered == "scroll":
                     newArgs = self.table.item(row, column).text()
                     newArgs = newArgs.split(",")
-                    if len(newArgs)!= 2:
-                        roolback = True
+                    if len(newArgs) != 2:
+                        rollback = True
                         print("Invalid arguments: " + str(newArgs))
                     # Check if every argument is a number or float
                     try:
-                        newDict = {
-                            "dx": float(newArgs[0]),
-                            "dy": float(newArgs[1])
-                        }
+                        newDict = {"dx": float(newArgs[0]), "dy": float(newArgs[1])}
                         self.displayText.actions[row].args = newDict
                     except ValueError:
-                        roolback = True
+                        rollback = True
                         print("Invalid arguments: " + str(newArgs))
-                elif actionConsiderated == "sleep" or actionConsiderated == "random":
+                elif actionConsidered == "sleep" or actionConsidered == "random":
                     newArgs = self.table.item(row, column).text()
                     newArgs = newArgs.split(",")
-                    if len(newArgs)!= 1:
-                        roolback = True
+                    if len(newArgs) != 1:
+                        rollback = True
                         print("Invalid arguments: " + str(newArgs))
                     newArgs = newArgs[0]
                     # Check if every argument is a number or float
                     try:
                         self.displayText.actions[row].args["value"] = float(newArgs)
                     except ValueError:
-                        roolback = True
+                        rollback = True
                         print("Invalid arguments: " + str(newArgs))
 
                 else:
-                    roolback = True
-                    print(f"Invalid action: {actionConsiderated}")
+                    rollback = True
+                    print(f"Invalid action: {actionConsidered}")
             # Edit comments
             elif column == 3:
                 self.displayText.actions[row].comment = self.table.item(row, column).text()
 
-
-            if not roolback:
+            if not rollback:
                 self.backupCommit()
-        if roolback:
+        if rollback:
             # Get the original text of the cell
             original_text = self.revertBackup.item(row, column).text()
             # Set the cell's text back to its original value
             self.beforeRollback = False
             self.table.item(row, column).setText(original_text)
 
-
-    def toPlainText(self):
+    def toPlainText(self) -> str:
         return self.displayText.getString()
 
-    def setPlainText(self, text):
+    def setPlainText(self, text: str):
         self.loading = True
         self.displayText.setString(text)
         self.loading = False

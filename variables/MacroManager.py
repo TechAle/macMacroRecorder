@@ -109,7 +109,7 @@ class macroManager:
             if isinstance(key, Key):
                 self.recording.append(f"type({key.name})")
             else:
-                self.recording.append(f"write({key.char})")
+                self.recording.append(f"write({key})")
             self.locker.release()
 
     def onMove(self, x: int, y: int) -> None:
