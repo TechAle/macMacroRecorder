@@ -20,10 +20,13 @@ class runnableMacro(threading.Thread):
             self.keybind: Union[KeyCode, None] = None
             self.randomTemp: int = 0
 
-    def loadFile(self) -> None:
+    def loadFile(self) -> None | str:
         with open(os.path.join("macros", self.scriptName), 'r') as file:
             text: str = file.read()
-            self.loadScript(text)
+            output = self.loadScript(text)
+            if isinstance(output, str):
+                return output
+            return None
 
     def parseLine(self, line: str) -> tuple[bool, bool, bool] | tuple[str, str, str]:
         command = line.split('(')
@@ -32,43 +35,48 @@ class runnableMacro(threading.Thread):
         argouments = ""
         comment = ""
 
-        if command == "write":
-            skip = False
-            output = -1
-            for idx, character in enumerate(extra):
-                if skip:
-                    skip = False
-                    continue
-                if character == "\\":
-                    skip = True
-                elif character == ")":
-                    output = idx
-                    break
-            if output == -1:
-                return False, False, False
+        try:
+            if command == "write":
+                skip = False
+                output = -1
+                for idx, character in enumerate(extra):
+                    if skip:
+                        skip = False
+                        continue
+                    if character == "\\":
+                        skip = True
+                    elif character == ")":
+                        output = idx
+                        break
+                if output == -1:
+                    return False, False, False
+                else:
+                    argouments = extra[:output]
+                    comment = extra[output + 1:]
+            elif command == "type":
+                argouments = extra[0]
+                comment = extra[2:]
             else:
-                argouments = extra[:output]
-                comment = extra[output+1:]
-        elif command == "type":
-            argouments = extra[0]
-            comment = extra[2:]
-        else:
-            temp = extra.split(")")
-            argouments = temp[0]
-            comment = temp[1]
+                temp = extra.split(")")
+                argouments = temp[0]
+                comment = temp[1]
 
-        comment = comment.split("#")
-        if len(comment) >= 1:
-            comment = ''.join(comment[1:])
-        else:
-            comment = ""
-        return command, argouments, comment
+            comment = comment.split("#")
+            if len(comment) >= 1:
+                comment = ''.join(comment[1:])
+            else:
+                comment = ""
+
+            return command, argouments, comment
+        except Exception:
+            return False, False, False
 
     def loadScript(self, text: str) -> Union[str, None]:
         self.script = []
         self.idx = 0
         self.keybind = None
         self.enabled = False
+        self.output = ""
         idx = 0
         for line in text.split("\n"):
             idx += 1
@@ -77,7 +85,10 @@ class runnableMacro(threading.Thread):
                 continue
             command, argouments, comment = self.parseLine(line)
             if command is False:
-                return f"Syntax error at line {idx}: {line}"
+                if self.output == "":
+                    self.output = f"Syntax errors:"
+                self.output += f"\tLine {idx}: {line}"
+                self.script.append(action("invalid", args={"value": line}))
             elif command == "random":
                 self.script.append(action(command, args={
                     "value": float(argouments)
@@ -112,7 +123,13 @@ class runnableMacro(threading.Thread):
                                               "time": float(speed)
                                           }, comment=comment))
             else:
-                return f"Unknown command at line {idx}: {line}"
+                if self.output == "":
+                    self.output = f"Syntax errors:"
+                self.output += f"\tLine {idx}: {line}"
+                self.script.append(action("invalid", args={"value": line}))
+        if self.output != "":
+            return self.output
+        return None
 
     def toggle(self) -> Union[None, macroState]:
         self.state = macroState.WAITING if self.state == macroState.DISABLED else macroState.DISABLED

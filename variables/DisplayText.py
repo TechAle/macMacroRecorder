@@ -29,14 +29,17 @@ class displayText:
             output += f"keybind({self.keybind.char})\n"
         for action in self.actions:
             action, args, comment = action.getValues()
-            output += f"{action}({args}) #{comment}\n"
+            if action == "invalid":
+                output += f"{args}\n"
+            else:
+                output += f"{action}({args}) #{comment}\n"
         return output
 
     def setString(self, text: str) -> None:
         # Reset table
         self.resetTable()
         macro = runnableMacro()
-        macro.loadScript(text)
+        output = macro.loadScript(text)
         self.keybind = macro.keybind
         self.actions = macro.script
         self.table.setRowCount(len(self.actions))
@@ -59,6 +62,8 @@ class displayText:
             output = self.svg["middleClick"]
         elif name == "write" or name == "type":
             output = self.svg["keyboard"]
+        else:
+            output = self.svg["unknown"]
         item = QTableWidgetItem()
         item.setIcon(output)
         return item

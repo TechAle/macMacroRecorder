@@ -3,7 +3,7 @@ import threading
 import time
 from typing import Dict, Union, List
 
-from pynput.keyboard import Controller as ControllerKeyboard, Key, KeyCode
+from pynput.keyboard import Controller as ControllerKeyboard, KeyCode
 from pynput.mouse import Controller as ControllerMouse
 
 from variables.MacroState import macroState
@@ -41,7 +41,9 @@ class macroManager:
                 return output
             self.scripts[script] = scriptToAdd
         elif update:
-            self.update(script)
+            output = self.update(script)
+            if output is not None:
+                return output
         return self.scripts[script].state != macroState.DISABLED
 
     def removeScript(self, script: str) -> None:
@@ -84,15 +86,15 @@ class macroManager:
         self.runningScripts = []
         return output
 
-    def update(self, lastSelected: str) -> None:
-        self.scripts[lastSelected].loadFile()
+    def update(self, lastSelected: str) -> None | str:
+        return self.scripts[lastSelected].loadFile()
 
     def addTime(self) -> None:
         currentTime = time.time()
         self.recording.append(f"sleep({(currentTime - self.lastActionTime) / 1000})")
         self.lastActionTime = currentTime
 
-    def onPress(self, key: Union[Key, str]) -> None:
+    def onPress(self, key: Union[KeyCode, None]) -> None:
         for script in self.scripts:
             if self.scripts[script].state != macroState.DISABLED:
                 if isinstance(output := self.scripts[script].onKeyPress(key), bool):

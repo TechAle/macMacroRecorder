@@ -139,6 +139,8 @@ class displayAction(QWidget):
                         actionReplace = action(newAction, {"dx": 0, "dy": 0})
                     elif newAction == "random":
                         actionReplace = action(newAction, {"value": 0})
+                    elif newAction == "invalid":
+                        rollback = True
                     else:
                         print("I forgot an action " + newAction)
                     self.displayText.actions[row] = actionReplace
@@ -202,7 +204,9 @@ class displayAction(QWidget):
                     except ValueError:
                         rollback = True
                         print("Invalid arguments: " + str(newArgs))
-
+                elif actionConsidered == "invalid":
+                    newArgs = self.table.item(row, column).text()
+                    self.displayText.actions[row].args = newArgs
                 else:
                     rollback = True
                     print(f"Invalid action: {actionConsidered}")

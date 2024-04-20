@@ -275,7 +275,10 @@ class MyWindow(QWidget):
         # update lastSelected file in macros/lastSelected
         with open(os.path.join("macros", self.lastSelected), 'w') as f:
             f.write(self.text_field.toPlainText())
-        self.macroManager.update(self.lastSelected)
+
+        output = self.macroManager.update(self.lastSelected)
+        if isinstance(output, str):
+            QMessageBox.information(self, "Feedback", "Error: " + output, QMessageBox.Abort)
 
     def toggleClicked(self) -> None:
         if self.lastSelected is not None and (onToggle := self.macroManager.onToggle(self.lastSelected)) is not None:
