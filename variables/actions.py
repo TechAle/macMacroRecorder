@@ -80,6 +80,8 @@ class action:
                 args = f"{self.args['dx']},{self.args['dy']}"
             elif len(self.args) == 1:
                 args = f"{self.args[list(self.args.keys())[0]]}"
+            elif self.actionStr == "invalid":
+                args = self.args["value"]
             else:
                 print("Missing arguments for action " + self.actionStr + " args:" + str(self.args))
         return self.actionStr, args, self.comment

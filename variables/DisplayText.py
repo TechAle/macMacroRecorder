@@ -1,21 +1,48 @@
 import os
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List
 
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QTableWidgetItem, QTableWidget
-
+from PyQt5.QtWidgets import QTableWidgetItem, QTableWidget, QPushButton, QInputDialog, QMessageBox
+from pynput.keyboard import KeyCode
 
 from variables.RunnableMacro import runnableMacro
 from variables.actions import action
 
 
 class displayText:
-    def __init__(self, layout: QTableWidget):
+    def __init__(self, layout: QTableWidget, keybindButton: QPushButton):
         self.actions: List[action] = []
         self.table: QTableWidget = layout
-        self.keybind: Optional[Any] = None
+        self.keybind: KeyCode | None = None
         self.svg: Dict[str, QIcon] = {}
+        self.keybindButton: QPushButton = keybindButton
+        self.keybindButton.clicked.connect(self.keybindButtonClicked)
         self.prepareSVG()
+
+    def keybindButtonClicked(self) -> None:
+        # Ask to the user for a new string
+        new_keybind, ok = QInputDialog.getText(self.table, 'New Keybind', 'Enter the keybind:')  # type: str, int
+        if ok:
+            if not new_keybind:
+                # Reset keybind
+                self.keybind = None
+                self.keybindButton.setText("Keybind: ")
+                # Say that the keybind has been resetted
+                QMessageBox.information(self.table, "Feedback", "Keybind resetted",
+                                        QMessageBox.Ok)
+            if len(new_keybind) == 1:
+                # Create the new keybind
+                self.keybind = KeyCode(new_keybind)
+                self.keybindButton.setText(f"keybind: {new_keybind}")
+                # Say that the keybind has changed
+                QMessageBox.information(self.table, "Feedback", f"Keybind changed to {new_keybind}",
+                                        QMessageBox.Ok)
+            else:
+                QMessageBox.information(self.table, "Feedback", "The keybind must be 1 long",
+                                        QMessageBox.Abort)
+        else:
+            QMessageBox.information(self.table, "Feedback", "Cancelled successfully",
+                                    QMessageBox.Ok)
 
     def prepareSVG(self) -> None:
         # Load every SVG in the folder images in prepareSVG as QIcon
@@ -41,6 +68,8 @@ class displayText:
         macro = runnableMacro()
         output = macro.loadScript(text)
         self.keybind = macro.keybind
+        if self.keybind is not None:
+            self.keybindButton.setText(f"keybind: {self.keybind.char}")
         self.actions = macro.script
         self.table.setRowCount(len(self.actions))
         idxRow = 0
