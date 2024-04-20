@@ -95,8 +95,8 @@ class macroManager:
     def onPress(self, key: Union[Key, str]) -> None:
         for script in self.scripts:
             if self.scripts[script].state != macroState.DISABLED:
-                if isinstance(self.scripts[script].onKeyPress(key), bool):
-                    if self.scripts[script].onKeyPress(key):
+                if isinstance(output := self.scripts[script].onKeyPress(key), bool):
+                    if output:
                         self.runningScripts.append(script)
                     else:
                         self.runningScripts.remove(script)

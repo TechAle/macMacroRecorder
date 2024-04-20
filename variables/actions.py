@@ -20,10 +20,12 @@ class action:
             time.sleep(self.args["value"] + random.uniform(0, randomValue))
         elif self.actionStr == "random":
             return self.args["value"]
-        elif self.actionStr == "right":
+        elif self.actionStr == "rightClick":
             self.controllerMouse.press(Button.right)
-        elif self.actionStr == "left":
+            self.controllerMouse.release(Button.right)
+        elif self.actionStr == "leftClick":
             self.controllerMouse.press(Button.left)
+            self.controllerMouse.release(Button.left)
         elif self.actionStr == "shift":
             self.controllerKeyboard.press(Key.shift)
         elif self.actionStr == "scroll":

@@ -72,7 +72,7 @@ class MyWindow(QWidget):
         listenerMouse.start()
 
     def onPress(self, key: Union[KeyCode, None]) -> None:
-        if self.focus:  # pyobject would crash without this
+        if self.focus:  # pyobject would crash without thisf
             return
         if not self.macroManager.isRecording or key != self.configurations["keybindStop"]:
             self.macroManager.onPress(key)

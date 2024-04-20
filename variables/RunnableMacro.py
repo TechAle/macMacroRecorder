@@ -133,7 +133,7 @@ class runnableMacro(threading.Thread):
     def run(self) -> None:
         while self.state == macroState.RUNNING:
             results = self.script[self.idx].run(self.randomTemp)
-            if isinstance(results, int):
+            if type(results) == int:
                 self.randomTemp = results
             elif not results:
                 self.state = macroState.WAITING
