@@ -3,7 +3,7 @@ import threading
 import time
 from typing import Dict, Union, List
 
-from pynput.keyboard import Controller as ControllerKeyboard, Key
+from pynput.keyboard import Controller as ControllerKeyboard, Key, KeyCode
 from pynput.mouse import Controller as ControllerMouse
 
 from variables.MacroState import macroState
@@ -106,8 +106,8 @@ class macroManager:
                 self.firstMouseCoords = False
             self.locker.acquire()
             self.addTime()
-            if isinstance(key, Key):
-                self.recording.append(f"type({key.name})")
+            if isinstance(key, KeyCode):
+                self.recording.append(f"type({key.char})")
             else:
                 self.recording.append(f"write({key})")
             self.locker.release()
