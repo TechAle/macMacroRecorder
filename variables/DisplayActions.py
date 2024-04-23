@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
 
 from variables.DisplayText import displayText
 from variables.actions import action
+from variables.EditWindow import editWindow
 
 
 # noinspection PyUnresolvedReferences
@@ -52,6 +53,9 @@ class TableWidget(QTableWidget):
         item = self.itemAt(pos)
         if item:
             print(f"Cell: {item.row()}, {item.column()}")
+            # Create a new window
+            new_window = editWindow(self.displayText, self.displayText.actions[item.row()])
+            new_window.show()
 
     def delete_row(self, idx: int, pos: Qt.QPoint):
         item = self.itemAt(pos)
