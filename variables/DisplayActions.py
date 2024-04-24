@@ -25,6 +25,7 @@ class TableWidget(QTableWidget):
         self.customContextMenuRequested.connect(self.show_context_menu)
         self.displayText: displayText | None = None
         self.parent: displayAction = parent
+        self.windows: [editWindow] = []
 
     def setDisplayText(self, displayText):
         self.displayText = displayText
@@ -54,8 +55,12 @@ class TableWidget(QTableWidget):
         if item:
             print(f"Cell: {item.row()}, {item.column()}")
             # Create a new window
-            new_window = editWindow(self.displayText, self.displayText.actions[item.row()])
-            new_window.show()
+            self.windows.append(editWindow(self.displayText, self.displayText.actions[item.row()], self))
+            self.windows[-1].show()
+
+    def removeWindow(self, window: editWindow):
+        self.windows.remove(window)
+
 
     def delete_row(self, idx: int, pos: Qt.QPoint):
         item = self.itemAt(pos)
