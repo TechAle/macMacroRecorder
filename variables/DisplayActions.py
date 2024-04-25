@@ -183,7 +183,8 @@ class displayAction(QWidget):
                     new_table.setItem(row, column, new_item)
         self.revertBackup = new_table
 
-    def cell_edited(self, row: int, column: int):
+    def cell_edited(self, row: int, column: int) -> bool | str:
+        returnValue: str  = ""
         if not self.beforeRollback:
             self.beforeRollback = True
             return
@@ -219,27 +220,27 @@ class displayAction(QWidget):
                 ]:
                     rollback = True
                     print(f"Invalid action: {newAction}")
+                    returnValue = f"Invalid action: {newAction}"
                 else:
                     actionReplace = None
-                    if newAction in ["right", "left", "shift", "unshift", "middleClick", "stop"]:
-                        actionReplace = action(newAction)
+                    if newAction in ["rightClick", "leftClick", "shift", "unshift", "middleClick", "stop"]:
+                        self.displayText.actions[row].setNew(newAction, {})
                     elif newAction in ["write", "type"]:
-                        actionReplace = action(newAction, {"value": "a"})
+                        self.displayText.actions[row].setNew(newAction, {"value": "a"})
                     elif newAction == "random":
-                        actionReplace = action(newAction, {"value": 0})
+                        self.displayText.actions[row].setNew(newAction, {"value": 0})
                     elif newAction == "moveMouse":
-                        actionReplace = action(newAction, {"x": 0, "y": 0, "time": 0})
+                        self.displayText.actions[row].setNew(newAction, {"x": 0, "y": 0, "time": 0})
                     elif newAction == "sleep":
-                        actionReplace = action(newAction, {"time": 0})
+                        self.displayText.actions[row].setNew(newAction, {"time": 0})
                     elif newAction == "scroll":
-                        actionReplace = action(newAction, {"dx": 0, "dy": 0})
+                        self.displayText.actions[row].setNew(newAction, {"dx": 0, "dy": 0})
                     elif newAction == "random":
-                        actionReplace = action(newAction, {"value": 0})
+                        self.displayText.actions[row].setNew(newAction, {"value": 0})
                     elif newAction == "invalid":
                         rollback = True
                     else:
                         print("I forgot an action " + newAction)
-                    self.displayText.actions[row] = actionReplace
             # Edit arguments
             elif column == 2:
                 actionConsidered: None | QTableWidgetItem | str = self.table.item(row, 1)
@@ -259,11 +260,13 @@ class displayAction(QWidget):
                     if newArgs != "":
                         rollback = True
                         print("They cannot have arguments")
+                        returnValue = "They cannot have arguments"
                 elif actionConsidered == "write" or actionConsidered == "type":
                     newArgs = self.table.item(row, column).text()
                     if newArgs == "":
                         rollback = True
                         print("Invalid arguments: " + newArgs)
+                        returnValue = "Invalid arguments: " + newArgs
                     self.displayText.actions[row].args = {"value": newArgs}
                 elif actionConsidered == "moveMouse":
                     newArgs = self.table.item(row, column).text()
@@ -271,6 +274,7 @@ class displayAction(QWidget):
                     if len(newArgs) != 3:
                         rollback = True
                         print("Invalid arguments: " + str(newArgs))
+                        returnValue = "Invalid arguments: " + str(newArgs)
                     # Check if every argument is a number or float
                     try:
                         newDict = {"x": float(newArgs[0]), "y": float(newArgs[1]), "time": float(newArgs[2])}
@@ -278,12 +282,14 @@ class displayAction(QWidget):
                     except ValueError:
                         rollback = True
                         print("Invalid arguments: " + str(newArgs))
+                        returnValue = "Invalid arguments: " + str(newArgs)
                 elif actionConsidered == "scroll":
                     newArgs = self.table.item(row, column).text()
                     newArgs = newArgs.split(",")
                     if len(newArgs) != 2:
                         rollback = True
                         print("Invalid arguments: " + str(newArgs))
+                        returnValue = "Invalid arguments: " + str(newArgs)
                     # Check if every argument is a number or float
                     try:
                         newDict = {"dx": float(newArgs[0]), "dy": float(newArgs[1])}
@@ -291,12 +297,14 @@ class displayAction(QWidget):
                     except ValueError:
                         rollback = True
                         print("Invalid arguments: " + str(newArgs))
+                        returnValue = "Invalid arguments: " + str(newArgs)
                 elif actionConsidered == "sleep" or actionConsidered == "random":
                     newArgs = self.table.item(row, column).text()
                     newArgs = newArgs.split(",")
                     if len(newArgs) != 1:
                         rollback = True
                         print("Invalid arguments: " + str(newArgs))
+                        returnValue = "Invalid arguments: " + str(newArgs)
                     newArgs = newArgs[0]
                     # Check if every argument is a number or float
                     try:
@@ -304,12 +312,14 @@ class displayAction(QWidget):
                     except ValueError:
                         rollback = True
                         print("Invalid arguments: " + str(newArgs))
+                        returnValue = "Invalid arguments: " + str(newArgs)
                 elif actionConsidered == "invalid":
                     newArgs = self.table.item(row, column).text()
                     self.displayText.actions[row].args["value"] = newArgs
                 else:
                     rollback = True
                     print(f"Invalid action: {actionConsidered}")
+                    returnValue = f"Invalid action: {actionConsidered}"
             # Edit comments
             elif column == 3:
                 value = self.table.item(row, column)
@@ -325,6 +335,8 @@ class displayAction(QWidget):
             # Set the cell's text back to its original value
             self.beforeRollback = False
             self.table.item(row, column).setText(original_text)
+            return returnValue if len(returnValue) > 0 else False
+        return True
 
     def toPlainText(self) -> str:
         return self.displayText.getString()
