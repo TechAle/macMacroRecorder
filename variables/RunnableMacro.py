@@ -89,11 +89,7 @@ class runnableMacro(threading.Thread):
                     self.output = f"Syntax errors:"
                 self.output += f"\tLine {idx}: {line}"
                 self.script.append(action("invalid", args={"value": line}))
-            elif command == "random":
-                self.script.append(action(command, args={
-                    "value": float(argouments)
-                }, comment=comment))
-            elif command == "keybind":
+            if command == "keybind":
                 self.keybind = KeyCode.from_char(argouments.replace("\"", "").replace("'", "")[0])
             elif command == "write" or command == "type":
                 temp = action(command,
