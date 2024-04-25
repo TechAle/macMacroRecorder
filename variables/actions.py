@@ -15,6 +15,11 @@ class action:
         self.args = args
         self.comment = comment
 
+    def setNew(self, action: str, args: Union[None, Dict[str, Any]], comment: str = ""):
+        self.actionStr = action
+        self.args = args
+        self.comment = comment
+
     def run(self, randomValue: float = 0) -> bool:
         if self.actionStr == "sleep":
             time.sleep(self.args["value"] + random.uniform(0, randomValue))
