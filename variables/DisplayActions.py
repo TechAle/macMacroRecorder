@@ -222,7 +222,6 @@ class displayAction(QWidget):
                     print(f"Invalid action: {newAction}")
                     returnValue = f"Invalid action: {newAction}"
                 else:
-                    actionReplace = None
                     if newAction in ["rightClick", "leftClick", "shift", "unshift", "middleClick", "stop"]:
                         self.displayText.actions[row].setNew(newAction, {})
                     elif newAction in ["write", "type"]:

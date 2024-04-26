@@ -1,7 +1,7 @@
 import importlib
 
 from PyQt5.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QWidget, QComboBox, QLineEdit, QPushButton, QMessageBox, \
-    QTableWidgetItem
+    QTableWidgetItem, QHBoxLayout
 
 from variables.DisplayText import displayText
 from variables import actions
@@ -16,6 +16,8 @@ class editWindow(QMainWindow):
         self.displayText: displayText = displayText
         self.action = action
         self.father = father
+        # I think i will never need more then 10 QLineEdit
+        self.inputValues: [QLineEdit] = [QLineEdit() for x in range(10)]
 
         # Label with select box
         select_label = QLabel("Select:")
@@ -30,7 +32,7 @@ class editWindow(QMainWindow):
 
         # Label with input box for comments
         comment_label = QLabel("Comments:")
-        self.comment_input = QLineEdit()
+        self.comment_input = self.inputValues[-1]
 
         # Add a save button
         save_button = QPushButton("Save")
@@ -87,8 +89,10 @@ class editWindow(QMainWindow):
             newAction = action(newCommand, args={
                 "value": ""
             })
-            layoutToAdd.addWidget(QLabel("What to write:"))
-            layoutToAdd.addWidget(QLineEdit())
+            b = QHBoxLayout()
+            b.addWidget(QLabel("What to write:"))
+            b.addWidget(self.inputValues[0])
+            layoutToAdd.addLayout(b)
         elif ["left", "rightClick", "middleClick"].__contains__(newCommand):
             newAction = action(newCommand)
         elif newCommand == "scroll":
@@ -96,28 +100,40 @@ class editWindow(QMainWindow):
                 "dx": 0,
                 "dy": 0
             })
-            layoutToAdd.addWidget(QLabel("X scroll:"))
-            layoutToAdd.addWidget(QLineEdit())
-            layoutToAdd.addWidget(QLabel("Y scroll:"))
-            layoutToAdd.addWidget(QLineEdit())
+            b = QHBoxLayout()
+            b.addWidget(QLabel("X scroll:"))
+            b.addWidget(self.inputValues[0])
+            layoutToAdd.addLayout(b)
+            c = QHBoxLayout()
+            c.addWidget(QLabel("Y scroll:"))
+            c.addWidget(self.inputValues[1])
+            layoutToAdd.addLayout(c)
         elif newCommand == "random" or newCommand == "sleep":
             newAction = action(newCommand, args={
                 "value": 0
             })
-            layoutToAdd.addWidget(QLabel("How much:"))
-            layoutToAdd.addWidget(QLineEdit())
+            b = QHBoxLayout()
+            b.addWidget(QLabel("How much:"))
+            layoutToAdd.addWidget(self.inputValues[0])
+            layoutToAdd.addLayout(b)
         elif newCommand == "moveMouse":
             newAction = action(newCommand, args={
                 "x": 0,
                 "y": 0,
                 "time": 0
             })
-            layoutToAdd.addWidget(QLabel("X:"))
-            layoutToAdd.addWidget(QLineEdit())
-            layoutToAdd.addWidget(QLabel("Y:"))
-            layoutToAdd.addWidget(QLineEdit())
-            layoutToAdd.addWidget(QLabel("Time:"))
-            layoutToAdd.addWidget(QLineEdit())
+            b = QHBoxLayout()
+            b.addWidget(QLabel("X:"))
+            b.addWidget(self.inputValues[0])
+            layoutToAdd.addLayout(b)
+            c = QHBoxLayout()
+            c.addWidget(QLabel("Y:"))
+            c.addWidget(self.inputValues[1])
+            d = QHBoxLayout()
+            d.addWidget(QLabel("Time:"))
+            d.addWidget(self.inputValues[2])
+            layoutToAdd.addLayout(c)
+            layoutToAdd.addLayout(d)
         else:
             newAction = action(newCommand)
 
@@ -134,7 +150,61 @@ class editWindow(QMainWindow):
         self.argoumentsInputs.addLayout(layoutToAdd)
 
     def save(self):
-        pass
+        # Save the comment
+        comment: str = self.inputValues[-1].text()
+        self.father.parent.table.setItem(self.displayText.actions.index(self.action), 3,
+                                         QTableWidgetItem(comment))
+        self.displayText.actions[self.displayText.actions.index(self.action)].comment = comment
+        # Now save the argouments
+        currentCommand = self.select_combo.currentText()
+        if currentCommand == "write" or currentCommand == "type":
+            self.displayText.actions[self.displayText.actions.index(self.action)].args["value"] = \
+                self.inputValues[0].text()
+            self.father.parent.table.setItem(self.displayText.actions.index(self.action), 2,
+                                             QTableWidgetItem(self.inputValues[0].text()))
+        elif currentCommand == "moveMouse":
+            x = self.inputValues[0].text()
+            y = self.inputValues[1].text()
+            time = self.inputValues[2].text()
+            # Check if x and y are floats
+            try:
+                x = float(x)
+                y= float(y)
+                time = float(time)
+            except ValueError:
+                QMessageBox.about(self, "Error", "X and Y must be numbers")
+                return
+            self.displayText.actions[self.displayText.actions.index(self.action)].args["x"] = x
+            self.displayText.actions[self.displayText.actions.index(self.action)].args["y"] = y
+            self.displayText.actions[self.displayText.actions.index(self.action)].args["time"] = time
+            self.father.parent.table.setItem(self.displayText.actions.index(self.action), 2,
+                                             QTableWidgetItem(str(x) + ", " + str(y) + ", " + str(time)))
+        elif currentCommand == "scroll":
+            dx = self.inputValues[0].text()
+            dy = self.inputValues[1].text()
+            # Check if x and y are floats
+            try:
+                dx = float(dx)
+                dy = float(dy)
+            except ValueError:
+                QMessageBox.about(self, "Error", "X and Y must be numbers")
+                return
+            self.displayText.actions[self.displayText.actions.index(self.action)].args["dx"] = dx
+            self.displayText.actions[self.displayText.actions.index(self.action)].args["dy"] = dy
+            self.father.parent.table.setItem(self.displayText.actions.index(self.action), 2,
+                                             QTableWidgetItem(str(dx) + ", " + str(dy)))
+        elif currentCommand == "sleep" or currentCommand == "random":
+            value = self.inputValues[0].text()
+            # Check if x and y are floats
+            try:
+                value = float(value)
+            except ValueError:
+                QMessageBox.about(self, "Error", "Value must be a number")
+                return
+            self.displayText.actions[self.displayText.actions.index(self.action)].args["value"] = value
+            self.father.parent.table.setItem(self.displayText.actions.index(self.action), 2,
+                                             QTableWidgetItem(str(value)))
+
 
     def closeEvent(self, event):
         self.father.removeWindow(self)
