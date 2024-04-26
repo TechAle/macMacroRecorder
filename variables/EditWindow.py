@@ -7,6 +7,15 @@ from variables.DisplayText import displayText
 from variables import actions
 from variables.actions import action
 
+def clear_layout(layout):
+    while layout.count():
+        item = layout.takeAt(0)
+        widget = item.widget()
+        if widget:
+            widget.hide()
+        else:
+            clear_layout(item.layout())
+
 
 class editWindow(QMainWindow):
 
@@ -22,6 +31,7 @@ class editWindow(QMainWindow):
         # Label with select box
         select_label = QLabel("Select:")
         self.firstLoad = True
+        self.isEditing = False
         self.select_combo = QComboBox()
         self.select_combo.currentIndexChanged.connect(self.on_combo_box_changed)
         # Set active selection "test"
@@ -52,6 +62,10 @@ class editWindow(QMainWindow):
         central_widget.setLayout(layout)
         self.update_args()
         self.setCentralWidget(central_widget)
+
+    def onItemEdit(self, item: action):
+        if self.action == item and not self.isEditing:
+            self.update_args()
 
     def update_args(self):
         action, args, comment = self.action.getValues()
@@ -87,67 +101,86 @@ class editWindow(QMainWindow):
         newCommand = self.select_combo.currentText()
         if newCommand == "write" or newCommand == "type":
             newAction = action(newCommand, args={
-                "value": ""
+                "value": "" if self.action.actionStr != "write" and self.action.actionStr != "type" else self.action.args["value"]
             })
             b = QHBoxLayout()
             b.addWidget(QLabel("What to write:"))
             b.addWidget(self.inputValues[0])
+            self.inputValues[0].setText(str(newAction.args["value"]))
+            self.inputValues[0].show()
             layoutToAdd.addLayout(b)
+            self.changeTable(newAction.actionStr, str(newAction.args['value']))
         elif ["left", "rightClick", "middleClick"].__contains__(newCommand):
             newAction = action(newCommand)
+            self.changeTable(newAction.actionStr, "")
         elif newCommand == "scroll":
             newAction = action(newCommand, args={
-                "dx": 0,
-                "dy": 0
+                "dx": 0 if self.action.actionStr != "scroll" else self.action.args["dx"],
+                "dy": 0 if self.action.actionStr != "scroll" else self.action.args["dy"]
             })
             b = QHBoxLayout()
             b.addWidget(QLabel("X scroll:"))
             b.addWidget(self.inputValues[0])
+            self.inputValues[0].setText(str(newAction.args["dx"]))
+            self.inputValues[0].show()
             layoutToAdd.addLayout(b)
             c = QHBoxLayout()
             c.addWidget(QLabel("Y scroll:"))
             c.addWidget(self.inputValues[1])
+            self.inputValues[1].setText(str(newAction.args["dy"]))
+            self.inputValues[1].show()
             layoutToAdd.addLayout(c)
+            self.changeTable(newAction.actionStr, f"{newAction.args['xy']}, {newAction.args['dy']}")
         elif newCommand == "random" or newCommand == "sleep":
             newAction = action(newCommand, args={
-                "value": 0
+                "value": 0 if self.action.actionStr != "random" and self.action.actionStr != "sleep" else self.action.args["value"]
             })
             b = QHBoxLayout()
             b.addWidget(QLabel("How much:"))
             layoutToAdd.addWidget(self.inputValues[0])
+            self.inputValues[0].setText(str(newAction.args["value"]))
             layoutToAdd.addLayout(b)
+            self.changeTable(newAction.actionStr, str(newAction.args["value"]))
         elif newCommand == "moveMouse":
             newAction = action(newCommand, args={
-                "x": 0,
-                "y": 0,
-                "time": 0
+                "x": 0 if self.action.actionStr != "moveMouse" else self.action.args["x"],
+                "y": 0 if self.action.actionStr != "moveMouse" else self.action.args["y"],
+                "time": 0 if self.action.actionStr != "moveMouse" else self.action.args["time"]
             })
             b = QHBoxLayout()
             b.addWidget(QLabel("X:"))
             b.addWidget(self.inputValues[0])
+            self.inputValues[0].setText(str(newAction.args["x"]))
             layoutToAdd.addLayout(b)
             c = QHBoxLayout()
             c.addWidget(QLabel("Y:"))
             c.addWidget(self.inputValues[1])
+            self.inputValues[1].setText(str(newAction.args["y"]))
             d = QHBoxLayout()
             d.addWidget(QLabel("Time:"))
             d.addWidget(self.inputValues[2])
+            self.inputValues[2].setText(str(newAction.args["time"]))
             layoutToAdd.addLayout(c)
             layoutToAdd.addLayout(d)
+            for i in range(3):
+                self.inputValues[i].show()
+            self.changeTable(newAction.actionStr, f"{newAction.args['x']}, {newAction.args['y']}, {newAction.args['time']}")
         else:
             newAction = action(newCommand)
-
-        self.father.parent.table.setItem(self.displayText.actions.index(self.action), 1,
-                                         QTableWidgetItem(newAction.actionStr))
+            self.changeTable(newAction.actionStr, "")
         self.displayText.actions[self.displayText.actions.index(self.action)] = newAction
         self.action = newAction
-        for i in reversed(range(self.argoumentsInputs.count())):
-            item = self.argoumentsInputs.itemAt(i)
-            if item.widget():
-                item.widget().deleteLater()
-            else:
-                self.argoumentsInputs.removeItem(item)
+        self.currentAction = self.action.actionStr
+        clear_layout(self.argoumentsInputs)
         self.argoumentsInputs.addLayout(layoutToAdd)
+
+    def changeTable(self, command, argouments):
+        self.isEditing = True
+        self.father.parent.table.setItem(self.displayText.actions.index(self.action), 1,
+                                         QTableWidgetItem(command))
+        self.father.parent.table.setItem(self.displayText.actions.index(self.action), 2,
+                                         QTableWidgetItem(argouments))
+        self.isEditing = False
 
     def save(self):
         # Save the comment

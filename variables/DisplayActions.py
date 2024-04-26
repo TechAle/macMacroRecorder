@@ -136,6 +136,10 @@ class TableWidget(QTableWidget):
         for window in self.windows:
             window.close()
 
+    def onItemEdit(self, param: action):
+        for window in self.windows:
+            window.onItemEdit(param)
+
 
 class displayAction(QWidget):
     def __init__(self):
@@ -266,7 +270,7 @@ class displayAction(QWidget):
                         returnValue = "They cannot have arguments"
                 elif actionConsidered == "write" or actionConsidered == "type":
                     newArgs = self.table.item(row, column).text()
-                    if newArgs == "":
+                    if actionConsidered == "type" and len(newArgs) > 1:
                         rollback = True
                         print("Invalid arguments: " + newArgs)
                         returnValue = "Invalid arguments: " + newArgs
@@ -339,6 +343,8 @@ class displayAction(QWidget):
             self.beforeRollback = False
             self.table.item(row, column).setText(original_text)
             return returnValue if len(returnValue) > 0 else False
+        else:
+            self.table.onItemEdit(self.displayText.actions[row])
         return True
 
     def toPlainText(self) -> str:
