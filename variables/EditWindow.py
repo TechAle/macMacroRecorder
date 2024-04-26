@@ -30,7 +30,7 @@ class editWindow(QMainWindow):
 
         # Label with select box
         select_label = QLabel("Select:")
-        self.firstLoad = True
+        self.addingItems = True
         self.isEditing = False
         self.select_combo = QComboBox()
         self.select_combo.currentIndexChanged.connect(self.on_combo_box_changed)
@@ -84,14 +84,17 @@ class editWindow(QMainWindow):
             items.append(action)
 
         self.select_combo.clear()
+        self.addingItems = True
         self.select_combo.addItems(items)
+        self.addingItems = False
         self.select_combo.setCurrentIndex(items.index(action))
 
         self.comment_input.setText(comment)
 
-    def on_combo_box_changed(self, index):
-        if self.firstLoad:
-            self.firstLoad = False
+    def on_combo_box_changed(self, index: int) -> None:
+        if self.addingItems:
+            return
+        if index == -1:
             return
         print("Selected index:", index)
         print("Selected text:", self.select_combo.currentText())
@@ -100,9 +103,17 @@ class editWindow(QMainWindow):
         # TODO edit keybind
         newCommand = self.select_combo.currentText()
         if newCommand == "write" or newCommand == "type":
-            newAction = action(newCommand, args={
-                "value": "" if self.action.actionStr != "write" and self.action.actionStr != "type" else self.action.args["value"]
-            })
+            if self.action.actionStr == "write" or self.action.actionStr == "type":
+                value = self.action.args["value"]
+                if self.action.actionStr == "write" or len(self.inputValues[0].text()) <= 1:
+                    value = self.inputValues[0].text()
+                newAction = action(newCommand, args={
+                    "value": value
+                })
+            else:
+                newAction = action(newCommand, args={
+                    "value": ""
+                })
             b = QHBoxLayout()
             b.addWidget(QLabel("What to write:"))
             b.addWidget(self.inputValues[0])
@@ -114,10 +125,26 @@ class editWindow(QMainWindow):
             newAction = action(newCommand)
             self.changeTable(newAction.actionStr, "")
         elif newCommand == "scroll":
-            newAction = action(newCommand, args={
-                "dx": 0 if self.action.actionStr != "scroll" else self.action.args["dx"],
-                "dy": 0 if self.action.actionStr != "scroll" else self.action.args["dy"]
-            })
+            if self.action.actionStr == "scroll":
+                dx = self.action.args["dx"]
+                try:
+                    dx = float(self.inputValues[0].text())
+                except ValueError:
+                    pass
+                dy = self.action.args["dy"]
+                try:
+                    dy = float(self.inputValues[1].text())
+                except ValueError:
+                    pass
+                newAction = action(newCommand, args={
+                    "dx": dx,
+                    "dy": dy
+                })
+            else:
+                newAction = action(newCommand, args={
+                    "dx": 0,
+                    "dy": 0
+                })
             b = QHBoxLayout()
             b.addWidget(QLabel("X scroll:"))
             b.addWidget(self.inputValues[0])
@@ -130,11 +157,21 @@ class editWindow(QMainWindow):
             self.inputValues[1].setText(str(newAction.args["dy"]))
             self.inputValues[1].show()
             layoutToAdd.addLayout(c)
-            self.changeTable(newAction.actionStr, f"{newAction.args['xy']}, {newAction.args['dy']}")
+            self.changeTable(newAction.actionStr, f"{newAction.args['dy']}, {newAction.args['dy']}")
         elif newCommand == "random" or newCommand == "sleep":
-            newAction = action(newCommand, args={
-                "value": 0 if self.action.actionStr != "random" and self.action.actionStr != "sleep" else self.action.args["value"]
-            })
+            if self.action.actionStr == "random" or self.action.actionStr == "sleep":
+                value = self.action.args["value"]
+                try:
+                    value = float(self.inputValues[0].text())
+                except ValueError:
+                    pass
+                newAction = action(newCommand, args={
+                    "value": value
+                })
+            else:
+                newAction = action(newCommand, args={
+                    "value": 0
+                })
             b = QHBoxLayout()
             b.addWidget(QLabel("How much:"))
             layoutToAdd.addWidget(self.inputValues[0])
@@ -142,11 +179,34 @@ class editWindow(QMainWindow):
             layoutToAdd.addLayout(b)
             self.changeTable(newAction.actionStr, str(newAction.args["value"]))
         elif newCommand == "moveMouse":
-            newAction = action(newCommand, args={
-                "x": 0 if self.action.actionStr != "moveMouse" else self.action.args["x"],
-                "y": 0 if self.action.actionStr != "moveMouse" else self.action.args["y"],
-                "time": 0 if self.action.actionStr != "moveMouse" else self.action.args["time"]
-            })
+            if self.action.actionStr == "moveMouse":
+                xOutput = self.action.args["x"]
+                yOutput = self.action.args["y"]
+                timeOutput = self.action.args["time"]
+                # Check if a string is a float
+                try:
+                    xOutput = float(self.inputValues[0].text())
+                except ValueError:
+                    pass
+                try:
+                    yOutput = float(self.inputValues[1].text())
+                except ValueError:
+                    pass
+                try:
+                    timeOutput = float(self.inputValues[2].text())
+                except ValueError:
+                    pass
+                newAction = action(newCommand, args={
+                    "x": xOutput,
+                    "y": yOutput,
+                    "time": timeOutput
+                })
+            else:
+                newAction = action(newCommand, args={
+                    "x": 0,
+                    "y": 0,
+                    "time": 0
+                })
             b = QHBoxLayout()
             b.addWidget(QLabel("X:"))
             b.addWidget(self.inputValues[0])

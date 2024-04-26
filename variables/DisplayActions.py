@@ -258,7 +258,6 @@ class displayAction(QWidget):
                     "rightClick",
                     "leftClick",
                     "shift",
-                    "scroll",
                     "unshift",
                     "middleClick",
                     "stop",
