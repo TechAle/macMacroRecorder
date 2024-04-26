@@ -132,6 +132,10 @@ class TableWidget(QTableWidget):
             toMove = item.row()
             self.swapRows(toMove, 1)
 
+    def closeWindows(self):
+        for window in self.windows:
+            window.close()
+
 
 class displayAction(QWidget):
     def __init__(self):
@@ -341,6 +345,7 @@ class displayAction(QWidget):
         return self.displayText.getString()
 
     def setPlainText(self, text: str):
+        self.table.closeWindows()
         self.loading = True
         self.displayText.setString(text)
         self.loading = False
