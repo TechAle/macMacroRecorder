@@ -126,7 +126,7 @@ class MyWindow(QWidget):
     # noinspection PyUnresolvedReferences
     def initUI(self) -> None:
         self.setWindowTitle('PyQt Program with Navigation Bar and Footer')
-        self.setGeometry(100, 100, 400, 450)
+        self.setGeometry(100, 100, 600, 450)
 
         # Create macros directory if it doesn't exist
         if not os.path.exists("macros"):

@@ -1,11 +1,9 @@
-import importlib
-
 from PyQt5.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QWidget, QComboBox, QLineEdit, QPushButton, QMessageBox, \
     QTableWidgetItem, QHBoxLayout
 
 from variables.DisplayText import displayText
-from variables import actions
 from variables.actions import action
+
 
 def clear_layout(layout):
     while layout.count():
@@ -32,6 +30,7 @@ class editWindow(QMainWindow):
         select_label = QLabel("Select:")
         self.addingItems = True
         self.isEditing = False
+        self.comment = None
         self.select_combo = QComboBox()
         self.select_combo.currentIndexChanged.connect(self.on_combo_box_changed)
         # Set active selection "test"
@@ -87,7 +86,9 @@ class editWindow(QMainWindow):
         self.addingItems = True
         self.select_combo.addItems(items)
         self.addingItems = False
+        self.comment = comment
         self.select_combo.setCurrentIndex(items.index(action))
+        self.comment = None
 
         self.comment_input.setText(comment)
 
@@ -224,10 +225,13 @@ class editWindow(QMainWindow):
             layoutToAdd.addLayout(d)
             for i in range(3):
                 self.inputValues[i].show()
-            self.changeTable(newAction.actionStr, f"{newAction.args['x']}, {newAction.args['y']}, {newAction.args['time']}")
+            self.changeTable(newAction.actionStr,
+                             f"{newAction.args['x']}, {newAction.args['y']}, {newAction.args['time']}")
         else:
             newAction = action(newCommand)
             self.changeTable(newAction.actionStr, "")
+        if self.comment is not None:
+            newAction.comment = self.comment
         self.displayText.actions[self.displayText.actions.index(self.action)] = newAction
         self.action = newAction
         self.currentAction = self.action.actionStr
@@ -262,7 +266,7 @@ class editWindow(QMainWindow):
             # Check if x and y are floats
             try:
                 x = float(x)
-                y= float(y)
+                y = float(y)
                 time = float(time)
             except ValueError:
                 QMessageBox.about(self, "Error", "X and Y must be numbers")
@@ -297,7 +301,6 @@ class editWindow(QMainWindow):
             self.displayText.actions[self.displayText.actions.index(self.action)].args["value"] = value
             self.father.parent.table.setItem(self.displayText.actions.index(self.action), 2,
                                              QTableWidgetItem(str(value)))
-
 
     def closeEvent(self, event):
         self.father.removeWindow(self)
