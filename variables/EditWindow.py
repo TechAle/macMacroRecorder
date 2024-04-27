@@ -25,6 +25,7 @@ class editWindow(QMainWindow):
         self.father = father
         # I think i will never need more then 10 QLineEdit
         self.inputValues: [QLineEdit] = [QLineEdit() for x in range(10)]
+        self.oldArgs: dict[str, any] | None = None
 
         # Label with select box
         select_label = QLabel("Select:")
@@ -106,8 +107,9 @@ class editWindow(QMainWindow):
         if newCommand == "write" or newCommand == "type":
             if self.action.actionStr == "write" or self.action.actionStr == "type":
                 value = self.action.args["value"]
-                if self.action.actionStr == "write" or len(self.inputValues[0].text()) <= 1:
-                    value = self.inputValues[0].text()
+                if self.oldArgs is None or self.oldArgs["value"] == value:
+                    if self.action.actionStr == "write" or len(self.inputValues[0].text()) <= 1:
+                        value = self.inputValues[0].text()
                 newAction = action(newCommand, args={
                     "value": value
                 })
@@ -128,15 +130,16 @@ class editWindow(QMainWindow):
         elif newCommand == "scroll":
             if self.action.actionStr == "scroll":
                 dx = self.action.args["dx"]
-                try:
-                    dx = float(self.inputValues[0].text())
-                except ValueError:
-                    pass
                 dy = self.action.args["dy"]
-                try:
-                    dy = float(self.inputValues[1].text())
-                except ValueError:
-                    pass
+                if self.oldArgs is None or (self.oldArgs["dx"] == dx and self.oldArgs["dy"] == dy):
+                    try:
+                        dx = float(self.inputValues[0].text())
+                    except ValueError:
+                        pass
+                    try:
+                        dy = float(self.inputValues[1].text())
+                    except ValueError:
+                        pass
                 newAction = action(newCommand, args={
                     "dx": dx,
                     "dy": dy
@@ -162,10 +165,11 @@ class editWindow(QMainWindow):
         elif newCommand == "random" or newCommand == "sleep":
             if self.action.actionStr == "random" or self.action.actionStr == "sleep":
                 value = self.action.args["value"]
-                try:
-                    value = float(self.inputValues[0].text())
-                except ValueError:
-                    pass
+                if self.oldArgs is None or self.oldArgs["value"] == value:
+                    try:
+                        value = float(self.inputValues[0].text())
+                    except ValueError:
+                        pass
                 newAction = action(newCommand, args={
                     "value": value
                 })
@@ -184,19 +188,20 @@ class editWindow(QMainWindow):
                 xOutput = self.action.args["x"]
                 yOutput = self.action.args["y"]
                 timeOutput = self.action.args["time"]
-                # Check if a string is a float
-                try:
-                    xOutput = float(self.inputValues[0].text())
-                except ValueError:
-                    pass
-                try:
-                    yOutput = float(self.inputValues[1].text())
-                except ValueError:
-                    pass
-                try:
-                    timeOutput = float(self.inputValues[2].text())
-                except ValueError:
-                    pass
+                if self.oldArgs is None or (self.oldArgs["x"] == xOutput and self.oldArgs["y"] == yOutput and self.oldArgs["time"] == timeOutput):
+                    # Check if a string is a float
+                    try:
+                        xOutput = float(self.inputValues[0].text())
+                    except ValueError:
+                        pass
+                    try:
+                        yOutput = float(self.inputValues[1].text())
+                    except ValueError:
+                        pass
+                    try:
+                        timeOutput = float(self.inputValues[2].text())
+                    except ValueError:
+                        pass
                 newAction = action(newCommand, args={
                     "x": xOutput,
                     "y": yOutput,
@@ -235,6 +240,7 @@ class editWindow(QMainWindow):
         self.displayText.actions[self.displayText.actions.index(self.action)] = newAction
         self.action = newAction
         self.currentAction = self.action.actionStr
+        self.oldArgs = self.action.args
         clear_layout(self.argoumentsInputs)
         self.argoumentsInputs.addLayout(layoutToAdd)
 
