@@ -56,9 +56,12 @@ class editWindow(QMainWindow):
         self.updateLayout()
         self.setCentralWidget(central_widget)
 
+    def isAction(self, item: action):
+        return self.action == item
+
     # This function is called by the table when a row gets updated, is needed for the sync
     def onItemEdit(self, item: action):
-        if self.action == item and not self.isEditing:
+        if self.isAction(item) and not self.isEditing:
             self.updateLayout()
 
     def updateLayout(self):

@@ -1,6 +1,7 @@
 from typing import Optional
 
 from PyQt5 import Qt
+from PyQt5 import QtCore
 from PyQt5.QtCore import Qt as tableQt
 from PyQt5.QtWidgets import (
     QWidget,
@@ -36,7 +37,7 @@ class TableWidget(QTableWidget):
         actionEdit = menu.addAction("Edit")
         actionEdit.triggered.connect(lambda idx, pos_args=pos: self.edit_row(idx, pos_args))
         actionDelete = menu.addAction("Delete")
-        actionDelete.triggered.connect(lambda idx, pos_args=pos: self.delete_row(idx, pos_args))
+        actionDelete.triggered.connect(lambda _: self.delete_rows())
         # Add menu "add above" and "add below"
         actionAddAbove = menu.addAction("Add Above")
         actionAddAbove.triggered.connect(lambda idx, pos_args=pos: self.add_above(idx, pos_args))
@@ -71,27 +72,33 @@ class TableWidget(QTableWidget):
             self.swapRows(self.idxSwap, toSwap - self.idxSwap)
             self.idxSwap = -1
 
-
     def edit_row(self, idx: int, pos: Qt.QPoint):
         item = self.itemAt(pos)
         if item:
-            print(f"Cell: {item.row()}, {item.column()}")
+            action = self.displayText.actions[item.row()]
+            for window in self.windows:
+                if window.isAction(action):
+                    window.activateWindow()
+                    window.raise_()
+                    return
             # Create a new window
-            self.windows.append(editWindow(self.displayText, self.displayText.actions[item.row()], self))
+            self.windows.append(editWindow(self.displayText, action, self))
             self.windows[-1].show()
 
     def removeWindow(self, window: editWindow):
         self.windows.remove(window)
 
+    def delete_rows(self):
+        selected_indexes = self.selectionModel().selectedIndexes()
+        selected_rows = set(index.row() for index in selected_indexes)
+        for row in sorted(selected_rows, reverse=True):
+            self.delete_row(row)
 
-    def delete_row(self, idx: int, pos: Qt.QPoint):
-        item = self.itemAt(pos)
-        if item:
-            toRemove = item.row()
-            # Remove the row
-            self.removeRow(toRemove)
-            # Also remove it from actions
-            self.displayText.actions.pop(toRemove)
+    def delete_row(self, toRemove: int):
+        # Remove the row
+        self.removeRow(toRemove)
+        # Also remove it from actions
+        self.displayText.actions.pop(toRemove)
 
     def add_above(self, idx: int, pos_args: Qt.QPoint):
         item = self.itemAt(pos_args)
@@ -105,10 +112,12 @@ class TableWidget(QTableWidget):
         self.insertRow(row)
         # Edit the first column with the text "invalid"
         self.parent.beforeRollback = False
+        self.parent.disableCheck = True
         self.setItem(row, 1, QTableWidgetItem("invalid"))
         self.setItem(row, 0, self.parent.displayText.getSvg("invalid"))
         # Also add it to actions
         self.displayText.actions.insert(row, action("invalid", args={"value": ""}))
+        self.parent.disableCheck = False
 
     def add_below(self, idx: int, pos_args: Qt.QPoint):
         item = self.itemAt(pos_args)
@@ -146,10 +155,6 @@ class TableWidget(QTableWidget):
         self.setItem(row, 2, QTableWidgetItem(arguments))
         self.setItem(row, 3, QTableWidgetItem(comment))
         self.parent.disableCheck = False
-
-
-
-
 
     def move_down(self, idx: int, pos_args: Qt.QPoint):
         item = self.itemAt(pos_args)
@@ -217,7 +222,7 @@ class displayAction(QWidget):
         self.revertBackup = new_table
 
     def cell_edited(self, row: int, column: int) -> bool | str:
-        returnValue: str  = ""
+        returnValue: str = ""
         if not self.beforeRollback:
             self.beforeRollback = True
             return
