@@ -23,36 +23,29 @@ class editWindow(QMainWindow):
         self.displayText: displayText = displayText
         self.action = action
         self.father = father
-        # I think i will never need more then 10 QLineEdit
+        # I think i will never need more then 10 QLineEdit for the inputs
         self.inputValues: [QLineEdit] = [QLineEdit() for x in range(10)]
         self.oldArgs: dict[str, any] | None = None
 
         # Label with select box
         select_label = QLabel("Select:")
-        self.addingItems = True
-        self.isEditing = False
-        self.comment = None
+        self.addingItems: bool = True
+        self.isEditing: bool = False
+        self.comment: None | str = None
         self.select_combo = QComboBox()
         self.select_combo.currentIndexChanged.connect(self.on_combo_box_changed)
-        # Set active selection "test"
-        # Check when select_combo changes
 
-        # Labels with input boxes
         self.argoumentsInputs = QVBoxLayout()
 
-        # Label with input box for comments
         comment_label = QLabel("Comments:")
         self.comment_input = self.inputValues[-1]
 
-        # Add a save button
         save_button = QPushButton("Save")
         save_button.clicked.connect(self.save)
 
-        # Layout
         layout = QVBoxLayout()
         layout.addWidget(select_label)
         layout.addWidget(self.select_combo)
-        # Add argoumentsInput
         layout.addLayout(self.argoumentsInputs)
         layout.addWidget(comment_label)
         layout.addWidget(self.comment_input)
@@ -60,15 +53,18 @@ class editWindow(QMainWindow):
 
         central_widget = QWidget()
         central_widget.setLayout(layout)
-        self.update_args()
+        self.updateLayout()
         self.setCentralWidget(central_widget)
 
+    # This function is called by the table when a row gets updated, is needed for the sync
     def onItemEdit(self, item: action):
         if self.action == item and not self.isEditing:
-            self.update_args()
+            self.updateLayout()
 
-    def update_args(self):
+    def updateLayout(self):
         action, args, comment = self.action.getValues()
+
+        # Every items in the select box
         items = ["sleep",
                  "rightClick",
                  "leftClick",
@@ -84,9 +80,11 @@ class editWindow(QMainWindow):
             items.append(action)
 
         self.select_combo.clear()
+        # With addingItems we ignore the call of on_combo_box_changed
         self.addingItems = True
         self.select_combo.addItems(items)
         self.addingItems = False
+        # Due to on_combo_box_changed not being called by us, for passing argouments we have to set a global varabiable
         self.comment = comment
         self.select_combo.setCurrentIndex(items.index(action))
         self.comment = None
@@ -94,21 +92,22 @@ class editWindow(QMainWindow):
         self.comment_input.setText(comment)
 
     def on_combo_box_changed(self, index: int) -> None:
+        # If we have to ignore the combo box changed
         if self.addingItems:
             return
         if index == -1:
             return
-        print("Selected index:", index)
-        print("Selected text:", self.select_combo.currentText())
         layoutToAdd = QVBoxLayout()
-        # Clear everything in the layout
-        # TODO edit keybind
+
+        # Check every commands
         newCommand = self.select_combo.currentText()
         if newCommand == "write" or newCommand == "type":
+            # If this is false, then we have just changed the combo box, so we have to set the dafault values
             if self.action.actionStr == "write" or self.action.actionStr == "type":
                 value = self.action.args["value"]
+                # If this is true, then we changed the value from the table, and so we dont get the input value
                 if self.oldArgs is None or self.oldArgs["value"] == value:
-                    if self.action.actionStr == "write" or len(self.inputValues[0].text()) <= 1:
+                    if self.action.actionStr != "type" or len(self.inputValues[0].text()) <= 1:
                         value = self.inputValues[0].text()
                 newAction = action(newCommand, args={
                     "value": value
@@ -123,6 +122,7 @@ class editWindow(QMainWindow):
             self.inputValues[0].setText(str(newAction.args["value"]))
             self.inputValues[0].show()
             layoutToAdd.addLayout(b)
+            # Update the table
             self.changeTable(newAction.actionStr, str(newAction.args['value']))
         elif ["left", "rightClick", "middleClick"].__contains__(newCommand):
             newAction = action(newCommand)
@@ -134,6 +134,7 @@ class editWindow(QMainWindow):
                 if self.oldArgs is None or (self.oldArgs["dx"] == dx and self.oldArgs["dy"] == dy):
                     try:
                         dx = float(self.inputValues[0].text())
+                    # This is how you check if the str is a float
                     except ValueError:
                         pass
                     try:
@@ -233,18 +234,27 @@ class editWindow(QMainWindow):
             self.changeTable(newAction.actionStr,
                              f"{newAction.args['x']}, {newAction.args['y']}, {newAction.args['time']}")
         else:
+            # In case we have an invalid action
             newAction = action(newCommand)
             self.changeTable(newAction.actionStr, "")
+
         if self.comment is not None:
             newAction.comment = self.comment
+
+        # Update every variables with the new data
         self.displayText.actions[self.displayText.actions.index(self.action)] = newAction
         self.action = newAction
         self.currentAction = self.action.actionStr
+        # Needed for checking in the next cycle if
         self.oldArgs = self.action.args
+
+        # Update the layout
         clear_layout(self.argoumentsInputs)
         self.argoumentsInputs.addLayout(layoutToAdd)
 
+    # Just for not having a lot of duplicated lines
     def changeTable(self, command, argouments):
+        # isEditing to True so that we dont enter in a loop with on_combo_box_changed
         self.isEditing = True
         self.father.parent.table.setItem(self.displayText.actions.index(self.action), 1,
                                          QTableWidgetItem(command))
@@ -252,13 +262,15 @@ class editWindow(QMainWindow):
                                          QTableWidgetItem(argouments))
         self.isEditing = False
 
+    # Sync the window with the table, and also validate the data
     def save(self):
         # Save the comment
         comment: str = self.inputValues[-1].text()
         self.father.parent.table.setItem(self.displayText.actions.index(self.action), 3,
                                          QTableWidgetItem(comment))
         self.displayText.actions[self.displayText.actions.index(self.action)].comment = comment
-        # Now save the argouments
+
+        # Save the command and the arguments
         currentCommand = self.select_combo.currentText()
         if currentCommand == "write" or currentCommand == "type":
             self.displayText.actions[self.displayText.actions.index(self.action)].args["value"] = \
@@ -269,7 +281,6 @@ class editWindow(QMainWindow):
             x = self.inputValues[0].text()
             y = self.inputValues[1].text()
             time = self.inputValues[2].text()
-            # Check if x and y are floats
             try:
                 x = float(x)
                 y = float(y)
@@ -285,7 +296,6 @@ class editWindow(QMainWindow):
         elif currentCommand == "scroll":
             dx = self.inputValues[0].text()
             dy = self.inputValues[1].text()
-            # Check if x and y are floats
             try:
                 dx = float(dx)
                 dy = float(dy)
@@ -298,7 +308,6 @@ class editWindow(QMainWindow):
                                              QTableWidgetItem(str(dx) + ", " + str(dy)))
         elif currentCommand == "sleep" or currentCommand == "random":
             value = self.inputValues[0].text()
-            # Check if x and y are floats
             try:
                 value = float(value)
             except ValueError:
@@ -307,7 +316,9 @@ class editWindow(QMainWindow):
             self.displayText.actions[self.displayText.actions.index(self.action)].args["value"] = value
             self.father.parent.table.setItem(self.displayText.actions.index(self.action), 2,
                                              QTableWidgetItem(str(value)))
+        # No else because we dont want to save on the table invalid states
 
+    # Graceful shutdown
     def closeEvent(self, event):
         self.father.removeWindow(self)
         super().closeEvent(event)

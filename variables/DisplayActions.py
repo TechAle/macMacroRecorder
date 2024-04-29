@@ -26,6 +26,7 @@ class TableWidget(QTableWidget):
         self.displayText: displayText | None = None
         self.parent: displayAction = parent
         self.windows: [editWindow] = []
+        self.idxSwap = -1
 
     def setDisplayText(self, displayText):
         self.displayText = displayText
@@ -46,9 +47,30 @@ class TableWidget(QTableWidget):
         actionMoveUp.triggered.connect(lambda idx, pos_args=pos: self.move_up(idx, pos_args))
         actionMoveDown = menu.addAction("Move Down")
         actionMoveDown.triggered.connect(lambda idx, pos_args=pos: self.move_down(idx, pos_args))
+        if self.idxSwap == -1:
+            actionMoveDown = menu.addAction("First swap")
+            actionMoveDown.triggered.connect(lambda idx, pos_args=pos: self.setSwapFirst(idx, pos_args))
+        else:
+            actionMoveDown = menu.addAction("Reset first Down")
+            actionMoveDown.triggered.connect(lambda idx, pos_args=pos: self.setSwapFirst(idx, pos_args))
+            actionMoveDown = menu.addAction("Swap")
+            actionMoveDown.triggered.connect(lambda idx, pos_args=pos: self.swap(idx, pos_args))
         # Add separator
         menu.addSeparator()
         menu.exec_(self.mapToGlobal(pos))
+
+    def setSwapFirst(self, idx: int, pos: Qt.QPoint):
+        item = self.itemAt(pos)
+        if item:
+            self.idxSwap = item.row()
+
+    def swap(self, idx: int, pos: Qt.QPoint):
+        item = self.itemAt(pos)
+        if item:
+            toSwap = item.row()
+            self.swapRows(self.idxSwap, toSwap - self.idxSwap)
+            self.idxSwap = -1
+
 
     def edit_row(self, idx: int, pos: Qt.QPoint):
         item = self.itemAt(pos)
@@ -106,7 +128,10 @@ class TableWidget(QTableWidget):
             return
         newRow = row + offset
         # Backup for the row that is gonna get overwritten
-        command = self.item(newRow, 1).text()
+        command = self.item(newRow, 1)
+        if type(command) is None:
+            return
+        command = command.text()
         arguments = self.item(newRow, 2).text()
         comment = self.item(newRow, 3).text()
         # Add a new row above
@@ -204,9 +229,7 @@ class displayAction(QWidget):
         else:
             # This slot will be called whenever a cell gets edited
             print(f"Cell at row {row} and column {column} has been edited.")
-            # TODO shift all this into action function or an utility
             # TODO give a feedback when errors are made
-            # TODO having random create lots of desyncs
             # Edit action
             if column == 1:
                 newAction: None | QTableWidgetItem | str = self.table.item(row, column)
