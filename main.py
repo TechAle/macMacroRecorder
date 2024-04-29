@@ -211,15 +211,17 @@ class MyWindow(QWidget):
                 self.focus = False
         return super().eventFilter(obj, event)
 
-    # noinspection PyUnresolvedReferences
+
     def startRecording(self) -> None:
-        if self.macroManager.isRecording:
+        if self.macroManager.isRecording or self.macroManager.isRunning():
             return
         if self.lastSelected is None:
+            # noinspection PyUnresolvedReferences
             self.signalHander.emit("noLoaded")
             # Alert saying no file has been selected
             return
         if self.text_field.toPlainText() != "":
+            # noinspection PyUnresolvedReferences
             self.signalHander.emit("askConfirmOverwrite")
             return
         self.macroManager.startRecording(self.lastSelected)
@@ -227,6 +229,8 @@ class MyWindow(QWidget):
 
     # noinspection PyUnresolvedReferences
     def stopRecording(self) -> None:
+        if self.macroManager.isRunning():
+            return
         self.signalHander.emit("stopRecording")
 
     def pressedKeybindStart(self) -> None:

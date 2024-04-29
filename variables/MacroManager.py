@@ -146,3 +146,9 @@ class macroManager:
             self.recording.append(f"moveMouse({x}, {y}, {(time.time() - self.lastActionTime) / 1000})")
             self.recording.append(f"scroll({dx}, {dy})")
             self.locker.release()
+
+    def isRunning(self) -> bool:
+        for script in self.scripts:
+            if self.scripts[script].state == macroState.RUNNING:
+                return True
+        return False

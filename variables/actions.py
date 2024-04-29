@@ -3,6 +3,8 @@ import random
 import threading
 import time
 from typing import Union, Dict, Any
+
+from pynput import keyboard
 from pynput.keyboard import Key, Controller as ControllerKeyboard
 from pynput.mouse import Controller as MouseController, Button
 
@@ -42,10 +44,15 @@ class action:
         elif self.actionStr == "stop":
             return False
         elif self.actionStr == "type":
-            self.controllerKeyboard.press(Key[self.args["value"]])
-            self.controllerKeyboard.release(Key[self.args["value"]])
+            self.controllerKeyboard.press(self.args["value"])
+            self.controllerKeyboard.release(self.args["value"])
         elif self.actionStr == "write":
-            self.controllerKeyboard.type(self.args["value"])
+            if self.args["value"].startswith("Key."):
+                toPress = keyboard.HotKey.parse("<" + self.args["value"].split('.')[1] + ">")[0]
+                self.controllerKeyboard.press(toPress)
+                self.controllerKeyboard.release(toPress)
+            else:
+                self.controllerKeyboard.type(self.args["value"])
         elif self.actionStr == "moveMouse":
             x, y = self.args["x"], self.args["y"]
             if self.args["time"] != 0:
