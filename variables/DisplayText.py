@@ -30,7 +30,7 @@ class displayText:
                 # Say that the keybind has been resetted
                 QMessageBox.information(self.table, "Feedback", "Keybind resetted",
                                         QMessageBox.Ok)
-            if len(new_keybind) == 1:
+            elif len(new_keybind) == 1:
                 # Create the new keybind
                 self.keybind = KeyCode(new_keybind)
                 self.keybindButton.setText(f"keybind: {new_keybind}")

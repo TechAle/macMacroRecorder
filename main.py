@@ -267,7 +267,7 @@ class MyWindow(QWidget):
         if not okPressed:
             QMessageBox.information(self, "Feedback", "Cancelled successfully",
                                     QMessageBox.Ok)
-        elif text == '' or len(text) != 1:
+        elif len(text) > 1:
             QMessageBox.information(self, "Feedback", "The keybind must be 1 long",
                                     QMessageBox.Abort)
         else:
