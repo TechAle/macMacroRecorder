@@ -32,6 +32,7 @@ class editWindow(QMainWindow):
         self.addingItems: bool = True
         self.isEditing: bool = False
         self.comment: None | str = None
+        self.oldIndex: int = -1
         self.select_combo = QComboBox()
         self.select_combo.currentIndexChanged.connect(self.on_combo_box_changed)
 
@@ -68,6 +69,7 @@ class editWindow(QMainWindow):
         action, args, comment = self.action.getValues()
 
         # Every items in the select box
+        # TODO make this list more accessible to everyon
         items = ["sleep",
                  "rightClick",
                  "leftClick",
@@ -237,9 +239,14 @@ class editWindow(QMainWindow):
             self.changeTable(newAction.actionStr,
                              f"{newAction.args['x']}, {newAction.args['y']}, {newAction.args['time']}")
         else:
-            # In case we have an invalid action
-            newAction = action(newCommand)
-            self.changeTable(newAction.actionStr, "")
+            # In case we have an invalid action, check if we can avoid it
+            if self.oldIndex == -1:
+                newAction = action(newCommand)
+                self.changeTable(newAction.actionStr, "")
+            else:
+                # If we can avoid it, lets do it
+                self.select_combo.setCurrentIndex(self.oldIndex)
+                return
 
         if self.comment is not None:
             newAction.comment = self.comment
@@ -254,6 +261,7 @@ class editWindow(QMainWindow):
         # Update the layout
         clear_layout(self.argoumentsInputs)
         self.argoumentsInputs.addLayout(layoutToAdd)
+        self.oldIndex = index
 
     # Just for not having a lot of duplicated lines
     def changeTable(self, command, argouments):

@@ -365,13 +365,18 @@ class displayAction(QWidget):
                 self.backupCommit()
         if rollback:
             # Get the original text of the cell
-            original_text = self.revertBackup.item(row, column).text()
+            original_text = self.revertBackup.item(row, column)
+            if original_text is None:
+                original_text = "invalid"
+            else:
+                original_text = original_text.text()
             # Set the cell's text back to its original value
             self.beforeRollback = False
             self.table.item(row, column).setText(original_text)
             return returnValue if len(returnValue) > 0 else False
         else:
             self.table.onItemEdit(self.displayText.actions[row])
+            self.table.setItem(row, 0, self.displayText.getSvg(self.displayText.actions[row].actionStr))
         return True
 
     def toPlainText(self) -> str:
