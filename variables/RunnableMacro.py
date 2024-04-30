@@ -9,7 +9,7 @@ from variables.actions import action
 
 
 class runnableMacro(threading.Thread):
-    def __init__(self, script: Union[str, None] = None):
+    def __init__(self, script: Union[str, None] = None, signalHander=None):
         if script is not None:
             threading.Thread.__init__(self)
             self.enabled: bool = False
@@ -19,6 +19,7 @@ class runnableMacro(threading.Thread):
             self.script: list[action] = []
             self.keybind: Union[KeyCode, None] = None
             self.randomTemp: int = 0
+            self.signalHander = signalHander
 
     def loadFile(self) -> None | str:
         with open(os.path.join("macros", self.scriptName), 'r') as file:
@@ -97,7 +98,7 @@ class runnableMacro(threading.Thread):
                                   "value": argouments
                               }, comment=comment)
                 self.script.append(temp)
-            elif ["leftClick", "rightClick", "middleClick"].__contains__(command):
+            elif ["leftClick", "rightClick", "middleClick", "stop"].__contains__(command):
                 self.script.append(action(command, comment=comment))
             elif command == "scroll":
                 x, y = argouments.strip().replace(" ", "").split(",")
@@ -152,3 +153,5 @@ class runnableMacro(threading.Thread):
                 self.state = macroState.WAITING
             else:
                 self.idx = (self.idx + 1) % len(self.script)
+        if self.signalHander is not None:
+            self.signalHander.emit("updateButtons")

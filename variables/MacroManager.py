@@ -12,7 +12,7 @@ from variables.RunnableMacro import runnableMacro
 
 class macroManager:
 
-    def __init__(self, moveMouseTime: float):
+    def __init__(self, moveMouseTime: float, signalHander):
         self.scripts: Dict[str, runnableMacro] = {}
         self.controllerKeyboard = ControllerKeyboard()
         self.controllerMouse = ControllerMouse()
@@ -27,6 +27,7 @@ class macroManager:
         self.scriptRecording: Union[str, None] = None
         self.lastMouseMoved: int = -1
         self.runningScripts: [runnableMacro] = []
+        self.signalHander = signalHander
 
     def onToggle(self, script: str) -> Union[None, macroState]:
         if script not in self.scripts:
@@ -35,7 +36,7 @@ class macroManager:
 
     def onCreate(self, script: str, update: bool = False) -> Union[bool, str]:
         if script not in self.scripts.keys():
-            scriptToAdd = runnableMacro(script)
+            scriptToAdd = runnableMacro(script, self.signalHander)
             output = scriptToAdd.loadFile()
             if isinstance(output, str):
                 return output
@@ -94,14 +95,17 @@ class macroManager:
         self.recording.append(f"sleep({(currentTime - self.lastActionTime) / 1000})")
         self.lastActionTime = currentTime
 
-    def onPress(self, key: Union[KeyCode, None]) -> None:
+    def onPress(self, key: Union[KeyCode, None]) -> bool:
+        change = False
         for script in self.scripts:
             if self.scripts[script].state != macroState.DISABLED:
                 if isinstance(output := self.scripts[script].onKeyPress(key), bool):
                     if output:
                         self.runningScripts.append(script)
+                        change = True
                     else:
                         self.runningScripts.remove(script)
+                        change = True
         if self.isRecording:
             if self.firstMouseCoords:
                 self.onMove(self.controllerMouse.position[0], self.controllerMouse.position[1])
@@ -113,6 +117,7 @@ class macroManager:
             else:
                 self.recording.append(f"write({key})")
             self.locker.release()
+        return change
 
     def onMove(self, x: int, y: int) -> None:
         if self.isRecording:

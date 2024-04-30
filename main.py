@@ -58,6 +58,8 @@ class MyWindow(QWidget):
             self.text_field.setPlainText(output)
             self.button_toggle.setStyleSheet("background-color: red;")
             self.button_start_recording.setStyleSheet("")
+        elif data == "updateButtons":
+            self.updateButtons()
 
     def prepareListeners(self) -> None:
         # Create a new thread with the
@@ -75,7 +77,8 @@ class MyWindow(QWidget):
         if self.focus:  # pyobject would crash without thisf
             return
         if not self.macroManager.isRecording or key != self.configurations["keybindStop"]:
-            self.macroManager.onPress(key)
+            if self.macroManager.onPress(key):
+                self.signalHander.emit("updateButtons")
         if key == self.configurations["keybindStart"]:
             self.startRecording()
         elif key == self.configurations["keybindStop"]:
@@ -105,7 +108,7 @@ class MyWindow(QWidget):
                 self.initDefault()
         else:
             self.initDefault()
-        self.macroManager: macroManager = macroManager(self.configurations["mouseDelay"])
+        self.macroManager: macroManager = macroManager(self.configurations["mouseDelay"], self.signalHander)
 
     def initDefault(self) -> None:
         self.configurations: dict = {
@@ -299,6 +302,7 @@ class MyWindow(QWidget):
                 QMessageBox.information(self, "Feedback",
                                         "The file you loaded is not valid, please fix the errors and save",
                                         QMessageBox.Abort)
+        self.updateButtons()
 
     def updateClicked(self) -> None:
         self.updateButtons()
@@ -333,6 +337,11 @@ class MyWindow(QWidget):
         for file in macro_files:
             button = QPushButton(file, self)
             button.clicked.connect(partial(self.loadFileContent, file))  # Connect button to loadFileContent method
+            if self.macroManager.scripts.keys().__contains__(file):
+                if self.macroManager.scripts[file].state == macroState.WAITING:
+                    button.setStyleSheet("background-color: green")
+                elif self.macroManager.scripts[file].state == macroState.RUNNING:
+                    button.setStyleSheet("background-color: blue")
             self.script_buttons_layout.addWidget(button)
 
     def loadFileContent(self, file: str) -> None:
