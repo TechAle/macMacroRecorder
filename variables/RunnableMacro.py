@@ -77,6 +77,6 @@ class runnableMacro(threading.Thread):
             elif not results:
                 self.state = macroState.WAITING
             else:
-                self.idx = (self.idx + 1) % len(self.script)
+                self.idx = (self.idx + 1) % len(self.managerAction.actions)
         if self.signalHander is not None:
             self.signalHander.emit("updateButtons")
