@@ -36,7 +36,7 @@ class Write(actionLol):
         return True
 
     def getValues(self) -> tuple[str, str, str]:
-        ...
+        return self.actionStr, self.args["value"], self.comment
 
     @staticmethod
     def createAction(args: str, comment: str) -> tuple[actionLol, str]:
@@ -63,6 +63,7 @@ class Write(actionLol):
         else:
             argouments = extra[:output]
             comment = extra[output + 1:]
+            comment = comment.strip()[1:]
             return argouments, comment
 
     @staticmethod

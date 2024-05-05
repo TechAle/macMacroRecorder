@@ -70,7 +70,7 @@ class displayText:
         self.keybind = macro.keybind
         if self.keybind is not None:
             self.keybindButton.setText(f"keybind: {self.keybind.char}")
-        self.actions = macro.script
+        self.actions = macro.managerAction.actions
         self.table.setRowCount(len(self.actions))
         idxRow = 0
         for action in self.actions:
