@@ -15,12 +15,16 @@ class actionManager:
         command = line.split('(')
         extra = '('.join(command[1:])
         command = command[0]
-        if self.actionsInstancer.__contains__(command):
+        if command == "keybind":
+            output, _ = self.actionsInstancer[command].parseLine(extra)
+            if type(output) == str:
+                return "keybind: " + output
+        elif self.actionsInstancer.__contains__(command):
             argouments, comment = self.actionsInstancer[command].parseLine(extra)
             if type(argouments) == str:
                 action, error = self.actionsInstancer[command].createAction(argouments, comment)
                 self.actions.append(action)
-                return error
+                return ""
             else:
                 # Error message
                 return "Error parsing"
@@ -29,8 +33,8 @@ class actionManager:
     def parseWindow(self, inputValues, changeWindow, action, oldArgs, command, select_combo):
         pass
 
-    def actionExists(self):
-        ...
+    def actionExists(self, action: str) -> bool:
+        return self.actionsInstancer.__contains__(action)
 
     def loadActions(self):
         directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), "actions/")

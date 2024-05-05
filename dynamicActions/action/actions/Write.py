@@ -1,3 +1,5 @@
+from pynput import keyboard
+
 from dynamicActions.action.ActionLol import actionLol
 from pynput.keyboard import Key, Controller as ControllerKeyboard
 from pynput.mouse import Controller as MouseController, Button
@@ -24,8 +26,14 @@ class Write(actionLol):
     def parseWindow(self, inputValues, changeWindow, action, oldArgs):
         ...
 
-    def run(self, args: {}) -> bool:
-        ...
+    def run(self, args: {}) -> bool | int:
+        if self.args["value"].startswith("Key."):
+            toPress = keyboard.HotKey.parse("<" + self.args["value"].split('.')[1] + ">")[0]
+            self.controllerKeyboard.press(toPress)
+            self.controllerKeyboard.release(toPress)
+        else:
+            self.controllerKeyboard.type(self.args["value"])
+        return True
 
     def getValues(self) -> tuple[str, str, str]:
         ...
@@ -38,7 +46,7 @@ class Write(actionLol):
         return output, error
 
     @staticmethod
-    def parseLine(extra: str) -> tuple[bool, bool] | tuple[str, str]:
+    def parseLine(extra: str) -> tuple[bool, str] | tuple[str, str]:
         skip = False
         output = -1
         for idx, character in enumerate(extra):
@@ -51,7 +59,7 @@ class Write(actionLol):
                 output = idx
                 break
         if output == -1:
-            return False, False
+            return False, "Incorrect brackets"
         else:
             argouments = extra[:output]
             comment = extra[output + 1:]

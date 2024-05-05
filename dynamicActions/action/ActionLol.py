@@ -9,7 +9,6 @@ from pynput.mouse import Controller as MouseController, Button
 
 
 class actionLol(ABC):
-
     actionStr = ""
 
     def __init__(self, args: Union[None, Dict[str, any]] = None, comment: str = "") -> None:
@@ -48,15 +47,40 @@ class actionLol(ABC):
     '''
         Checks if the structure of the argouments is correct
     '''
+
     @staticmethod
-    @abstractmethod
-    def parseLine(extra: str) -> tuple[bool, bool] | tuple[str, str]:
+    def parseLine(extra: str) -> tuple[bool, str] | tuple[str, str]:
         ...
 
+    '''
+        :return true if we can continue the macro. 
+        :return false if we must stop the macro. 
+        :return number for changing the random value
+        :return str for keybind
+    '''
+
     @abstractmethod
-    def run(self, args: {}) -> bool:
+    def run(self, args: {}) -> bool | int | str:
         ...
 
     @abstractmethod
     def getValues(self) -> tuple[str, str, str]:
         ...
+
+
+'''
+    This function basically checks if the brackets are correct, and if so the middle value
+    :return True/False if it's correct or not, and then the middle value
+'''
+def parseLine(line: str) -> tuple[bool, str]:
+    valid = False
+    for i in line:
+        if i == ")" and not valid:
+            valid = True
+        elif i == ")" and valid:
+            return False, "Too many )"
+        elif i == "#":
+            break
+    if not valid:
+        return False, "There is not a )"
+    return True, line.split(')')[0]
