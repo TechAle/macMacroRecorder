@@ -39,7 +39,8 @@ class actionManager:
         return "Uknown action"
 
     def parseWindow(self, inputValues, action, oldArgs, command, select_combo, table):
-        self.actions[self.actions.index(action)].parseWindow(inputValues, action, oldArgs, command, select_combo, table)
+        # self.actions[self.actions.index(action)].parseWindow(inputValues, action, oldArgs, command, select_combo, table)
+        pass
 
     def actionExists(self, action: str) -> bool:
         return self.actionsInstancer.__contains__(action)

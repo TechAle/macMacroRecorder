@@ -27,6 +27,7 @@ class editWindow(QMainWindow):
         # I think i will never need more then 10 QLineEdit for the inputs
         self.inputValues: [QLineEdit] = [QLineEdit() for x in range(10)]
         self.oldArgs: dict[str, any] | None = None
+        self.actionManager = actionManager()
 
         # Label with select box
         select_label = QLabel("Select:")
@@ -57,7 +58,6 @@ class editWindow(QMainWindow):
         central_widget.setLayout(layout)
         self.updateLayout()
         self.setCentralWidget(central_widget)
-        self.actionManager = actionManager()
 
     def isAction(self, item: action):
         return self.action == item
@@ -73,8 +73,6 @@ class editWindow(QMainWindow):
         # Every items in the select box
         # TODO make this list more accessible to everyon
         items = self.actionManager.getActionsStr()
-        if action not in items:
-            items.append(action)
 
         self.select_combo.clear()
         # With addingItems we ignore the call of on_combo_box_changed
