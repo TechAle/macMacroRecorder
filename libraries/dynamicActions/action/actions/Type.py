@@ -6,8 +6,7 @@ from pynput.keyboard import Controller as ControllerKeyboard
 from pynput.mouse import Controller as MouseController
 
 
-class Write(actionLol):
-
+class Type(actionLol):
     actionStr = "type"
 
     def __init__(self):
@@ -21,13 +20,15 @@ class Write(actionLol):
         self.args["value"] = args
         return ""
 
-    def save(self, displayText, table, inputValues, action):
+    @staticmethod
+    def save(displayText, table, inputValues, action):
         displayText.actions[displayText.actions.index(action)].args["value"] = \
             inputValues[0].text()
         table.setItem(displayText.actions.index(action), 2,
-                                         QTableWidgetItem(inputValues[0].text()))
+                      QTableWidgetItem(inputValues[0].text()))
 
-    def parseWindow(self, inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
+    @staticmethod
+    def editWindow(inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
         value = actionValue.args["value"]
         if oldArgs is not None and oldArgs["value"] == value:
             if inputValues[0].text().__len__() <= 1:
@@ -35,7 +36,7 @@ class Write(actionLol):
         elif oldArgs is not None and value.__len__() > 1:
             value = oldArgs["value"]
 
-        newAction = self.createAction(value, actionValue.comment)[0]
+        newAction = Type.createAction(value, actionValue.comment)[0]
         b = QHBoxLayout()
         b.addWidget(QLabel("What to write:"))
         b.addWidget(inputValues[0])
@@ -47,6 +48,16 @@ class Write(actionLol):
 
         return layoutToAdd, newAction
 
+    @staticmethod
+    def editTable(newArgs, actionChange) -> tuple[bool, str]:
+        if newArgs.__len__() > 1:
+            return True, "Value must be 1 character long"
+        actionChange.args = {"value": newArgs}
+        return False, ""
+
+    @staticmethod
+    def isValid(self, newArgs):
+        return newArgs["value"].__len__() > 0
 
     def run(self, args: {}) -> bool | int:
         if self.args["value"].startswith("Key."):
@@ -62,7 +73,7 @@ class Write(actionLol):
 
     @staticmethod
     def createAction(args: str, comment: str) -> tuple[actionLol, str]:
-        output = Write()
+        output = Type()
         output.comment = comment
         error = output.setNewArgsFromString(args)
         return output, error
@@ -83,7 +94,6 @@ class Write(actionLol):
                 return argoument, comment
         else:
             return False, "Incorrect syntax"
-
 
     @staticmethod
     def getDefaultArgs() -> {str: any}:

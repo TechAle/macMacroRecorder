@@ -40,9 +40,11 @@ class actionManager:
 
     def parseWindow(self, inputValues, actionValue, oldArgs, command, select_combo, table, newCommand, layoutToAdd):
         if self.actionsInstancer.__contains__(command):
-            return self.actionsInstancer[command]().parseWindow(inputValues, actionValue, oldArgs, select_combo, table, newCommand, layoutToAdd)
+            return self.actionsInstancer[command].editWindow(inputValues, actionValue, oldArgs, select_combo, table,
+                                                               newCommand, layoutToAdd)
         else:
-            return self.actionsInstancer["invalid"]().parseWindow(inputValues, actionValue, oldArgs, select_combo, table, newCommand, layoutToAdd)
+            return self.actionsInstancer["invalid"].editWindow(inputValues, actionValue, oldArgs, select_combo, table,
+                                                                 newCommand, layoutToAdd)
 
     def actionExists(self, action: str) -> bool:
         return self.actionsInstancer.__contains__(action)
@@ -62,6 +64,12 @@ class actionManager:
 
     def saveString(self, displayText, table, inputValues, action):
         if self.actionsInstancer.__contains__(action.actionStr):
-            self.actionsInstancer[action.actionStr]().save(displayText, table, inputValues, action)
+            self.actionsInstancer[action.actionStr].save(displayText, table, inputValues, action)
         else:
-            self.actionsInstancer["invalid"]().save(displayText, table, inputValues, action)
+            self.actionsInstancer["invalid"].save(displayText, table, inputValues, action)
+
+    def onCellEdit(self, action, newArgs, actionChange):
+        if self.actionsInstancer.__contains__(action):
+            return self.actionsInstancer[action].editTable(newArgs, actionChange)
+        else:
+            return self.actionsInstancer["invalid"].editTable(newArgs, actionChange)

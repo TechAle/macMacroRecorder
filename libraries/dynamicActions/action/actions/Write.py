@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QHBoxLayout, QLabel
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QTableWidgetItem
 from pynput import keyboard
 
 from libraries.dynamicActions.action.ActionLol import actionLol
@@ -21,14 +21,19 @@ class Write(actionLol):
         self.args["value"] = args
         return ""
 
-    def save(self, displayText, table, inputValues, action):
-        ...
+    @staticmethod
+    def save(displayText, table, inputValues, action):
+        displayText.actions[displayText.actions.index(action)].args["value"] = \
+            inputValues[0].text()
+        table.setItem(displayText.actions.index(action), 2,
+                      QTableWidgetItem(inputValues[0].text()))
 
-    def parseWindow(self, inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
+    @staticmethod
+    def editWindow(inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
         value = actionValue.args["value"]
         if oldArgs is not None and oldArgs["value"] == value:
             value = inputValues[0].text()
-        newAction = self.createAction(value, actionValue.comment)[0]
+        newAction = Write.createAction(value, actionValue.comment)[0]
         b = QHBoxLayout()
         b.addWidget(QLabel("What to write:"))
         b.addWidget(inputValues[0])
@@ -39,6 +44,15 @@ class Write(actionLol):
         changeTable(newAction.actionStr, str(newAction.args['value']))
 
         return layoutToAdd, newAction
+
+    @staticmethod
+    def editTable(newArgs, actionChange) -> tuple[bool, str]:
+        actionChange.args = {"value": newArgs}
+        return False, ""
+
+    @staticmethod
+    def isValid(self, newArgs):
+        return True
 
     def run(self, args: {}) -> bool | int:
         if self.args["value"].startswith("Key."):

@@ -11,7 +11,7 @@ class Write(actionLol):
     def save(self, displayText, table, inputValues):
         ...
 
-    def parseWindow(self, inputValues, changeWindow, action, oldArgs):
+    def editWindow(self, inputValues, changeWindow, action, oldArgs):
         ...
 
     def run(self, args: {}) -> bool | int:

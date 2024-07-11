@@ -26,13 +26,20 @@ class actionLol(ABC):
     def setNewArgsFromString(self, args: str) -> str:
         ...
 
+    @staticmethod
     @abstractmethod
-    def save(self, displayText, table, inputValues, action):
+    def save(displayText, table, inputValues, action):
         ...
 
+    @staticmethod
     @abstractmethod
-    def parseWindow(self, inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
+    def editWindow(inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
         pass
+
+    @staticmethod
+    @abstractmethod
+    def editTable(newArgs, displayText) -> tuple[bool, str]:
+        ...
 
     @staticmethod
     @abstractmethod
@@ -50,6 +57,11 @@ class actionLol(ABC):
 
     @staticmethod
     def parseLine(extra: str) -> tuple[bool, str] | tuple[str, str]:
+        ...
+
+    @staticmethod
+    @abstractmethod
+    def isValid(self, newAegs) -> bool:
         ...
 
     '''

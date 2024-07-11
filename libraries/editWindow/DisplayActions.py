@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import (
 from libraries.editWindow.DisplayText import displayText
 from libraries.editWindow.EditWindow import editWindow
 
+from libraries.dynamicActions.action.ActionManager import actionManager
 
 # noinspection PyUnresolvedReferences
 class TableWidget(QTableWidget):
@@ -180,6 +181,7 @@ class displayAction(QWidget):
         self.disableCheck = False
         self.changeColumn1 = False
         self.table = TableWidget(1, 4, self)
+        self.actionManager = actionManager()
 
         # Set column names
         self.table.setHorizontalHeaderLabels(["", "Command", "Arguments", "Comments"])
@@ -283,6 +285,9 @@ class displayAction(QWidget):
                 actionConsidered: None | QTableWidgetItem | str = self.table.item(row, 1)
                 if actionConsidered is None:
                     return
+
+                rollback, returnValue = self.actionManager.onCellEdit(actionConsidered.text(), self.table.item(row, column).text(), self.displayText.actions[row])
+                '''
                 actionConsidered = actionConsidered.text()
                 if actionConsidered in [
                     "rightClick",
@@ -355,7 +360,7 @@ class displayAction(QWidget):
                 else:
                     rollback = True
                     print(f"Invalid action: {actionConsidered}")
-                    returnValue = f"Invalid action: {actionConsidered}"
+                    returnValue = f"Invalid action: {actionConsidered}"'''
             # Edit comments
             elif column == 3:
                 value = self.table.item(row, column)

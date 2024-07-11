@@ -5,7 +5,7 @@ from pynput.keyboard import Controller as ControllerKeyboard
 from pynput.mouse import Controller as MouseController
 
 
-class Write(actionLol):
+class Invalid(actionLol):
 
     actionStr = "invalid"
 
@@ -20,11 +20,22 @@ class Write(actionLol):
         self.args["value"] = args
         return ""
 
-    def save(self, displayText, table, inputValues):
+    @staticmethod
+    def isValid(self, newArgs):
+        return True
+
+    @staticmethod
+    def editTable(newArgs, actionChange) -> tuple[bool, str]:
+        actionChange.args = {"value": newArgs}
+        return False, ""
+
+    @staticmethod
+    def save(displayText, table, inputValues, action):
         ...
 
-    def parseWindow(self, inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
-        newAction = self.createAction(newCommand, actionValue.comment)[0]
+    @staticmethod
+    def editWindow(inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
+        newAction = Invalid.createAction(newCommand, actionValue.comment)[0]
         changeTable(newAction.actionStr, "")
         return None, newAction
 
@@ -42,7 +53,7 @@ class Write(actionLol):
 
     @staticmethod
     def createAction(args: str, comment: str) -> tuple[actionLol, str]:
-        output = Write()
+        output = Invalid()
         output.comment = comment
         error = output.setNewArgsFromString(args)
         return output, error
