@@ -74,7 +74,7 @@ class macroManager:
             self.recording[temp[0]] = temp[1]
         with open(os.path.join("macros", self.scriptRecording), 'w') as f:
             if self.scripts[self.scriptRecording].keybind is not None:
-                keybindText = f"keybind({self.scripts[self.scriptRecording].keybind})\n"
+                keybindText = f"keybind({self.scripts[self.scriptRecording].keybind.char})\n"
                 output += keybindText
             for line in self.recording:
                 output += f"{line}\n"

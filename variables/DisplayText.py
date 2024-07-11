@@ -32,7 +32,7 @@ class displayText:
                                         QMessageBox.Ok)
             elif len(new_keybind) == 1:
                 # Create the new keybind
-                self.keybind = KeyCode(new_keybind)
+                self.keybind = KeyCode(char=new_keybind)
                 self.keybindButton.setText(f"keybind: {new_keybind}")
                 # Say that the keybind has changed
                 QMessageBox.information(self.table, "Feedback", f"Keybind changed to {new_keybind}",
@@ -53,7 +53,8 @@ class displayText:
     def getString(self) -> str:
         output = ""
         if self.keybind is not None:
-            output += f"keybind({self.keybind.char})\n"
+            keybindReplace = self.keybind.char.replace("\'", "")
+            output += f"keybind({keybindReplace})\n"
         for action in self.actions:
             action, args, comment = action.getValues()
             if action == "invalid":

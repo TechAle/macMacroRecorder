@@ -7,7 +7,7 @@ from pynput.mouse import Controller as MouseController, Button
 
 class Write(actionLol):
 
-    actionStr = "write"
+    actionStr = "type"
 
     def __init__(self):
         super().__init__()
@@ -47,24 +47,21 @@ class Write(actionLol):
 
     @staticmethod
     def parseLine(extra: str) -> tuple[bool, str] | tuple[str, str]:
-        skip = False
-        output = -1
-        for idx, character in enumerate(extra):
-            if skip:
-                skip = False
-                continue
-            if character == "\\":
-                skip = True
-            elif character == ")":
-                output = idx
-                break
-        if output == -1:
-            return False, "Incorrect brackets"
+        values = extra.split(")")
+        if values.__len__() > 1:
+            argoument = extra[0]
+            if argoument.__len__() > 1:
+                return False, "Len but be 1"
+            else:
+                comment = values[1].split("#")
+                if comment.__len__() > 1:
+                    comment = '#'.join(comment[1:])
+                else:
+                    comment = ""
+                return argoument, comment
         else:
-            argouments = extra[:output]
-            comment = extra[output + 1:]
-            comment = comment.strip()[1:]
-            return argouments, comment
+            return False, "Incorrect syntax"
+
 
     @staticmethod
     def getDefaultArgs() -> {str: any}:

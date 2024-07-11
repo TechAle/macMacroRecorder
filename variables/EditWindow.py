@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QWidget, QComboBox, QLineEdit, QPushButton, QMessageBox, \
     QTableWidgetItem, QHBoxLayout
 
+from dynamicActions.action.ActionManager import actionManager
 from variables.DisplayText import displayText
 from variables.actions import action
 
@@ -56,6 +57,7 @@ class editWindow(QMainWindow):
         central_widget.setLayout(layout)
         self.updateLayout()
         self.setCentralWidget(central_widget)
+        self.actionManager = actionManager()
 
     def isAction(self, item: action):
         return self.action == item
@@ -70,17 +72,7 @@ class editWindow(QMainWindow):
 
         # Every items in the select box
         # TODO make this list more accessible to everyon
-        items = ["sleep",
-                 "rightClick",
-                 "leftClick",
-                 "shift",
-                 "scroll",
-                 "unshift",
-                 "middleClick",
-                 "stop",
-                 "type",
-                 "write",
-                 "moveMouse"]
+        items = self.actionManager.getActionsStr()
         if action not in items:
             items.append(action)
 
@@ -106,6 +98,20 @@ class editWindow(QMainWindow):
 
         # Check every commands
         newCommand = self.select_combo.currentText()
+        if self.actionManager.actionExists(newCommand):
+            self.actionManager.parseWindow(self.inputValues, newCommand, self.action, newCommand, self.select_combo, self.changeTable)
+        else:
+            # In case we have an invalid action, check if we can avoid it
+            if self.oldIndex == -1:
+                newAction = action(newCommand)
+                self.changeTable(newAction.actionStr, "")
+            else:
+                # If we can avoid it, lets do it
+                self.select_combo.setCurrentIndex(self.oldIndex)
+                return
+            
+
+
         if newCommand == "write" or newCommand == "type":
             # If this is false, then we have just changed the combo box, so we have to set the dafault values
             if self.action.actionStr == "write" or self.action.actionStr == "type":

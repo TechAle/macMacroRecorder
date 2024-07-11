@@ -6,6 +6,14 @@ from dynamicActions.action.ActionLol import actionLol
 
 
 class actionManager:
+
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self):
         self.actionsInstancer: {str: actionLol} = {}
         self.actions: [actionLol] = []
@@ -30,11 +38,15 @@ class actionManager:
                 return "Error parsing"
         return "Uknown action"
 
-    def parseWindow(self, inputValues, changeWindow, action, oldArgs, command, select_combo):
-        pass
+    def parseWindow(self, inputValues, action, oldArgs, command, select_combo, table):
+        self.actions[self.actions.index(action)].parseWindow(inputValues, action, oldArgs, command, select_combo, table)
 
     def actionExists(self, action: str) -> bool:
         return self.actionsInstancer.__contains__(action)
+
+    def getActionsStr(self) -> [str]:
+        output = [x for x in self.actionsInstancer if x != "keybind"]
+        return output
 
     def loadActions(self):
         directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), "actions/")
@@ -42,5 +54,5 @@ class actionManager:
             if file_name.endswith('.py'):
                 modules = importlib.import_module('.'.join(__name__.split(".")[0:-1]) + ".actions." + file_name[:-3])
                 for name, obj in inspect.getmembers(modules):
-                    if inspect.isclass(obj) and issubclass(obj, actionLol) and type(obj) != actionLol:
+                    if inspect.isclass(obj) and issubclass(obj, actionLol) and type(obj) != actionLol and len(obj.actionStr) > 0:
                         self.actionsInstancer[obj.actionStr] = obj
