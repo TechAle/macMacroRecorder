@@ -59,3 +59,9 @@ class actionManager:
                 for name, obj in inspect.getmembers(modules):
                     if inspect.isclass(obj) and issubclass(obj, actionLol) and type(obj) != actionLol and len(obj.actionStr) > 0:
                         self.actionsInstancer[obj.actionStr] = obj
+
+    def saveString(self, displayText, table, inputValues, action):
+        if self.actionsInstancer.__contains__(action.actionStr):
+            self.actionsInstancer[action.actionStr]().save(displayText, table, inputValues, action)
+        else:
+            self.actionsInstancer["invalid"]().save(displayText, table, inputValues, action)

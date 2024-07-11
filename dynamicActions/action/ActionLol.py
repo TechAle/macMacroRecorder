@@ -27,7 +27,7 @@ class actionLol(ABC):
         ...
 
     @abstractmethod
-    def save(self, displayText, table, inputValues):
+    def save(self, displayText, table, inputValues, action):
         ...
 
     @abstractmethod

@@ -248,12 +248,10 @@ class editWindow(QMainWindow):
 
         # Save the command and the arguments
         currentCommand = self.select_combo.currentText()
-        if currentCommand == "write" or currentCommand == "type":
-            self.displayText.actions[self.displayText.actions.index(self.action)].args["value"] = \
-                self.inputValues[0].text()
-            self.father.parent.table.setItem(self.displayText.actions.index(self.action), 2,
-                                             QTableWidgetItem(self.inputValues[0].text()))
-        elif currentCommand == "moveMouse":
+
+        self.actionManager.saveString(self.displayText, self.father.parent.table, self.inputValues, self.action)
+
+        if currentCommand == "moveMouse":
             x = self.inputValues[0].text()
             y = self.inputValues[1].text()
             time = self.inputValues[2].text()

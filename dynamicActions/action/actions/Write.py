@@ -23,7 +23,7 @@ class Write(actionLol):
         self.args["value"] = args
         return ""
 
-    def save(self, displayText, table, inputValues):
+    def save(self, displayText, table, inputValues, action):
         ...
 
     def parseWindow(self, inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):

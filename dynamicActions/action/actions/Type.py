@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QHBoxLayout, QLabel
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QTableWidgetItem
 from pynput import keyboard
 
 from dynamicActions.action.ActionLol import actionLol
@@ -21,8 +21,11 @@ class Write(actionLol):
         self.args["value"] = args
         return ""
 
-    def save(self, displayText, table, inputValues):
-        ...
+    def save(self, displayText, table, inputValues, action):
+        displayText.actions[displayText.actions.index(action)].args["value"] = \
+            inputValues[0].text()
+        table.setItem(displayText.actions.index(action), 2,
+                                         QTableWidgetItem(inputValues[0].text()))
 
     def parseWindow(self, inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
         value = actionValue.args["value"]
