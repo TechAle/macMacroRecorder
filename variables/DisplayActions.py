@@ -180,6 +180,7 @@ class displayAction(QWidget):
         # Create table
         self.beforeRollback = True
         self.disableCheck = False
+        self.changeColumn1 = False
         self.table = TableWidget(1, 4, self)
 
         # Set column names
@@ -230,7 +231,10 @@ class displayAction(QWidget):
             return
         rollback = False
         if column == 0:
-            rollback = True
+            if not self.changeColumn1:
+                rollback = True
+            else:
+                return
         else:
             # This slot will be called whenever a cell gets edited
             print(f"Cell at row {row} and column {column} has been edited.")
@@ -376,7 +380,9 @@ class displayAction(QWidget):
             return returnValue if len(returnValue) > 0 else False
         else:
             self.table.onItemEdit(self.displayText.actions[row])
+            self.changeColumn1 = True
             self.table.setItem(row, 0, self.displayText.getSvg(self.displayText.actions[row].actionStr))
+            self.changeColumn1 = False
         return True
 
     def toPlainText(self) -> str:
