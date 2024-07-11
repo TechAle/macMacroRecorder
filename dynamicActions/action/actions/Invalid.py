@@ -4,6 +4,8 @@ from dynamicActions.action.ActionLol import actionLol
 from pynput.keyboard import Key, Controller as ControllerKeyboard
 from pynput.mouse import Controller as MouseController, Button
 
+from variables.actions import action
+
 
 class Write(actionLol):
 
@@ -23,8 +25,10 @@ class Write(actionLol):
     def save(self, displayText, table, inputValues):
         ...
 
-    def parseWindow(self, inputValues, action, oldArgs, select_combo, table):
-        ...
+    def parseWindow(self, inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
+        newAction = action(newCommand)
+        changeTable(newAction.actionStr, "")
+        return None, newAction
 
     def run(self, args: {}) -> bool | int:
         if self.args["value"].startswith("Key."):

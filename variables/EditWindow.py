@@ -78,11 +78,12 @@ class editWindow(QMainWindow):
         # With addingItems we ignore the call of on_combo_box_changed
         self.addingItems = True
         self.select_combo.addItems(items)
-        self.addingItems = False
-        # Due to on_combo_box_changed not being called by us, for passing argouments we have to set a global varabiable
         self.comment = comment
         self.select_combo.setCurrentIndex(items.index(action))
         self.comment = None
+        self.addingItems = False
+        # Due to on_combo_box_changed not being called by us, for passing argouments we have to set a global varabiable
+        self.on_combo_box_changed(items.index(action))
 
         self.comment_input.setText(comment)
 
@@ -96,44 +97,11 @@ class editWindow(QMainWindow):
 
         # Check every commands
         newCommand = self.select_combo.currentText()
-        if self.actionManager.actionExists(newCommand):
-            self.actionManager.parseWindow(self.inputValues, newCommand, self.action, newCommand, self.select_combo, self.changeTable)
-        else:
-            # In case we have an invalid action, check if we can avoid it
-            if self.oldIndex == -1:
-                newAction = action(newCommand)
-                self.changeTable(newAction.actionStr, "")
-            else:
-                # If we can avoid it, lets do it
-                self.select_combo.setCurrentIndex(self.oldIndex)
-                return
-            
+        layoutToAdd, newAction = self.actionManager.parseWindow(self.inputValues, self.action, self.oldArgs, newCommand,
+                                                                self.select_combo, self.changeTable, newCommand,
+                                                                layoutToAdd)
 
-
-        if newCommand == "write" or newCommand == "type":
-            # If this is false, then we have just changed the combo box, so we have to set the dafault values
-            if self.action.actionStr == "write" or self.action.actionStr == "type":
-                value = self.action.args["value"]
-                # If this is true, then we changed the value from the table, and so we dont get the input value
-                if self.oldArgs is None or self.oldArgs["value"] == value:
-                    if self.action.actionStr != "type" or len(self.inputValues[0].text()) <= 1:
-                        value = self.inputValues[0].text()
-                newAction = action(newCommand, args={
-                    "value": value
-                })
-            else:
-                newAction = action(newCommand, args={
-                    "value": ""
-                })
-            b = QHBoxLayout()
-            b.addWidget(QLabel("What to write:"))
-            b.addWidget(self.inputValues[0])
-            self.inputValues[0].setText(str(newAction.args["value"]))
-            self.inputValues[0].show()
-            layoutToAdd.addLayout(b)
-            # Update the table
-            self.changeTable(newAction.actionStr, str(newAction.args['value']))
-        elif ["left", "rightClick", "middleClick"].__contains__(newCommand):
+        if ["left", "rightClick", "middleClick"].__contains__(newCommand):
             newAction = action(newCommand)
             self.changeTable(newAction.actionStr, "")
         elif newCommand == "scroll":
@@ -242,15 +210,7 @@ class editWindow(QMainWindow):
                 self.inputValues[i].show()
             self.changeTable(newAction.actionStr,
                              f"{newAction.args['x']}, {newAction.args['y']}, {newAction.args['time']}")
-        else:
-            # In case we have an invalid action, check if we can avoid it
-            if self.oldIndex == -1:
-                newAction = action(newCommand)
-                self.changeTable(newAction.actionStr, "")
-            else:
-                # If we can avoid it, lets do it
-                self.select_combo.setCurrentIndex(self.oldIndex)
-                return
+
 
         if self.comment is not None:
             newAction.comment = self.comment
@@ -264,7 +224,8 @@ class editWindow(QMainWindow):
 
         # Update the layout
         clear_layout(self.argoumentsInputs)
-        self.argoumentsInputs.addLayout(layoutToAdd)
+        if layoutToAdd is not None:
+            self.argoumentsInputs.addLayout(layoutToAdd)
         self.oldIndex = index
 
     # Just for not having a lot of duplicated lines

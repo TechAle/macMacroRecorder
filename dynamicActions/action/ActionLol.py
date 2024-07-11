@@ -31,7 +31,7 @@ class actionLol(ABC):
         ...
 
     @abstractmethod
-    def parseWindow(self, inputValues, action, oldArgs, select_combo, table):
+    def parseWindow(self, inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
         pass
 
     @staticmethod

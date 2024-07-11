@@ -38,9 +38,11 @@ class actionManager:
                 return "Error parsing"
         return "Uknown action"
 
-    def parseWindow(self, inputValues, action, oldArgs, command, select_combo, table):
-        # self.actions[self.actions.index(action)].parseWindow(inputValues, action, oldArgs, command, select_combo, table)
-        pass
+    def parseWindow(self, inputValues, actionValue, oldArgs, command, select_combo, table, newCommand, layoutToAdd):
+        if self.actionsInstancer.__contains__(actionValue.actionStr):
+            return self.actionsInstancer[actionValue.actionStr]().parseWindow(inputValues, actionValue, oldArgs, select_combo, table, newCommand, layoutToAdd)
+        else:
+            return self.actionsInstancer["invalid"]().parseWindow(inputValues, actionValue, oldArgs, select_combo, table, newCommand, layoutToAdd)
 
     def actionExists(self, action: str) -> bool:
         return self.actionsInstancer.__contains__(action)
