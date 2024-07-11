@@ -1,7 +1,6 @@
 from typing import Optional
 
 from PyQt5 import Qt
-from PyQt5 import QtCore
 from PyQt5.QtCore import Qt as tableQt
 from PyQt5.QtWidgets import (
     QWidget,
@@ -14,7 +13,6 @@ from PyQt5.QtWidgets import (
 )
 
 from variables.DisplayText import displayText
-from variables.actions import action
 from variables.EditWindow import editWindow
 
 
@@ -166,7 +164,7 @@ class TableWidget(QTableWidget):
         for window in self.windows:
             window.close()
 
-    def onItemEdit(self, param: action):
+    def onItemEdit(self, param):
         for window in self.windows:
             window.onItemEdit(param)
 

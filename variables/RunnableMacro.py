@@ -6,7 +6,6 @@ from pynput.keyboard import KeyCode
 
 from dynamicActions.action.ActionManager import actionManager
 from variables.MacroState import macroState
-from variables.actions import action
 
 
 class runnableMacro(threading.Thread):
@@ -48,7 +47,7 @@ class runnableMacro(threading.Thread):
                     self.keybind = KeyCode(char=outputStr[len("keybind: ")])
                 else:
                     self.output += f"Line {idx} {outputStr}\t"
-                    self.script.append(action("invalid", args={"value": line}))
+                    self.script.append(self.managerAction.actionsInstancer["invalid"]())
         if self.output != "":
             return self.output
         return None

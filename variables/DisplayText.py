@@ -5,13 +5,13 @@ from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QTableWidgetItem, QTableWidget, QPushButton, QInputDialog, QMessageBox
 from pynput.keyboard import KeyCode
 
+from dynamicActions.action import ActionLol
 from variables.RunnableMacro import runnableMacro
-from variables.actions import action
 
 
 class displayText:
     def __init__(self, layout: QTableWidget, keybindButton: QPushButton):
-        self.actions: List[action] = []
+        self.actions: List[ActionLol] = []
         self.table: QTableWidget = layout
         self.keybind: KeyCode | None = None
         self.svg: Dict[str, QIcon] = {}

@@ -4,8 +4,6 @@ from dynamicActions.action.ActionLol import actionLol
 from pynput.keyboard import Key, Controller as ControllerKeyboard
 from pynput.mouse import Controller as MouseController, Button
 
-from variables.actions import action
-
 
 class Write(actionLol):
 
@@ -26,7 +24,7 @@ class Write(actionLol):
         ...
 
     def parseWindow(self, inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
-        newAction = action(newCommand)
+        newAction = self.createAction(newCommand, actionValue.comment)[0]
         changeTable(newAction.actionStr, "")
         return None, newAction
 

@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QWidget, QComboBox
 
 from dynamicActions.action.ActionManager import actionManager
 from variables.DisplayText import displayText
-from variables.actions import action
 
 
 def clear_layout(layout):
@@ -59,11 +58,11 @@ class editWindow(QMainWindow):
         self.updateLayout()
         self.setCentralWidget(central_widget)
 
-    def isAction(self, item: action):
+    def isAction(self, item):
         return self.action == item
 
     # This function is called by the table when a row gets updated, is needed for the sync
-    def onItemEdit(self, item: action):
+    def onItemEdit(self, item):
         if self.isAction(item) and not self.isEditing:
             self.updateLayout()
 
@@ -100,7 +99,7 @@ class editWindow(QMainWindow):
         layoutToAdd, newAction = self.actionManager.parseWindow(self.inputValues, self.action, self.oldArgs, newCommand,
                                                                 self.select_combo, self.changeTable, newCommand,
                                                                 layoutToAdd)
-
+        '''
         if ["left", "rightClick", "middleClick"].__contains__(newCommand):
             newAction = action(newCommand)
             self.changeTable(newAction.actionStr, "")
@@ -210,6 +209,7 @@ class editWindow(QMainWindow):
                 self.inputValues[i].show()
             self.changeTable(newAction.actionStr,
                              f"{newAction.args['x']}, {newAction.args['y']}, {newAction.args['time']}")
+                             '''
 
 
         if self.comment is not None:

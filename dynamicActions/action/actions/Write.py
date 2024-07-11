@@ -5,8 +5,6 @@ from dynamicActions.action.ActionLol import actionLol
 from pynput.keyboard import Key, Controller as ControllerKeyboard
 from pynput.mouse import Controller as MouseController, Button
 
-from variables.actions import action
-
 
 class Write(actionLol):
 
