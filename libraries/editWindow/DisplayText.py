@@ -5,8 +5,8 @@ from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QTableWidgetItem, QTableWidget, QPushButton, QInputDialog, QMessageBox
 from pynput.keyboard import KeyCode
 
-from dynamicActions.action import ActionLol
-from variables.RunnableMacro import runnableMacro
+from libraries.dynamicActions.action import ActionLol
+from libraries.macroManager.RunnableMacro import runnableMacro
 
 
 class displayText:

@@ -6,8 +6,8 @@ from typing import Dict, Union, List
 from pynput.keyboard import Controller as ControllerKeyboard, KeyCode
 from pynput.mouse import Controller as ControllerMouse
 
-from variables.MacroState import macroState
-from variables.RunnableMacro import runnableMacro
+from libraries.macroManager.MacroState import macroState
+from libraries.macroManager.RunnableMacro import runnableMacro
 
 
 class macroManager:

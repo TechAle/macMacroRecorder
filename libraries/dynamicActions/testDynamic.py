@@ -1,4 +1,4 @@
-from dynamicActions.action import ActionManager
+from libraries.dynamicActions.action import ActionManager
 
 
 def main():

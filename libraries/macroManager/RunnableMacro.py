@@ -4,8 +4,8 @@ from typing import Union
 
 from pynput.keyboard import KeyCode
 
-from dynamicActions.action.ActionManager import actionManager
-from variables.MacroState import macroState
+from libraries.dynamicActions.action.ActionManager import actionManager
+from libraries.macroManager.MacroState import macroState
 
 
 class runnableMacro(threading.Thread):

@@ -1,9 +1,5 @@
-from pynput import keyboard
-
-from dynamicActions.action import ActionLol
-from dynamicActions.action.ActionLol import actionLol
-from pynput.keyboard import Key, Controller as ControllerKeyboard
-from pynput.mouse import Controller as MouseController, Button
+from libraries.dynamicActions.action import ActionLol
+from libraries.dynamicActions.action.ActionLol import actionLol
 
 
 class Write(actionLol):

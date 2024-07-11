@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QWidget, QComboBox, QLineEdit, QPushButton, QMessageBox, \
-    QTableWidgetItem, QHBoxLayout
+    QTableWidgetItem
 
-from dynamicActions.action.ActionManager import actionManager
-from variables.DisplayText import displayText
+from libraries.dynamicActions.action.ActionManager import actionManager
+from libraries.editWindow.DisplayText import displayText
 
 
 def clear_layout(layout):
@@ -215,7 +215,7 @@ class editWindow(QMainWindow):
         if self.comment is not None:
             newAction.comment = self.comment
 
-        # Update every variables with the new data
+        # Update every libraries with the new data
         self.displayText.actions[self.displayText.actions.index(self.action)] = newAction
         self.action = newAction
         self.currentAction = self.action.actionStr

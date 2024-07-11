@@ -2,7 +2,7 @@ import importlib
 import inspect
 import os
 
-from dynamicActions.action.ActionLol import actionLol
+from libraries.dynamicActions.action.ActionLol import actionLol
 
 
 class actionManager:

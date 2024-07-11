@@ -12,8 +12,8 @@ from PyQt5.QtWidgets import (
     QMenu, QPushButton,
 )
 
-from variables.DisplayText import displayText
-from variables.EditWindow import editWindow
+from libraries.editWindow.DisplayText import displayText
+from libraries.editWindow.EditWindow import editWindow
 
 
 # noinspection PyUnresolvedReferences

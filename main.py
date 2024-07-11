@@ -10,9 +10,9 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLa
 from pynput.keyboard import Listener as ListenerKeyboard, KeyCode
 from pynput.mouse import Listener as ListenerMouse, Button
 
-from variables.DisplayActions import displayAction
-from variables.MacroManager import macroManager
-from variables.MacroState import macroState
+from libraries.editWindow.DisplayActions import displayAction
+from libraries.macroManager.MacroManager import macroManager
+from libraries.macroManager.MacroState import macroState
 
 
 # noinspection PyAttributeOutsideInit
