@@ -39,8 +39,8 @@ class actionManager:
         return "Uknown action"
 
     def parseWindow(self, inputValues, actionValue, oldArgs, command, select_combo, table, newCommand, layoutToAdd):
-        if self.actionsInstancer.__contains__(actionValue.actionStr):
-            return self.actionsInstancer[actionValue.actionStr]().parseWindow(inputValues, actionValue, oldArgs, select_combo, table, newCommand, layoutToAdd)
+        if self.actionsInstancer.__contains__(command):
+            return self.actionsInstancer[command]().parseWindow(inputValues, actionValue, oldArgs, select_combo, table, newCommand, layoutToAdd)
         else:
             return self.actionsInstancer["invalid"]().parseWindow(inputValues, actionValue, oldArgs, select_combo, table, newCommand, layoutToAdd)
 

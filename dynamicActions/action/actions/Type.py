@@ -1,3 +1,4 @@
+from PyQt5.QtWidgets import QHBoxLayout, QLabel
 from pynput import keyboard
 
 from dynamicActions.action.ActionLol import actionLol
@@ -23,8 +24,26 @@ class Write(actionLol):
     def save(self, displayText, table, inputValues):
         ...
 
-    def parseWindow(self, inputValues, action, oldArgs, select_combo, table):
-        ...
+    def parseWindow(self, inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
+        value = actionValue.args["value"]
+        if oldArgs is not None and oldArgs["value"] == value:
+            if inputValues[0].text().__len__() <= 1:
+                value = inputValues[0].text()
+        elif oldArgs is not None and value.__len__() > 1:
+            value = oldArgs["value"]
+
+        newAction = self.createAction(value, actionValue.comment)[0]
+        b = QHBoxLayout()
+        b.addWidget(QLabel("What to write:"))
+        b.addWidget(inputValues[0])
+        inputValues[0].setText(str(newAction.args["value"]))
+        inputValues[0].show()
+        layoutToAdd.addLayout(b)
+        # Update the table
+        changeTable(newAction.actionStr, str(newAction.args['value']))
+
+        return layoutToAdd, newAction
+
 
     def run(self, args: {}) -> bool | int:
         if self.args["value"].startswith("Key."):

@@ -27,9 +27,7 @@ class Write(actionLol):
         ...
 
     def parseWindow(self, inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
-        # If this is false, then we have just changed the combo box, so we have to set the dafault values
         value = actionValue.args["value"]
-        # If this is true, then we changed the value from the table, and so we dont get the input value
         if oldArgs is not None and oldArgs["value"] == value:
             value = inputValues[0].text()
         newAction = self.createAction(value, actionValue.comment)[0]
