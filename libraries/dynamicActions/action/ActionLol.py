@@ -16,6 +16,13 @@ class actionLol(ABC):
         self.controllerMouse = MouseController()
         self.args = args
         self.comment = comment
+        self.customAction = None
+
+    def setCustomAction(self, action: str) -> None:
+        self.customAction = action
+
+    def getActionstr(self) -> str:
+        return self.actionStr if self.customAction is None else self.customAction
 
     def setNew(self, action: str, args: Union[None, Dict[str, any]], comment: str = ""):
         self.actionStr = action
@@ -79,20 +86,7 @@ class actionLol(ABC):
     def getValues(self) -> tuple[str, str, str]:
         ...
 
+    @staticmethod
+    def getSvg() -> str:
+        return "unknown"
 
-'''
-    This function basically checks if the brackets are correct, and if so the middle value
-    :return True/False if it's correct or not, and then the middle value
-'''
-def parseLine(line: str) -> tuple[bool, str]:
-    valid = False
-    for i in line:
-        if i == ")" and not valid:
-            valid = True
-        elif i == ")" and valid:
-            return False, "Too many )"
-        elif i == "#":
-            break
-    if not valid:
-        return False, "There is not a )"
-    return True, line.split(')')[0]

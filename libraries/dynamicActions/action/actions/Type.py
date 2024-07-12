@@ -100,3 +100,7 @@ class Type(actionLol):
         return {
             "value": ""
         }
+
+    @staticmethod
+    def getSvg() -> str:
+        return "keyboard"

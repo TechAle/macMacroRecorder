@@ -72,6 +72,8 @@ class editWindow(QMainWindow):
         # Every items in the select box
         # TODO make this list more accessible to everyon
         items = self.actionManager.getActionsStr()
+        if action not in items:
+            items.append(action)
 
         self.select_combo.clear()
         # With addingItems we ignore the call of on_combo_box_changed
@@ -218,7 +220,7 @@ class editWindow(QMainWindow):
         # Update every libraries with the new data
         self.displayText.actions[self.displayText.actions.index(self.action)] = newAction
         self.action = newAction
-        self.currentAction = self.action.actionStr
+        self.currentAction = self.action.getActionstr()
         # Needed for checking in the next cycle if
         self.oldArgs = self.action.args
 

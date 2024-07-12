@@ -27,6 +27,7 @@ class actionManager:
             output, _ = self.actionsInstancer[command].parseLine(extra)
             if type(output) == str:
                 return "keybind: " + output
+            return "Error parsing keybind"
         elif self.actionsInstancer.__contains__(command):
             argouments, comment = self.actionsInstancer[command].parseLine(extra)
             if type(argouments) == str:
@@ -36,7 +37,12 @@ class actionManager:
             else:
                 # Error message
                 return "Error parsing"
-        return "Uknown action"
+        else:
+            argouments, comment = self.actionsInstancer["invalid"].parseLine(extra)
+            action, error = self.actionsInstancer["invalid"].createAction(argouments, comment)
+            action.setCustomAction(command)
+            self.actions.append(action)
+            return "Uknown action"
 
     def parseWindow(self, inputValues, actionValue, oldArgs, command, select_combo, table, newCommand, layoutToAdd):
         if self.actionsInstancer.__contains__(command):
@@ -73,3 +79,9 @@ class actionManager:
             return self.actionsInstancer[action].editTable(newArgs, actionChange)
         else:
             return self.actionsInstancer["invalid"].editTable(newArgs, actionChange)
+
+    def getSvg(self, action):
+        if self.actionsInstancer.__contains__(action):
+            return self.actionsInstancer[action].getSvg()
+        else:
+            return self.actionsInstancer["invalid"].getSvg()

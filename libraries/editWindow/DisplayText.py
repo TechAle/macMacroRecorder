@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QTableWidgetItem, QTableWidget, QPushButton, QInputD
 from pynput.keyboard import KeyCode
 
 from libraries.dynamicActions.action import ActionLol
+from libraries.dynamicActions.action.ActionManager import actionManager
 from libraries.macroManager.RunnableMacro import runnableMacro
 
 
@@ -18,6 +19,7 @@ class displayText:
         self.keybindButton: QPushButton = keybindButton
         self.keybindButton.clicked.connect(self.keybindButtonClicked)
         self.prepareSVG()
+        self.actionManager = actionManager()
 
     def keybindButtonClicked(self) -> None:
         # Ask to the user for a new string
@@ -86,14 +88,8 @@ class displayText:
         output = QIcon()
         if name in self.svg:
             output = self.svg[name]
-        elif name == "moveMouse":
-            output = self.svg["mouse"]
-        elif name == "scroll":
-            output = self.svg["middleClick"]
-        elif name == "write" or name == "type":
-            output = self.svg["keyboard"]
         else:
-            output = self.svg["unknown"]
+            output = self.svg[self.actionManager.getSvg(name)]
         item = QTableWidgetItem()
         item.setIcon(output)
         return item

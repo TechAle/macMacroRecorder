@@ -384,7 +384,7 @@ class displayAction(QWidget):
         else:
             self.table.onItemEdit(self.displayText.actions[row])
             self.changeColumn1 = True
-            self.table.setItem(row, 0, self.displayText.getSvg(self.displayText.actions[row].actionStr))
+            self.table.setItem(row, 0, self.displayText.getSvg(self.displayText.actions[row].getActionstr()))
             self.changeColumn1 = False
         return True
 

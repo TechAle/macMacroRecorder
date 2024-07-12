@@ -26,11 +26,11 @@ class Write(actionLol):
 
     @staticmethod
     def parseLine(extra: str) -> tuple[bool, bool] | tuple[str, str]:
-        output = ActionLol.parseLine(extra)
-        if output[0]:
-            return output[1], ""
-        else:
+        extra = extra.split(")")[0]
+        if extra == "" or extra.__len__() > 1:
             return False, False
+        return extra, ""
+
 
     @staticmethod
     def getDefaultArgs() -> {str: any}:

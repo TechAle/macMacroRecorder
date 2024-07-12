@@ -49,7 +49,7 @@ class Invalid(actionLol):
         return True
 
     def getValues(self) -> tuple[str, str, str]:
-        return self.actionStr, self.args["value"], self.comment
+        return self.getActionstr(), self.args["value"], self.comment
 
     @staticmethod
     def createAction(args: str, comment: str) -> tuple[actionLol, str]:
@@ -60,8 +60,12 @@ class Invalid(actionLol):
 
     @staticmethod
     def parseLine(extra: str) -> tuple[bool, str] | tuple[str, str]:
-        extra = extra.split("#")
-        return extra[0], ''.join(extra[1:]) if len(extra) > 1 else ""
+        extra = extra.split(")")
+        if extra.__len__() == 1:
+            return extra[0], ""
+        else:
+            other = '#'.join(')'.join(extra[1:]).split("#")[1:])
+            return extra[0], other
 
     @staticmethod
     def getDefaultArgs() -> {str: any}:
