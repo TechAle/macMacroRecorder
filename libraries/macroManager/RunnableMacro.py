@@ -53,13 +53,16 @@ class runnableMacro(threading.Thread):
             return self.output
         return None
 
-    def toggle(self) -> Union[None, macroState]:
-        self.state = macroState.WAITING if self.state == macroState.DISABLED else macroState.DISABLED
+    def changeState(self, newState) -> None:
+        self.state = newState
+
+    def toggle(self) -> macroState:
+        self.changeState(macroState.WAITING if self.state == macroState.DISABLED else macroState.DISABLED)
         return self.state
 
     def onKeyPress(self, key: Union[KeyCode, str]) -> Union[bool, None]:
         if self.keybind == key:
-            self.state = macroState.RUNNING if self.state == macroState.WAITING else macroState.WAITING
+            self.changeState(macroState.RUNNING if self.state == macroState.WAITING else macroState.WAITING)
             if self.state == macroState.RUNNING:
                 self.idx = 0
                 thread = threading.Thread(target=self.run)
@@ -75,11 +78,13 @@ class runnableMacro(threading.Thread):
             if type(results) == int:
                 self.randomTemp = results
             elif not results:
-                self.state = macroState.WAITING
+                print("End")
+                self.changeState(macroState.WAITING)
             else:
                 self.idx = (self.idx + 1) % len(self.managerAction.actions)
         if self.signalHander is not None:
             self.signalHander.emit("updateButtons")
+        print(self.state)
 
     def update(self):
         self.scripts = self.managerAction.actions

@@ -110,6 +110,6 @@ class displayText:
             action, args, comment = action.getValues()
             self.table.setItem(idxRow, 0, self.getSvg(action))
             self.table.setItem(idxRow, 1, QTableWidgetItem(action))
-            self.table.setItem(idxRow, 2, QTableWidgetItem(args))
+            self.table.setItem(idxRow, 2, QTableWidgetItem(str(args)))
             self.table.setItem(idxRow, 3, QTableWidgetItem(comment))
             idxRow += 1

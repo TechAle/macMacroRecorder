@@ -35,7 +35,7 @@ class actionManager:
             return "Error parsing keybind"
         elif self.actionsInstancer.__contains__(command):
             argouments, comment = self.actionsInstancer[command].parseLine(extra)
-            if type(argouments) == str:
+            if type(argouments) != bool:
                 action, error = self.actionsInstancer[command].createAction(argouments, comment)
                 self.actions.append(action)
                 return ""

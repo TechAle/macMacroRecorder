@@ -51,7 +51,7 @@ class Write(actionLol):
         return False, ""
 
     @staticmethod
-    def isValid(self, newArgs):
+    def isValid(newArgs):
         return True
 
     def run(self, args: {}) -> bool | int:

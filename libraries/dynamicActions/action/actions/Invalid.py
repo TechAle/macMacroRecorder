@@ -21,7 +21,7 @@ class Invalid(actionLol):
         return ""
 
     @staticmethod
-    def isValid(self, newArgs):
+    def isValid(newArgs):
         return True
 
     @staticmethod

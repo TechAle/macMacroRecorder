@@ -68,7 +68,7 @@ class actionLol(ABC):
 
     @staticmethod
     @abstractmethod
-    def isValid(self, newAegs) -> bool:
+    def isValid(newAegs) -> bool:
         ...
 
     '''

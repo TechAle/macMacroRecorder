@@ -25,10 +25,10 @@ class Write(actionLol):
         ...
 
     @staticmethod
-    def parseLine(extra: str) -> tuple[bool, bool] | tuple[str, str]:
+    def parseLine(extra: str) -> tuple[bool, str] | tuple[str, str]:
         extra = extra.split(")")[0]
         if extra == "" or extra.__len__() > 1:
-            return False, False
+            return False, "Keybind not right"
         return extra, ""
 
 

@@ -56,7 +56,7 @@ class Type(actionLol):
         return False, ""
 
     @staticmethod
-    def isValid(self, newArgs):
+    def isValid(newArgs):
         return newArgs["value"].__len__() > 0
 
     def run(self, args: {}) -> bool | int:
