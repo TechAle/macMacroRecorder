@@ -20,6 +20,7 @@ class runnableMacro(threading.Thread):
             self.keybind: Union[KeyCode, None] = None
             self.randomTemp: int = 0
             self.signalHander = signalHander
+            self.scripts = []
 
     def loadFile(self) -> None | str:
         with open(os.path.join("macros", self.scriptName), 'r') as file:
@@ -79,3 +80,6 @@ class runnableMacro(threading.Thread):
                 self.idx = (self.idx + 1) % len(self.managerAction.actions)
         if self.signalHander is not None:
             self.signalHander.emit("updateButtons")
+
+    def update(self):
+        self.scripts = self.managerAction.actions

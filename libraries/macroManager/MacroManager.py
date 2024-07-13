@@ -9,6 +9,8 @@ from pynput.mouse import Controller as ControllerMouse
 from libraries.macroManager.MacroState import macroState
 from libraries.macroManager.RunnableMacro import runnableMacro
 
+from libraries.dynamicActions.action.actions.Invalid import Invalid
+
 
 class macroManager:
     _instance = None
@@ -34,17 +36,25 @@ class macroManager:
         self.lastMouseMoved: int = -1
         self.runningScripts: [runnableMacro] = []
         self.signalHander = signalHander
+        self.lastScript = None
+
+    def updateLatestScript(self):
+        self.scripts[self.lastScript].update()
 
     def onToggle(self, script: str) -> Union[None, macroState]:
         if script not in self.scripts:
             return None
+        self.scripts[script].update()
+        if self.isInvalid(script):
+            return None
         return self.scripts[script].toggle()
 
     def onCreate(self, script: str, update: bool = False) -> Union[bool, str]:
+        self.lastScript = script
         if script not in self.scripts.keys():
             scriptToAdd = runnableMacro(script, self.signalHander)
             output = scriptToAdd.loadFile()
-            self.scripts[script] = scriptToAdd.managerAction.actions
+            self.scripts[script] = scriptToAdd
             if isinstance(output, str):
                 return output
         elif update:
@@ -91,6 +101,7 @@ class macroManager:
         self.lastActionTime = None
         self.lastMouseMoved = -1
         self.runningScripts = []
+        self.updateLatestScript()
         return output
 
     def update(self, lastSelected: str) -> None | str:
@@ -163,3 +174,10 @@ class macroManager:
             if self.scripts[script].state == macroState.RUNNING:
                 return True
         return False
+
+    def isInvalid(self, script) -> bool:
+        for element in self.scripts[script].scripts:
+            if type(element) == Invalid:
+                return True
+        return False
+
