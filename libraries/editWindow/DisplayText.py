@@ -69,7 +69,7 @@ class displayText:
         # Reset table
         self.resetTable()
         macro = runnableMacro()
-        output = macro.loadScript(text)
+        macro.loadScript(text)
         self.keybind = macro.keybind
         if self.keybind is not None:
             self.keybindButton.setText(f"keybind: {self.keybind.char}")
@@ -96,3 +96,20 @@ class displayText:
 
     def resetTable(self) -> None:
         self.table.clearContents()
+
+    def updateString(self):
+        # Reset table
+        self.resetTable()
+        self.keybind = self.actionManager.currentRunning.keybind
+        if self.keybind is not None:
+            self.keybindButton.setText(f"keybind: {self.keybind.char}")
+        self.actions = self.actionManager.actions
+        self.table.setRowCount(len(self.actions))
+        idxRow = 0
+        for action in self.actions:
+            action, args, comment = action.getValues()
+            self.table.setItem(idxRow, 0, self.getSvg(action))
+            self.table.setItem(idxRow, 1, QTableWidgetItem(action))
+            self.table.setItem(idxRow, 2, QTableWidgetItem(args))
+            self.table.setItem(idxRow, 3, QTableWidgetItem(comment))
+            idxRow += 1

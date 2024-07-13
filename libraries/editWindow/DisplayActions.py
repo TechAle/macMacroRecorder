@@ -397,3 +397,10 @@ class displayAction(QWidget):
         self.displayText.setString(text)
         self.loading = False
         self.backupCommit()
+
+    def updatePlainText(self):
+        self.table.closeWindows()
+        self.loading = True
+        self.displayText.updateString()
+        self.loading = False
+        self.backupCommit()

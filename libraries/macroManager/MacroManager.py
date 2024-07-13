@@ -11,6 +11,12 @@ from libraries.macroManager.RunnableMacro import runnableMacro
 
 
 class macroManager:
+    _instance = None
+
+    def __new__(cls, moveMouseTime: float, signalHander):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
     def __init__(self, moveMouseTime: float, signalHander):
         self.scripts: Dict[str, runnableMacro] = {}
@@ -38,9 +44,9 @@ class macroManager:
         if script not in self.scripts.keys():
             scriptToAdd = runnableMacro(script, self.signalHander)
             output = scriptToAdd.loadFile()
+            self.scripts[script] = scriptToAdd.managerAction.actions
             if isinstance(output, str):
                 return output
-            self.scripts[script] = scriptToAdd
         elif update:
             output = self.update(script)
             if output is not None:

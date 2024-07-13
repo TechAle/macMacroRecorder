@@ -17,7 +17,12 @@ class actionManager:
     def __init__(self):
         self.actionsInstancer: {str: actionLol} = {}
         self.actions: [actionLol] = []
+        self.keybind = None
         self.loadActions()
+        self.currentRunning = None
+
+    def setCurrentRunning(self, obj):
+        self.currentRunning = obj
 
     def parseLine(self, line: str) -> str:
         command = line.split('(')

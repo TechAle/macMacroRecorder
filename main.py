@@ -349,10 +349,8 @@ class MyWindow(QWidget):
             with open(os.path.join("macros", self.lastSelected), "w") as f:
                 f.write(self.text_field.toPlainText())
             self.macroManager.removeScript(self.lastSelected)
-        with open(os.path.join("macros", file), 'r') as f:
-            content = f.read()
-            self.text_field.setPlainText(content)
         self.lastSelected = file
+        # Magari unisci macroManager dentro a displayText
         if type(success := self.macroManager.onCreate(file, True)) != str:
             if success:
                 self.button_toggle.setStyleSheet("background-color: green;")
@@ -363,6 +361,7 @@ class MyWindow(QWidget):
             QMessageBox.information(self, "Feedback", success,
                                     QMessageBox.Abort)
         self.text_running.setText("Currently editing: " + file)
+        self.text_field.updatePlainText()
 
 
 if __name__ == '__main__':

@@ -30,11 +30,12 @@ class runnableMacro(threading.Thread):
             return None
 
     def loadScript(self, text: str) -> Union[str, None]:
-        self.script = []
+        self.managerAction.actions = []
         self.idx = 0
         self.keybind = None
         self.enabled = False
         self.output = ""
+        self.managerAction.setCurrentRunning(self)
         idx = 0
         for line in text.split("\n"):
             idx += 1
@@ -47,7 +48,6 @@ class runnableMacro(threading.Thread):
                     self.keybind = KeyCode(char=outputStr[len("keybind: ")])
                 else:
                     self.output += f"Line {idx} {outputStr}\t"
-                    self.script.append(self.managerAction.actionsInstancer["invalid"]())
         if self.output != "":
             return self.output
         return None
