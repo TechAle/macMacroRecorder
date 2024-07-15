@@ -255,46 +255,7 @@ class editWindow(QMainWindow):
 
         self.actionManager.saveString(self.displayText, self.father.parent.table, self.inputValues, self.action)
 
-        if currentCommand == "moveMouse":
-            x = self.inputValues[0].text()
-            y = self.inputValues[1].text()
-            time = self.inputValues[2].text()
-            try:
-                x = float(x)
-                y = float(y)
-                time = float(time)
-            except ValueError:
-                QMessageBox.about(self, "Error", "X and Y must be numbers")
-                return
-            self.displayText.actions[self.displayText.actions.index(self.action)].args["x"] = x
-            self.displayText.actions[self.displayText.actions.index(self.action)].args["y"] = y
-            self.displayText.actions[self.displayText.actions.index(self.action)].args["time"] = time
-            self.father.parent.table.setItem(self.displayText.actions.index(self.action), 2,
-                                             QTableWidgetItem(str(x) + ", " + str(y) + ", " + str(time)))
-        elif currentCommand == "scroll":
-            dx = self.inputValues[0].text()
-            dy = self.inputValues[1].text()
-            try:
-                dx = float(dx)
-                dy = float(dy)
-            except ValueError:
-                QMessageBox.about(self, "Error", "X and Y must be numbers")
-                return
-            self.displayText.actions[self.displayText.actions.index(self.action)].args["dx"] = dx
-            self.displayText.actions[self.displayText.actions.index(self.action)].args["dy"] = dy
-            self.father.parent.table.setItem(self.displayText.actions.index(self.action), 2,
-                                             QTableWidgetItem(str(dx) + ", " + str(dy)))
-        elif currentCommand == "sleep" or currentCommand == "random":
-            value = self.inputValues[0].text()
-            try:
-                value = float(value)
-            except ValueError:
-                QMessageBox.about(self, "Error", "Value must be a number")
-                return
-            self.displayText.actions[self.displayText.actions.index(self.action)].args["value"] = value
-            self.father.parent.table.setItem(self.displayText.actions.index(self.action), 2,
-                                             QTableWidgetItem(str(value)))
-        # No else because we dont want to save on the table invalid states
+
 
     # Graceful shutdown
     def closeEvent(self, event):
