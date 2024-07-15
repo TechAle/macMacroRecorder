@@ -5,9 +5,11 @@ import time
 
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QTableWidgetItem
 
-from libraries.dynamicActions.action.ActionLol import actionLol
+
 from pynput.keyboard import Controller as ControllerKeyboard
 from pynput.mouse import Controller as MouseController
+
+from libraries.dynamicActions.action.ActionLol import actionLol
 
 
 class MoveMouse(actionLol):
@@ -43,13 +45,13 @@ class MoveMouse(actionLol):
         input = input.split(",")
         if len(input) == 1:
             return {
-                "dx": MoveMouse.tryFloat(input[0]),
-                "dy": 0.0,
+                "x": MoveMouse.tryFloat(input[0]),
+                "y": 0.0,
                 "time": 0.0
             }
         return {
-            "dx": MoveMouse.tryFloat(input[0]),
-            "dy": MoveMouse.tryFloat(input[1]),
+            "x": MoveMouse.tryFloat(input[0]),
+            "y": MoveMouse.tryFloat(input[1]),
             "time": 0.0
         }
 
@@ -65,10 +67,10 @@ class MoveMouse(actionLol):
                 float(newArgs[2])
                 return True
             else:
-                if "dx" not in newArgs or "dy" not in newArgs or "time" not in newArgs:
+                if "x" not in newArgs or "y" not in newArgs or "time" not in newArgs:
                     return False
-                float(newArgs["dx"])
-                float(newArgs["dy"])
+                float(newArgs["x"])
+                float(newArgs["y"])
                 float(newArgs["time"])
                 return True
         except ValueError:
@@ -89,7 +91,7 @@ class MoveMouse(actionLol):
 
     @staticmethod
     def dictSame(a, b):
-        return "dx" in a and "dy" in a and "dx" in b and "dy" in b and a["dx"] == b["dx"] and a["dy"] == b["dy"] and \
+        return "x" in a and "y" in a and "x" in b and "y" in b and a["x"] == b["x"] and a["y"] == b["y"] and \
                 "time" in a and "time" in b
 
     @staticmethod
@@ -117,11 +119,11 @@ class MoveMouse(actionLol):
         b.addWidget(QLabel("Time:"))
         b.addWidget(inputValues[0])
         if save:
-            inputValues[0].setText(f"{newAction.args['dx']}, {newAction.args['dy']}, {newAction.args['time']}")
-            changeTable(newAction.actionStr, f"{newAction.args['dx']}, {newAction.args['dy']}, {newAction.args['time']}")
+            inputValues[0].setText(f"{newAction.args['x']}, {newAction.args['y']}, {newAction.args['time']}")
+            changeTable(newAction.actionStr, f"{newAction.args['x']}, {newAction.args['y']}, {newAction.args['time']}")
         else:
-            inputValues[0].setText(f"{value['dx']},{value['dy']}, {value['time']}")
-            changeTable(newAction.actionStr, f"{value['dx']}, {value['dy']}, {value['time']}")
+            inputValues[0].setText(f"{value['x']},{value['y']}, {value['time']}")
+            changeTable(newAction.actionStr, f"{value['x']}, {value['y']}, {value['time']}")
         inputValues[0].show()
         layoutToAdd.addLayout(b)
         # Update the table
@@ -158,7 +160,7 @@ class MoveMouse(actionLol):
         return {}
 
     def getValues(self) -> tuple[str, str, str]:
-        return self.getActionstr(), f"{self.args['dx']}, {self.args['dy']}, {self.args['time']}", self.comment
+        return self.getActionstr(), f"{self.args['x']}, {self.args['y']}, {self.args['time']}", self.comment
 
     @staticmethod
     def createAction(args: str | int, comment: str) -> tuple[actionLol, str]:
@@ -182,8 +184,8 @@ class MoveMouse(actionLol):
     @staticmethod
     def getDefaultArgs() -> {str: any}:
         return {
-            "dx": 0.0,
-            "dy": 0.0,
+            "x": 0.0,
+            "y": 0.0,
             "time": 0.0
         }
 
