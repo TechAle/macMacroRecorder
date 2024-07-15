@@ -76,13 +76,13 @@ class runnableMacro(threading.Thread):
     def run(self) -> None:
         while self.state == macroState.RUNNING:
             results = self.managerAction.actions[self.idx].run(self.argsRunnable)
-            if type(results) == dict:
-                if "randomTemp" in results:
-                    self.argsRunnable["randomTemp"] = results["randomTemp"]
-                elif "stop" in results:
-                    self.changeState(macroState.WAITING)
-            else:
-                self.idx = (self.idx + 1) % len(self.managerAction.actions)
+
+            if "randomTemp" in results:
+                self.argsRunnable["randomTemp"] = results["randomTemp"]
+            elif "stop" in results:
+                self.changeState(macroState.WAITING)
+
+            self.idx = (self.idx + 1) % len(self.managerAction.actions)
         if self.signalHander is not None:
             self.signalHander.emit("updateButtons")
         print(self.state)
