@@ -1,3 +1,4 @@
+import json
 import os
 import threading
 from typing import Union
@@ -18,7 +19,7 @@ class runnableMacro(threading.Thread):
             self.scriptName: str = script
             self.idx: int = 0
             self.keybind: Union[KeyCode, None] = None
-            self.randomTemp: int = 0
+            self.argsRunnable = self.loadArgs()
             self.signalHander = signalHander
             self.scripts = []
 
@@ -74,12 +75,12 @@ class runnableMacro(threading.Thread):
 
     def run(self) -> None:
         while self.state == macroState.RUNNING:
-            results = self.managerAction.actions[self.idx].run(self.randomTemp)
-            if type(results) == int:
-                self.randomTemp = results
-            elif not results:
-                print("End")
-                self.changeState(macroState.WAITING)
+            results = self.managerAction.actions[self.idx].run(self.argsRunnable)
+            if type(results) == dict:
+                if "randomTemp" in results:
+                    self.argsRunnable["randomTemp"] = results["randomTemp"]
+                elif "stop" in results:
+                    self.changeState(macroState.WAITING)
             else:
                 self.idx = (self.idx + 1) % len(self.managerAction.actions)
         if self.signalHander is not None:
@@ -88,3 +89,9 @@ class runnableMacro(threading.Thread):
 
     def update(self):
         self.scripts = self.managerAction.actions
+
+    def loadArgs(self):
+        # Open configuration.json
+        with open("configuration.json", "r") as file:
+            data = json.load(file)
+            return data["runableArgs"]

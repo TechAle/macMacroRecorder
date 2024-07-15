@@ -1,4 +1,5 @@
 import time
+from random import Random
 
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QTableWidgetItem
 from pynput import keyboard
@@ -18,6 +19,7 @@ class Sleep(actionLol):
         self.controllerMouse = MouseController()
         self.args = self.getDefaultArgs()
         self.comment = ""
+        self.random = Random()
 
     def setNewArgsFromString(self, args: str | int) -> str:
         if Sleep.isValid({"value": args}):
@@ -79,8 +81,8 @@ class Sleep(actionLol):
 
         return layoutToAdd, newAction
 
-    def run(self, args: {}) -> bool | int:
-        time.sleep(args["value"])
+    def run(self, args) -> bool | int:
+        time.sleep(self.args["value"]/1000 + self.random.randint(0, args["randomTemp"])/1000)
         return True
 
     def getValues(self) -> tuple[str, str, str]:
