@@ -21,9 +21,9 @@ class Sleep(actionLol):
         self.comment = ""
         self.random = Random()
 
-    def setNewArgsFromString(self, args: str | int) -> str:
+    def setNewArgsFromString(self, args: str | int | float) -> str:
         if Sleep.isValid({"value": args}):
-            self.args["value"] = int(args)
+            self.args["value"] = float(args)
         else:
             self.args = self.getDefaultArgs()
         return ""
@@ -31,7 +31,7 @@ class Sleep(actionLol):
     @staticmethod
     def isValid(newArgs: str | dict):
         try:
-            return int(newArgs["value"]) if type(newArgs) == dict else int(newArgs)
+            return float(newArgs["value"]) if type(newArgs) == dict else float(newArgs)
         except ValueError:
             return False
 
@@ -53,17 +53,17 @@ class Sleep(actionLol):
         save = True
         if oldArgs is not None and oldArgs["value"] == value:
             try:
-                value = int(inputValues[0].text())
+                value = float(inputValues[0].text())
             except ValueError:
                 save = False
         elif oldArgs is not None:
             try:
-                value = int(inputValues[0].text())
+                value = float(inputValues[0].text())
             except ValueError:
                 save = False
         else:
             try:
-                value = int(value)
+                value = float(value)
             except ValueError:
                 save = False
 
@@ -87,10 +87,10 @@ class Sleep(actionLol):
         return {}
 
     def getValues(self) -> tuple[str, str, str]:
-        return self.getActionstr(), self.args["value"], self.comment
+        return self.getActionstr(), str(self.args["value"]), self.comment
 
     @staticmethod
-    def createAction(args: str | int, comment: str) -> tuple[actionLol, str]:
+    def createAction(args: str | int | float, comment: str) -> tuple[actionLol, str]:
         output = Sleep()
         output.comment = comment
         error = output.setNewArgsFromString(args)
@@ -100,7 +100,7 @@ class Sleep(actionLol):
     def parseLine(extra: str) -> tuple[bool, str] | tuple[object, str]:
         extra = extra.split(")")
         try:
-            value = int(extra[0])
+            value = float(extra[0])
             other = '#'.join(')'.join(extra[1:]).split("#")[1:])
             return value, other
         except ValueError:

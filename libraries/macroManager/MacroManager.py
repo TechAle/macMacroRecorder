@@ -109,7 +109,7 @@ class macroManager:
 
     def addTime(self) -> None:
         currentTime = time.time()
-        self.recording.append(f"sleep({(currentTime - self.lastActionTime) / 1000})")
+        self.recording.append(f"sleep({(currentTime - self.lastActionTime)})")
         self.lastActionTime = currentTime
 
     def onPress(self, key: Union[KeyCode, None]) -> bool:
@@ -132,7 +132,7 @@ class macroManager:
             if isinstance(key, KeyCode):
                 self.recording.append(f"type({key.char})")
             else:
-                self.recording.append(f"write({key})")
+                self.recording.append(f"type({key.name})")
             self.locker.release()
         return change
 

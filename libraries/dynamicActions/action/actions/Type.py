@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QLabel, QTableWidgetItem
 from pynput import keyboard
 
 from libraries.dynamicActions.action.ActionLol import actionLol
-from pynput.keyboard import Controller as ControllerKeyboard
+from pynput.keyboard import Controller as ControllerKeyboard, Key
 from pynput.mouse import Controller as MouseController
 
 
@@ -34,9 +34,10 @@ class Type(actionLol):
     def editWindow(inputValues, actionValue, oldArgs, select_combo, changeTable, newCommand, layoutToAdd):
         value = actionValue.args["value"]
         if oldArgs is not None and oldArgs["value"] == value:
-            if inputValues[0].text().__len__() <= 1:
-                value = inputValues[0].text()
-        elif oldArgs is not None and value.__len__() > 1:
+            inpValue = inputValues[0].text()
+            if Type.isValid(inpValue):
+                value = inpValue
+        elif oldArgs is not None and not Type.isValid(oldArgs):
             value = oldArgs["value"]
 
         newAction = Type.createAction(value, actionValue.comment)[0]
@@ -60,15 +61,15 @@ class Type(actionLol):
 
     @staticmethod
     def isValid(newArgs: str | dict):
-        return newArgs["value"].__len__() <= 1 if type(newArgs) == dict else newArgs.__len__() <= 1
+        return newArgs["value"].__len__() <= 1 if type(newArgs) == dict else \
+            True if type(newArgs) == str and newArgs.__len__() <= 1 else \
+            hasattr(Key, newArgs)
 
     def run(self, args: {}) -> dict:
-        if self.args["value"].startswith("Key."):
-            toPress = keyboard.HotKey.parse("<" + self.args["value"].split('.')[1] + ">")[0]
-            self.controllerKeyboard.press(toPress)
-            self.controllerKeyboard.release(toPress)
-        else:
-            self.controllerKeyboard.type(self.args["value"])
+        if self.args["value"].__len__() == 1:
+            self.controllerKeyboard.press(self.args["value"])
+        elif self.args["value"].__len__() > 1:
+            self.controllerKeyboard.press(getattr(Key, self.args["value"]))
         return {}
 
     def getValues(self) -> tuple[str, str, str]:
@@ -85,9 +86,9 @@ class Type(actionLol):
     def parseLine(extra: str) -> tuple[bool, str] | tuple[str, str]:
         values = extra.split(")")
         if values.__len__() > 1:
-            argoument = extra[0]
-            if argoument.__len__() > 1:
-                return False, "Len but be 1"
+            argoument = values[0]
+            if argoument.__len__() > 1 and not hasattr(Key, argoument):
+                return False, "Len but be 1 or be a Key"
             else:
                 comment = values[1].split("#")
                 if comment.__len__() > 1:
