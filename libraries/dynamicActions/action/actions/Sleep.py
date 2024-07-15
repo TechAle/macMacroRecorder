@@ -24,13 +24,14 @@ class Sleep(actionLol):
     def setNewArgsFromString(self, args: str | int) -> str:
         if Sleep.isValid({"value": args}):
             self.args["value"] = int(args)
+        else:
+            self.args = self.getDefaultArgs()
         return ""
 
     @staticmethod
-    def isValid(newArgs):
+    def isValid(newArgs: str | dict):
         try:
-            int(newArgs["value"])
-            return True
+            return int(newArgs["value"]) if newArgs is dict else int(newArgs)
         except ValueError:
             return False
 
@@ -81,9 +82,9 @@ class Sleep(actionLol):
 
         return layoutToAdd, newAction
 
-    def run(self, args) -> bool | int:
+    def run(self, args) -> dict:
         time.sleep(self.args["value"]/1000 + self.random.randint(0, args["randomTemp"])/1000)
-        return True
+        return {}
 
     def getValues(self) -> tuple[str, str, str]:
         return self.getActionstr(), self.args["value"], self.comment

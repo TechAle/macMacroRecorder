@@ -18,7 +18,10 @@ class Write(actionLol):
         self.comment = ""
 
     def setNewArgsFromString(self, args: str) -> str:
-        self.args["value"] = args
+        if args != "":
+            self.args["value"] = args
+        else:
+            self.args = self.getDefaultArgs()
         return ""
 
     @staticmethod
@@ -51,17 +54,17 @@ class Write(actionLol):
         return False, ""
 
     @staticmethod
-    def isValid(newArgs):
+    def isValid(newArgs: str | dict):
         return True
 
-    def run(self, args: {}) -> bool | int:
+    def run(self, args: {}) -> {}:
         if self.args["value"].startswith("Key."):
             toPress = keyboard.HotKey.parse("<" + self.args["value"].split('.')[1] + ">")[0]
             self.controllerKeyboard.press(toPress)
             self.controllerKeyboard.release(toPress)
         else:
             self.controllerKeyboard.type(self.args["value"])
-        return True
+        return {}
 
     def getValues(self) -> tuple[str, str, str]:
         return self.actionStr, self.args["value"], self.comment

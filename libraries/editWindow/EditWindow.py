@@ -98,6 +98,7 @@ class editWindow(QMainWindow):
 
         # Check every commands
         newCommand = self.select_combo.currentText()
+        index = self.displayText.actions.index(self.action)
         layoutToAdd, newAction = self.actionManager.parseWindow(self.inputValues, self.action, self.oldArgs, newCommand,
                                                                 self.select_combo, self.changeTable, newCommand,
                                                                 layoutToAdd)
@@ -218,7 +219,7 @@ class editWindow(QMainWindow):
             newAction.comment = self.comment
 
         # Update every libraries with the new data
-        self.displayText.actions[self.displayText.actions.index(self.action)] = newAction
+        self.displayText.actions[index] = newAction
         self.action = newAction
         self.currentAction = self.action.getActionstr()
         # Needed for checking in the next cycle if
@@ -234,9 +235,10 @@ class editWindow(QMainWindow):
     def changeTable(self, command, argouments):
         # isEditing to True so that we dont enter in a loop with on_combo_box_changed
         self.isEditing = True
-        self.father.parent.table.setItem(self.displayText.actions.index(self.action), 1,
+        idx = self.displayText.actions.index(self.action)
+        self.father.parent.table.setItem(idx, 1,
                                          QTableWidgetItem(command))
-        self.father.parent.table.setItem(self.displayText.actions.index(self.action), 2,
+        self.father.parent.table.setItem(idx, 2,
                                          QTableWidgetItem(argouments))
         self.isEditing = False
 

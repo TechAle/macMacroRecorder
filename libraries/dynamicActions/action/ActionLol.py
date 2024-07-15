@@ -24,11 +24,6 @@ class actionLol(ABC):
     def getActionstr(self) -> str:
         return self.actionStr if self.customAction is None else self.customAction
 
-    def setNew(self, action: str, args: Union[None, Dict[str, any]], comment: str = ""):
-        self.actionStr = action
-        self.args = args
-        self.comment = comment
-
     @abstractmethod
     def setNewArgsFromString(self, args: str) -> str:
         ...
@@ -68,7 +63,7 @@ class actionLol(ABC):
 
     @staticmethod
     @abstractmethod
-    def isValid(newAegs) -> bool:
+    def isValid(newAegs: str | dict) -> bool:
         ...
 
     '''
@@ -79,7 +74,7 @@ class actionLol(ABC):
     '''
 
     @abstractmethod
-    def run(self, args: {}) -> bool | int | str:
+    def run(self, args: {}) -> dict:
         ...
 
     @abstractmethod

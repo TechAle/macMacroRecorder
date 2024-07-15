@@ -27,6 +27,7 @@ class TableWidget(QTableWidget):
         self.parent: displayAction = parent
         self.windows: [editWindow] = []
         self.idxSwap = -1
+        self.actionManager = actionManager()
 
     def setDisplayText(self, displayText):
         self.displayText = displayText
@@ -115,7 +116,7 @@ class TableWidget(QTableWidget):
         self.setItem(row, 1, QTableWidgetItem("invalid"))
         self.setItem(row, 0, self.parent.displayText.getSvg("invalid"))
         # Also add it to actions
-        self.displayText.actions.insert(row, action("invalid", args={"value": ""}))
+        self.displayText.actions.insert(row, self.actionManager.actionsInstancer["invalid"].createAction("invalid", "")[0])
         self.parent.disableCheck = False
 
     def add_below(self, idx: int, pos_args: Qt.QPoint):
@@ -245,41 +246,14 @@ class displayAction(QWidget):
                 if newAction is None:
                     return
                 newAction = newAction.text()
-                if not newAction in [
-                    "sleep",
-                    "rightClick",
-                    "leftClick",
-                    "shift",
-                    "scroll",
-                    "unshift",
-                    "middleClick",
-                    "stop",
-                    "type",
-                    "write",
-                    "moveMouse",
-                ]:
+                if not self.actionManager.actionsInstancer.__contains__(newAction):
                     rollback = True
                     print(f"Invalid action: {newAction}")
                     returnValue = f"Invalid action: {newAction}"
+                elif newAction != self.displayText.actions[row].getActionstr():
+                    self.displayText.actions[row] = self.actionManager.actionsInstancer[newAction].createAction("", self.displayText.actions[row].comment)[0]
                 else:
-                    if newAction in ["rightClick", "leftClick", "shift", "unshift", "middleClick", "stop"]:
-                        self.displayText.actions[row].setNew(newAction, {})
-                    elif newAction in ["write", "type"]:
-                        self.displayText.actions[row].setNew(newAction, {"value": "a"})
-                    elif newAction == "random":
-                        self.displayText.actions[row].setNew(newAction, {"value": 0})
-                    elif newAction == "moveMouse":
-                        self.displayText.actions[row].setNew(newAction, {"x": 0, "y": 0, "time": 0})
-                    elif newAction == "sleep":
-                        self.displayText.actions[row].setNew(newAction, {"time": 0})
-                    elif newAction == "scroll":
-                        self.displayText.actions[row].setNew(newAction, {"dx": 0, "dy": 0})
-                    elif newAction == "random":
-                        self.displayText.actions[row].setNew(newAction, {"value": 0})
-                    elif newAction == "invalid":
-                        rollback = True
-                    else:
-                        print("I forgot an action " + newAction)
+                    return
             # Edit arguments
             elif column == 2:
                 actionConsidered: None | QTableWidgetItem | str = self.table.item(row, 1)

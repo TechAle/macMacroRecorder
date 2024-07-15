@@ -92,6 +92,6 @@ class runnableMacro(threading.Thread):
 
     def loadArgs(self):
         # Open configuration.json
-        with open("configuration.json", "r") as file:
+        with open("configurations.json", "r") as file:
             data = json.load(file)
             return data["runableArgs"]

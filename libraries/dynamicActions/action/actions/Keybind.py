@@ -14,7 +14,7 @@ class Write(actionLol):
     def editWindow(self, inputValues, changeWindow, action, oldArgs):
         ...
 
-    def run(self, args: {}) -> bool | int:
+    def run(self, args: {}) -> dict:
         ...
 
     def getValues(self) -> tuple[str, str, str]:

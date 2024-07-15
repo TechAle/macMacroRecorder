@@ -17,7 +17,10 @@ class Type(actionLol):
         self.comment = ""
 
     def setNewArgsFromString(self, args: str) -> str:
-        self.args["value"] = args
+        if args != "":
+            self.args["value"] = args
+        else:
+            self.args = self.getDefaultArgs()
         return ""
 
     @staticmethod
@@ -50,23 +53,23 @@ class Type(actionLol):
 
     @staticmethod
     def editTable(newArgs, actionChange) -> tuple[bool, str]:
-        if newArgs.__len__() > 1:
+        if not Type.isValid(newArgs):
             return True, "Value must be 1 character long"
         actionChange.args = {"value": newArgs}
         return False, ""
 
     @staticmethod
-    def isValid(newArgs):
-        return newArgs["value"].__len__() > 0
+    def isValid(newArgs: str | dict):
+        return newArgs["value"].__len__() <= 1 if newArgs is dict else newArgs.__len__() <= 1
 
-    def run(self, args: {}) -> bool | int:
+    def run(self, args: {}) -> dict:
         if self.args["value"].startswith("Key."):
             toPress = keyboard.HotKey.parse("<" + self.args["value"].split('.')[1] + ">")[0]
             self.controllerKeyboard.press(toPress)
             self.controllerKeyboard.release(toPress)
         else:
             self.controllerKeyboard.type(self.args["value"])
-        return True
+        return {}
 
     def getValues(self) -> tuple[str, str, str]:
         return self.actionStr, self.args["value"], self.comment
