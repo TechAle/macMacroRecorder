@@ -49,10 +49,16 @@ class MoveMouse(actionLol):
                 "y": 0.0,
                 "time": 0.0
             }
+        elif len(input) == 2:
+            return {
+                "x": MoveMouse.tryFloat(input[0]),
+                "y": MoveMouse.tryFloat(input[1]),
+                "time": 0.0
+            }
         return {
             "x": MoveMouse.tryFloat(input[0]),
             "y": MoveMouse.tryFloat(input[1]),
-            "time": 0.0
+            "time": MoveMouse.tryFloat(input[2])
         }
 
     @staticmethod
@@ -132,7 +138,7 @@ class MoveMouse(actionLol):
     def run(self, args) -> dict:
         x, y = self.args["x"], self.args["y"]
         if self.args["time"] != 0:
-            timeNeeded = self.args["time"] + random.uniform(0, self.args["randomTemp"]/1000)
+            timeNeeded = self.args["time"] + random.uniform(0, args["randomTemp"]/1000)
             stop = False
 
             def smoothMove(mouse: MouseController, x: float, y: float, timeNeeded: float) -> None:
