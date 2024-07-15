@@ -103,6 +103,5 @@ class Write(actionLol):
             "value": ""
         }
 
-    @staticmethod
-    def getSvg() -> str:
+    def getSvg(self) -> str:
         return "keyboard"

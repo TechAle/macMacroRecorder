@@ -151,12 +151,7 @@ class macroManager:
                 self.onMove(x, y)
                 self.firstMouseCoords = False
             self.locker.acquire()
-            if button.name == "left":
-                self.recording.append(f"leftClick()")
-            elif button.name == "right":
-                self.recording.append(f"rightClick()")
-            elif button.name == "middle":
-                self.recording.append(f"middleClick()")
+            self.recording.append(f"mouseClick({button.value[1]})")
             self.locker.release()
 
     def onScroll(self, x: int, y: int, dx: int, dy: int) -> None:

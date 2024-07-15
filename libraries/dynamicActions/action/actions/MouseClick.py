@@ -7,9 +7,9 @@ from pynput.keyboard import Controller as ControllerKeyboard
 from pynput.mouse import Controller as MouseController
 
 
-class Random(actionLol):
+class MouseClick(actionLol):
 
-    actionStr = "random"
+    actionStr = "mouseClick"
 
     def __init__(self):
         super().__init__()
@@ -19,7 +19,7 @@ class Random(actionLol):
         self.comment = ""
 
     def setNewArgsFromString(self, args: str | int) -> str:
-        if Random.isValid({"value": args}):
+        if MouseClick.isValid({"value": args}):
             self.args["value"] = int(args)
         else:
             self.args = self.getDefaultArgs()
@@ -64,14 +64,14 @@ class Random(actionLol):
             except ValueError:
                 save = False
 
-        newAction = Random.createAction(value, actionValue.comment)[0]
+        newAction = MouseClick.createAction(value, actionValue.comment)[0]
         b = QHBoxLayout()
         b.addWidget(QLabel("Time:"))
         b.addWidget(inputValues[0])
         if save:
             inputValues[0].setText(str(newAction.args["value"]))
         else:
-            inputValues[0].setText(str(Random.getDefaultArgs()["value"]))
+            inputValues[0].setText(str(MouseClick.getDefaultArgs()["value"]))
         inputValues[0].show()
         layoutToAdd.addLayout(b)
         # Update the table
@@ -89,7 +89,7 @@ class Random(actionLol):
 
     @staticmethod
     def createAction(args: str | int, comment: str) -> tuple[actionLol, str]:
-        output = Random()
+        output = MouseClick()
         output.comment = comment
         error = output.setNewArgsFromString(args)
         return output, error
@@ -110,3 +110,12 @@ class Random(actionLol):
         return {
             "value": 0
         }
+
+    def getSvg(self) -> str:
+        if self.args["value"] == 0:
+            return "leftClick"
+        elif self.args["value"] == 1:
+            return "rightClick"
+        elif self.args["value"] == 2:
+            return "middleClick"
+        return "mouse"

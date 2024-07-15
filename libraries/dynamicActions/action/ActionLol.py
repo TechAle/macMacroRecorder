@@ -81,7 +81,6 @@ class actionLol(ABC):
     def getValues(self) -> tuple[str, str, str]:
         ...
 
-    @staticmethod
-    def getSvg() -> str:
+    def getSvg(self) -> str:
         return "unknown"
 

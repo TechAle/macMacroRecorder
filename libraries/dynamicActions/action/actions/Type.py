@@ -60,7 +60,7 @@ class Type(actionLol):
 
     @staticmethod
     def isValid(newArgs: str | dict):
-        return newArgs["value"].__len__() <= 1 if newArgs is dict else newArgs.__len__() <= 1
+        return newArgs["value"].__len__() <= 1 if type(newArgs) == dict else newArgs.__len__() <= 1
 
     def run(self, args: {}) -> dict:
         if self.args["value"].startswith("Key."):
@@ -104,6 +104,5 @@ class Type(actionLol):
             "value": ""
         }
 
-    @staticmethod
-    def getSvg() -> str:
+    def getSvg(self) -> str:
         return "keyboard"

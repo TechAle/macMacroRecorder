@@ -84,12 +84,11 @@ class displayText:
             self.table.setItem(idxRow, 3, QTableWidgetItem(comment))
             idxRow += 1
 
-    def getSvg(self, name: str) -> QTableWidgetItem:
-        output = QIcon()
-        if name in self.svg:
-            output = self.svg[name]
+    def getSvg(self, name: ActionLol) -> QTableWidgetItem:
+        if name.getActionstr() in self.svg:
+            output = self.svg[name.getActionstr()]
         else:
-            output = self.svg[self.actionManager.getSvg(name)]
+            output = self.svg[name.getSvg()]
         item = QTableWidgetItem()
         item.setIcon(output)
         return item
@@ -107,9 +106,9 @@ class displayText:
         self.table.setRowCount(len(self.actions))
         idxRow = 0
         for action in self.actions:
-            action, args, comment = action.getValues()
+            actionNew, args, comment = action.getValues()
             self.table.setItem(idxRow, 0, self.getSvg(action))
-            self.table.setItem(idxRow, 1, QTableWidgetItem(action))
+            self.table.setItem(idxRow, 1, QTableWidgetItem(actionNew))
             self.table.setItem(idxRow, 2, QTableWidgetItem(str(args)))
             self.table.setItem(idxRow, 3, QTableWidgetItem(comment))
             idxRow += 1

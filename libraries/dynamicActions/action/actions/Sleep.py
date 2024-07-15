@@ -31,7 +31,7 @@ class Sleep(actionLol):
     @staticmethod
     def isValid(newArgs: str | dict):
         try:
-            return int(newArgs["value"]) if newArgs is dict else int(newArgs)
+            return int(newArgs["value"]) if type(newArgs) == dict else int(newArgs)
         except ValueError:
             return False
 
