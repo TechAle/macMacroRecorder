@@ -48,7 +48,10 @@ class MouseClick(actionLol):
     def isValid(newArgs: str | dict):
         try:
             if type(newArgs) == dict:
-                return "value" in newArgs and "pressed" in newArgs and int(newArgs["value"]) and int(newArgs["pressed"]) in [0, 1]
+                if "value" not in newArgs or "pressed" not in newArgs:
+                    return False
+                int(newArgs["value"])
+                return int(newArgs["pressed"]) in [0, 1]
             else:
                 newArgs = newArgs.split(",")
                 int(newArgs[0])
@@ -81,14 +84,11 @@ class MouseClick(actionLol):
                 value = MouseClick.getString(inputValues[0].text())
             else:
                 save = False
+        elif MouseClick.isValid(value):
+            value = MouseClick.getString(value)
         elif oldArgs is not None:
             if MouseClick.isValid(oldArgs):
                 value = oldArgs
-            else:
-                save = False
-        else:
-            if MouseClick.isValid(value):
-                value = MouseClick.getString(value)
             else:
                 save = False
 
@@ -105,8 +105,11 @@ class MouseClick(actionLol):
         return layoutToAdd, newAction
 
     def run(self, args) -> dict:
+        if self.args["pressed"] == 0:
+            self.controllerMouse.release(self.args["value"])
+        else:
+            self.controllerMouse.press(self.args["value"])
         return {
-            "randomTemp": self.args["value"]
         }
 
     def getValues(self) -> tuple[str, str, str]:
