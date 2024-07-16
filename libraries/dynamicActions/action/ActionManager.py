@@ -40,8 +40,11 @@ class actionManager:
                 self.actions.append(action)
                 return ""
             else:
-                # Error message
-                return "Error parsing"
+                argouments, comment = self.actionsInstancer["invalid"].parseLine(extra)
+                action, error = self.actionsInstancer["invalid"].createAction(argouments, comment)
+                action.setCustomAction(command)
+                self.actions.append(action)
+                return "Uknown action"
         else:
             argouments, comment = self.actionsInstancer["invalid"].parseLine(extra)
             action, error = self.actionsInstancer["invalid"].createAction(argouments, comment)

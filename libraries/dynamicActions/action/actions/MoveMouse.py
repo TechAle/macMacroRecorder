@@ -129,7 +129,7 @@ class MoveMouse(actionLol):
             changeTable(newAction.actionStr, f"{newAction.args['x']}, {newAction.args['y']}, {newAction.args['time']}")
         else:
             inputValues[0].setText(f"{value['x']},{value['y']}, {value['time']}")
-            changeTable(newAction.actionStr, f"{value['x']}, {value['y']}, {value['time']}")
+            changeTable(value.actionStr, f"{value['x']}, {value['y']}, {value['time']}")
         inputValues[0].show()
         layoutToAdd.addLayout(b)
         # Update the table

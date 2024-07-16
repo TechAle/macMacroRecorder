@@ -146,12 +146,12 @@ class macroManager:
                 self.locker.release()
 
     def onClick(self, x: int, y: int, button, pressed: bool) -> None:
-        if self.isRecording and pressed:
+        if self.isRecording:
             if self.firstMouseCoords:
                 self.onMove(x, y)
                 self.firstMouseCoords = False
             self.locker.acquire()
-            self.recording.append(f"mouseClick({button.value[1]})")
+            self.recording.append(f"mouseClick({button.value[1]}, {1 if pressed else 0})")
             self.locker.release()
 
     def onScroll(self, x: int, y: int, dx: int, dy: int) -> None:
