@@ -259,82 +259,12 @@ class displayAction(QWidget):
                 actionConsidered: None | QTableWidgetItem | str = self.table.item(row, 1)
                 if actionConsidered is None:
                     return
-
                 rollback, returnValue = self.actionManager.onCellEdit(actionConsidered.text(), self.table.item(row, column).text(), self.displayText.actions[row])
-                '''
-                actionConsidered = actionConsidered.text()
-                if actionConsidered in [
-                    "rightClick",
-                    "leftClick",
-                    "shift",
-                    "unshift",
-                    "middleClick",
-                    "stop",
-                ]:
-                    newArgs = self.table.item(row, column).text()
-                    if newArgs != "":
-                        rollback = True
-                        print("They cannot have arguments")
-                        returnValue = "They cannot have arguments"
-                elif actionConsidered == "write" or actionConsidered == "type":
-                    newArgs = self.table.item(row, column).text()
-                    if actionConsidered == "type" and len(newArgs) > 1:
-                        rollback = True
-                        print("Invalid arguments: " + newArgs)
-                        returnValue = "Invalid arguments: " + newArgs
-                    self.displayText.actions[row].args = {"value": newArgs}
-                elif actionConsidered == "moveMouse":
-                    newArgs = self.table.item(row, column).text()
-                    newArgs = newArgs.split(",")
-                    if len(newArgs) != 3:
-                        rollback = True
-                        print("Invalid arguments: " + str(newArgs))
-                        returnValue = "Invalid arguments: " + str(newArgs)
-                    # Check if every argument is a number or float
-                    try:
-                        newDict = {"x": float(newArgs[0]), "y": float(newArgs[1]), "time": float(newArgs[2])}
-                        self.displayText.actions[row].args = newDict
-                    except ValueError:
-                        rollback = True
-                        print("Invalid arguments: " + str(newArgs))
-                        returnValue = "Invalid arguments: " + str(newArgs)
-                elif actionConsidered == "scroll":
-                    newArgs = self.table.item(row, column).text()
-                    newArgs = newArgs.split(",")
-                    if len(newArgs) != 2:
-                        rollback = True
-                        print("Invalid arguments: " + str(newArgs))
-                        returnValue = "Invalid arguments: " + str(newArgs)
-                    # Check if every argument is a number or float
-                    try:
-                        newDict = {"dx": float(newArgs[0]), "dy": float(newArgs[1])}
-                        self.displayText.actions[row].args = newDict
-                    except ValueError:
-                        rollback = True
-                        print("Invalid arguments: " + str(newArgs))
-                        returnValue = "Invalid arguments: " + str(newArgs)
-                elif actionConsidered == "sleep" or actionConsidered == "random":
-                    newArgs = self.table.item(row, column).text()
-                    newArgs = newArgs.split(",")
-                    if len(newArgs) != 1:
-                        rollback = True
-                        print("Invalid arguments: " + str(newArgs))
-                        returnValue = "Invalid arguments: " + str(newArgs)
-                    newArgs = newArgs[0]
-                    # Check if every argument is a number or float
-                    try:
-                        self.displayText.actions[row].args["value"] = float(newArgs)
-                    except ValueError:
-                        rollback = True
-                        print("Invalid arguments: " + str(newArgs))
-                        returnValue = "Invalid arguments: " + str(newArgs)
-                elif actionConsidered == "invalid":
-                    newArgs = self.table.item(row, column).text()
-                    self.displayText.actions[row].args["value"] = newArgs
-                else:
-                    rollback = True
-                    print(f"Invalid action: {actionConsidered}")
-                    returnValue = f"Invalid action: {actionConsidered}"'''
+                if returnValue == "" and self.displayText.actions[row].actionStr != actionConsidered.text():
+                    self.displayText.actions[row] = \
+                        self.actionManager.actionsInstancer[actionConsidered.text()] \
+                        .createAction(self.table.item(row, column).text(),
+                                     self.displayText.actions[row].comment)[0]
             # Edit comments
             elif column == 3:
                 value = self.table.item(row, column)

@@ -1,11 +1,11 @@
 # Create abstract class
 from __future__ import annotations
 
-from abc import ABC, abstractmethod, abstractproperty
-from typing import Union, Dict, Any, TypeVar
+from abc import ABC, abstractmethod
+from typing import Union, Dict
 
-from pynput.keyboard import Key, Controller as ControllerKeyboard
-from pynput.mouse import Controller as MouseController, Button
+from pynput.keyboard import Controller as ControllerKeyboard
+from pynput.mouse import Controller as MouseController
 
 
 class actionLol(ABC):
