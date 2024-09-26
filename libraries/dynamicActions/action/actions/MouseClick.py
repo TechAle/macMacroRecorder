@@ -4,8 +4,15 @@ from PyQt5.QtWidgets import QHBoxLayout, QLabel, QTableWidgetItem
 
 from libraries.dynamicActions.action.ActionLol import actionLol
 from pynput.keyboard import Controller as ControllerKeyboard
-from pynput.mouse import Controller as MouseController
+from pynput.mouse import Controller as MouseController, Button
 
+def int_to_button(button_int):
+    try:
+        # Get all Button enum values
+        button = list(Button)[button_int + 1]
+        return button
+    except IndexError:
+        raise ValueError(f"Invalid button integer {button_int}. Valid values are from 0 to {len(Button) - 1}.")
 
 class MouseClick(actionLol):
 
@@ -106,9 +113,9 @@ class MouseClick(actionLol):
 
     def run(self, args) -> dict:
         if self.args["pressed"] == 0:
-            self.controllerMouse.release(self.args["value"])
+            self.controllerMouse.release(int_to_button(self.args["value"]))
         else:
-            self.controllerMouse.press(self.args["value"])
+            self.controllerMouse.press(int_to_button(self.args["value"]))
         return {
         }
 
